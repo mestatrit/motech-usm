@@ -11,6 +11,8 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.motechproject.MotechException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +22,8 @@ public class OpenMrsHttpClientImpl implements OpenMrsHttpClient {
 
     private final HttpClient httpClient;
 
-    public OpenMrsHttpClientImpl(String openmrsUrl) throws URIException {
+    @Autowired
+    public OpenMrsHttpClientImpl(@Value("${openmrs.url}") String openmrsUrl) throws URIException {
         httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         httpClient.getHostConfiguration().setHost(new URI(openmrsUrl, false));
     }

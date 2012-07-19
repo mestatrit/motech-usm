@@ -15,11 +15,12 @@ import org.motechproject.openmrs.atomfeed.repository.AtomFeedDao;
 import org.motechproject.openmrs.atomfeed.service.AtomFeedService;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.event.EventRelay;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.thoughtworks.xstream.XStream;
 
-@Component
+@Component("atomFeedService")
 public class AtomFeedServiceImpl implements AtomFeedService {
 
     private final OpenMrsHttpClient client;
@@ -27,6 +28,7 @@ public class AtomFeedServiceImpl implements AtomFeedService {
     private final EventRelay eventRelay;
     private final AtomFeedDao atomFeedDao;
 
+    @Autowired
     public AtomFeedServiceImpl(OpenMrsHttpClient client, EventRelay eventRelay, AtomFeedDao atomFeedDao) {
         this.client = client;
         this.eventRelay = eventRelay;

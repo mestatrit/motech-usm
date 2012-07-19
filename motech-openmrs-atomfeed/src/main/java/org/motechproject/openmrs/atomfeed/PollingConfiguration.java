@@ -10,7 +10,8 @@ import org.motechproject.openmrs.atomfeed.events.EventSubjects;
 import org.motechproject.scheduler.MotechSchedulerService;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.domain.RepeatingSchedulableJob;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * This class is responsible for configuring the motech scheduler to fire events to poll the OpenMRS. Currently it can
@@ -23,7 +24,7 @@ public class PollingConfiguration {
     private static final Long MILLISECONDS_IN_MINUTE = 1000 * 60L;
     private static final Long MILLISECONDS_IN_HOUR = MILLISECONDS_IN_MINUTE * 60;
     private static final Long MILLISECONDS_IN_DAY = MILLISECONDS_IN_HOUR * 24;
-    
+
     public static final String POLLING_JOB_ID = "polling.job";
 
     public static final String POLLING_ENABLED_PROP_KEY = "polling.enabled";
@@ -42,19 +43,21 @@ public class PollingConfiguration {
     private int interval;
     private int intervalUnit;
 
-    public PollingConfiguration(MotechSchedulerService scheduleService, Properties properties) {
-        String pollingEnabled = properties.getProperty(POLLING_ENABLED_PROP_KEY); 
+    @Autowired
+    public PollingConfiguration(MotechSchedulerService scheduleService,
+            @Qualifier("atomFeedProperties") Properties properties) {
+        String pollingEnabled = properties.getProperty(POLLING_ENABLED_PROP_KEY);
         String pollingType = properties.getProperty(POLLING_TYPE_PROP_KEY);
         String pollingStartTime = properties.getProperty(POLLING_START_TIME_PROP_KEY);
         String pollingInterval = properties.getProperty(POLLING_INTERVAL_VALUE_PROP_KEY);
-        
+
         if ("true".equals(pollingEnabled)) {
             if (!ObjectUtils.equals("daily", pollingType) && !ObjectUtils.equals("interval", pollingType)) {
                 throw new MotechException("Motech OpenMRS Atom Feed polling type can only be: interval or daily");
             }
-    
+
             parseDailyConfigString(pollingStartTime);
-    
+
             if ("interval".equals(pollingType)) {
                 intervalPolling = true;
                 parseIntervalConfigString(pollingInterval);
@@ -98,7 +101,7 @@ public class PollingConfiguration {
         if (pollingDisabled) {
             return;
         }
-        
+
         MotechEvent event = new MotechEvent(EventSubjects.POLLING_SUBJECT);
         event.getParameters().put(MotechSchedulerService.JOB_ID_KEY, POLLING_JOB_ID);
         LocalTime time = new LocalTime(hour, minute);
@@ -113,7 +116,7 @@ public class PollingConfiguration {
             scheduleService.safeScheduleRepeatingJob(job);
         }
     }
-    
+
     public void unschedulePolling() {
         scheduleService.safeUnscheduleRepeatingJob(EventSubjects.POLLING_SUBJECT, POLLING_JOB_ID);
     }
