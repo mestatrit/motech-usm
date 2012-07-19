@@ -5,12 +5,14 @@ import org.motechproject.openmrs.atomfeed.service.AtomFeedService;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.server.event.annotations.MotechListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Listens for the {@link EventSubjects#POLLING_SUBJECT}, then invokes the
  * {@link AtomFeedService#fetchNewOpenMrsEvents()} to retrieve latest events
  * from the OpenMRS
  */
+@Component
 public class PollingListener {
     
     private final AtomFeedService atomFeedService;
@@ -22,6 +24,6 @@ public class PollingListener {
 
     @MotechListener(subjects = { EventSubjects.POLLING_SUBJECT })
     public void onPollingEvent(MotechEvent event) {
-        atomFeedService.fetchNewOpenMrsEvents(true);
+        atomFeedService.fetchOpenMrsChangesSinceLastUpdate();
     }
 }

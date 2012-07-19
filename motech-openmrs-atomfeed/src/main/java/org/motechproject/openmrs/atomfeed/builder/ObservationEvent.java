@@ -1,32 +1,31 @@
-package org.motechproject.openmrs.atomfeed;
+package org.motechproject.openmrs.atomfeed.builder;
 
 import org.motechproject.openmrs.atomfeed.events.EventSubjects;
 import org.motechproject.openmrs.atomfeed.model.Entry;
 
-public class ConceptEvent extends EventBuilderTemplate {
+public class ObservationEvent extends EventBuilderTemplate {
 
-    public ConceptEvent(Entry entry) {
+    public ObservationEvent(Entry entry) {
         super(entry);
     }
 
     @Override
     protected String getCreateAction() {
-        return EventSubjects.CONCEPT_CREATE;
+        return EventSubjects.OBSERVATION_CREATE;
     }
 
     @Override
     protected String getUpdateAction() {
-        return EventSubjects.CONCEPT_UPDATED;
+        return EventSubjects.OBSERVATION_UPDATE;
     }
 
     @Override
     protected String getVoidedAction() {
-        throw new RuntimeException("Concepts cannot have voided action");
+        return EventSubjects.OBSERVATION_VOIDED;
     }
 
     @Override
     protected String getDeleteAction() {
-        return EventSubjects.CONCEPT_DELETED;
+        return EventSubjects.OBSERVATION_DELETED;
     }
-
 }

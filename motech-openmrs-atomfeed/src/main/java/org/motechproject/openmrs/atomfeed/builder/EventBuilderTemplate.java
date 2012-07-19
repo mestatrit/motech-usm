@@ -1,4 +1,4 @@
-package org.motechproject.openmrs.atomfeed;
+package org.motechproject.openmrs.atomfeed.builder;
 
 import java.util.HashMap;
 import java.util.Map;
