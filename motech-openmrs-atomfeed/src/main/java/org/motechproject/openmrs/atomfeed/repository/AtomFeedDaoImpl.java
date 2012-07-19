@@ -4,13 +4,15 @@ import java.util.List;
 
 import org.ektorp.CouchDbConnector;
 import org.motechproject.dao.MotechBaseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class AtomFeedDaoImpl extends MotechBaseRepository<AtomFeedUpdate> implements AtomFeedDao {
-
-    protected AtomFeedDaoImpl(Class<AtomFeedUpdate> type, CouchDbConnector db) {
-        super(type, db);
+    
+    @Autowired
+    protected AtomFeedDaoImpl(CouchDbConnector db) {
+        super(AtomFeedUpdate.class, db);
     }
 
     @Override
