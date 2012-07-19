@@ -31,4 +31,10 @@ public class OpenMrsHttpClientImpl implements OpenMrsHttpClient {
             return "";
         }
     }
+
+    @Override
+    public String getOpenMrsAtomFeedSinceDate(String lastUpdateTime) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

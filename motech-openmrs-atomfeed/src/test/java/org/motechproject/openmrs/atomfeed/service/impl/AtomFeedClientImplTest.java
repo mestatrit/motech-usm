@@ -2,8 +2,11 @@ package org.motechproject.openmrs.atomfeed.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -15,11 +18,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.motechproject.openmrs.atomfeed.AtomFeedDao;
 import org.motechproject.openmrs.atomfeed.OpenMrsHttpClient;
 import org.motechproject.openmrs.atomfeed.events.EventDataKeys;
 import org.motechproject.openmrs.atomfeed.events.EventSubjects;
 import org.motechproject.openmrs.atomfeed.service.AtomFeedService;
-import org.motechproject.openmrs.atomfeed.service.impl.AtomFeedServiceImpl;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.gateway.OutboundEventGateway;
 import org.springframework.core.io.ClassPathResource;
@@ -32,9 +35,13 @@ public class AtomFeedClientImplTest {
     @Mock
     OpenMrsHttpClient client;
 
+    @Mock
+    AtomFeedDao atomFeedDao;
+
     @Before
     public void setUp() {
         initMocks(this);
+        atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway, atomFeedDao);
     }
 
     private final static String PATIENT_LINK = "http://localhost:8092/openmrs/ws/rest/v1/person/64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc";
@@ -43,23 +50,27 @@ public class AtomFeedClientImplTest {
     private static final String CONCEPT_UUID = "a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
     private static final String CONCEPT_LINK = "http://localhost:8092/openmrs/ws/rest/v1/concept/a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
 
+    private static final String ENCOUNTER_LINK = "http://localhost:8092/openmrs/ws/rest/v1/encounter/a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
+    private static final String ENCOUNTER_UUID = "a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
+
+    private static final String OBSERVATION_LINK = "http://localhost:8092/openmrs/ws/rest/v1/obs/a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
+    private static final String OBSERVATION_UUID = "a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
+
+    private AtomFeedService atomFeedClient;
+
     @Test
     public void shouldNotRaiseAnyEventsOnEmptyXml() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn("");
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         verify(outboundGateway, times(0)).sendEventMessage(any(MotechEvent.class));
     }
 
     @Test
     public void shouldRaisePatientCreateEvent() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("patient-create.xml"));
 
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
         verify(outboundGateway, times(1)).sendEventMessage(event.capture());
@@ -88,11 +99,9 @@ public class AtomFeedClientImplTest {
 
     @Test
     public void shouldRaisePatientUpdateEvent() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("patient-update.xml"));
 
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
         verify(outboundGateway, times(1)).sendEventMessage(event.capture());
@@ -103,11 +112,9 @@ public class AtomFeedClientImplTest {
 
     @Test
     public void shouldRaisePatientVoidEvent() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("patient-void.xml"));
 
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
         verify(outboundGateway, times(1)).sendEventMessage(event.capture());
@@ -118,11 +125,9 @@ public class AtomFeedClientImplTest {
 
     @Test
     public void shouldRaisePatientDeleteEvent() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("patient-delete.xml"));
 
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
         verify(outboundGateway, times(1)).sendEventMessage(event.capture());
@@ -134,16 +139,80 @@ public class AtomFeedClientImplTest {
 
     @Test
     public void shouldRaiseConceptEvent() throws IOException {
-        AtomFeedService atomFeedClient = new AtomFeedServiceImpl(client, outboundGateway);
-
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("concept.xml"));
 
-        atomFeedClient.fetchNewOpenMrsEvents();
+        atomFeedClient.fetchNewOpenMrsEvents(false);
 
         ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
         verify(outboundGateway, times(1)).sendEventMessage(event.capture());
 
         assertEquals(expectedMotechEventForPatient(EventSubjects.CONCEPT_CREATE, "create", CONCEPT_LINK, CONCEPT_UUID),
                 event.getValue());
+    }
+
+    @Test
+    public void shouldRaiseEncounterEvent() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("encounter.xml"));
+
+        atomFeedClient.fetchNewOpenMrsEvents(false);
+
+        ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
+        verify(outboundGateway, times(1)).sendEventMessage(event.capture());
+
+        assertEquals(
+                expectedMotechEventForPatient(EventSubjects.ENCOUNTER_CREATE, "create", ENCOUNTER_LINK, ENCOUNTER_UUID),
+                event.getValue());
+    }
+
+    @Test
+    public void shouldRaiseObservationEvent() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("observation.xml"));
+
+        atomFeedClient.fetchNewOpenMrsEvents(false);
+
+        ArgumentCaptor<MotechEvent> event = ArgumentCaptor.forClass(MotechEvent.class);
+        verify(outboundGateway, times(1)).sendEventMessage(event.capture());
+
+        assertEquals(
+                expectedMotechEventForPatient(EventSubjects.OBSERVATION_CREATE, "create", OBSERVATION_LINK,
+                        OBSERVATION_UUID), event.getValue());
+    }
+
+    @Test
+    public void shouldSetLastUpdateTimeToLastEntryProcessed() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("multiple-patient-updates.xml"));
+
+        atomFeedClient.fetchNewOpenMrsEvents(false);
+
+        verify(atomFeedDao).setLastUpdateTime("2012-07-02T17:00:00-04:00");
+    }
+
+    @Test
+    public void shouldNotSetLastUpdateTimeWhenFirstEntryFails() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("multiple-patient-updates.xml"));
+        doThrow(new RuntimeException()).when(outboundGateway).sendEventMessage(any(MotechEvent.class));
+
+        atomFeedClient.fetchNewOpenMrsEvents(false);
+
+        verifyZeroInteractions(atomFeedDao);
+    }
+
+    @Test
+    public void shouldSetLastUpdateTimeWhenToFirstEntry() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("multiple-patient-updates.xml"));
+        doNothing().doThrow(new RuntimeException()).when(outboundGateway).sendEventMessage(any(MotechEvent.class));
+
+        atomFeedClient.fetchNewOpenMrsEvents(false);
+
+        verify(atomFeedDao).setLastUpdateTime("2012-07-02T15:00:00-04:00");
+    }
+    
+    @Test
+    public void shouldFetchAllOnEmptyLastUpdateTime() {
+        when(client.getOpenMrsAtomFeed()).thenReturn("");
+
+        atomFeedClient.fetchOpenMrsChangesSinceLastUpdate();
+
+        verify(client).getOpenMrsAtomFeed();        
     }
 }
