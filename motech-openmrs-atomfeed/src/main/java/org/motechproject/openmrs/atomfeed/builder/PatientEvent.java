@@ -1,4 +1,4 @@
-package org.motechproject.openmrs.atomfeed;
+package org.motechproject.openmrs.atomfeed.builder;
 
 import org.motechproject.openmrs.atomfeed.events.EventSubjects;
 import org.motechproject.openmrs.atomfeed.model.Entry;

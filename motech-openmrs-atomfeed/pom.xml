@@ -86,12 +86,12 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
+                            org.motechproject.openmrs.atomfeed.events,
                             org.motechproject.openmrs.atomfeed.service
                         </Export-Package>
                         <Bundle-Activator>
+                            org.motechproject.openmrs.atomfeed.Activator
                         </Bundle-Activator>
-                        <Import-Package>
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
