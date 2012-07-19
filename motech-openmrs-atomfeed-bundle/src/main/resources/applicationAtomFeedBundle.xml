@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:osgi="http://www.springframework.org/schema/osgi"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <import resource="applicationAtomFeedAPI.xml" />
+
+    <osgi:reference id="schedulerServiceOsgi" cardinality="0..1"
+        interface="org.motechproject.scheduler.MotechSchedulerService" />
+
+    <osgi:reference id="eventRelayOsgi" cardinality="1..1" interface="org.motechproject.scheduler.event.EventRelay">
+
+    </osgi:reference>
+
+    <osgi:service id="atomFeedServiceOsgi" auto-export="interfaces" ref="atomFeedService"
+        interface="org.motechproject.openmrs.atomfeed.AtomFeedService" />
+
+</beans>
