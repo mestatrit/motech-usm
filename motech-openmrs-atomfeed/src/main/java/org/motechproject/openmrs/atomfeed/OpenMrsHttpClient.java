@@ -4,4 +4,6 @@ public interface OpenMrsHttpClient {
 
     public String getOpenMrsAtomFeed();
 
+    public String getOpenMrsAtomFeedSinceDate(String lastUpdateTime);
+
 }
