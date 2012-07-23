@@ -17,27 +17,33 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OpenMrsHttpClientImpl implements OpenMrsHttpClient {
-    private static final String ATOM_FEED_MODULE_PATH = "/moduleServlet/atomfeed/atomfeed";
     private static final Logger LOGGER = Logger.getLogger(OpenMrsHttpClientImpl.class);
+    private static final String ATOM_FEED_MODULE_PATH = "/moduleServlet/atomfeed/atomfeed";
 
     private final HttpClient httpClient;
+    private final String openmrsPath;
 
     @Autowired
     public OpenMrsHttpClientImpl(@Value("${openmrs.url}") String openmrsUrl) throws URIException {
         httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        httpClient.getHostConfiguration().setHost(new URI(openmrsUrl, false));
+        URI uri = new URI(openmrsUrl, false);
+        openmrsPath = uri.getPath();
+        httpClient.getHostConfiguration().setHost(uri);
     }
 
     @Override
     public String getOpenMrsAtomFeed() {
-        GetMethod get = new GetMethod(ATOM_FEED_MODULE_PATH);
+        GetMethod get = new GetMethod(openmrsPath + ATOM_FEED_MODULE_PATH);
         return executeGetMethod(get);
     }
 
     private String executeGetMethod(GetMethod get) {
+        LOGGER.debug("Making HTTP request to fetch OpenMRS Atom Feed: "
+                + httpClient.getHostConfiguration().getHostURL() + get.getPath() + get.getQueryString());
         try {
-            httpClient.executeMethod(get);
-            if (get.getStatusCode() == HttpStatus.SC_OK) {
+            int responseCode = httpClient.executeMethod(get);
+            if (responseCode == HttpStatus.SC_OK) {
+                LOGGER.debug("Successfully made HTTP request to OpenMRS");
                 return get.getResponseBodyAsString();
             } else {
                 LOGGER.warn("OpenMRS Atom Feed module returned non 200 status: " + get.getStatusCode());
@@ -51,7 +57,7 @@ public class OpenMrsHttpClientImpl implements OpenMrsHttpClient {
 
     @Override
     public String getOpenMrsAtomFeedSinceDate(String lastUpdateTime) {
-        GetMethod get = new GetMethod(ATOM_FEED_MODULE_PATH);
+        GetMethod get = new GetMethod(openmrsPath + ATOM_FEED_MODULE_PATH);
         NameValuePair[] params = new NameValuePair[1];
         params[0] = new NameValuePair("asOfDate", lastUpdateTime);
         get.setQueryString(params);

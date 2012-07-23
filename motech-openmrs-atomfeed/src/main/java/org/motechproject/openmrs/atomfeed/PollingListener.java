@@ -1,8 +1,11 @@
 package org.motechproject.openmrs.atomfeed;
 
+import org.apache.log4j.Logger;
+import org.motechproject.MotechException;
 import org.motechproject.openmrs.atomfeed.events.EventSubjects;
 import org.motechproject.openmrs.atomfeed.service.AtomFeedService;
 import org.motechproject.scheduler.domain.MotechEvent;
+import org.motechproject.scheduler.event.EventRelay;
 import org.motechproject.server.event.annotations.MotechListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,16 +17,26 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PollingListener {
-    
+    private static final Logger LOGGER = Logger.getLogger(PollingListener.class);
+
     private final AtomFeedService atomFeedService;
-    
+    private final EventRelay eventRelay;
+
     @Autowired
-    public PollingListener(AtomFeedService atomFeedService) {
+    public PollingListener(AtomFeedService atomFeedService, EventRelay eventRelay) {
         this.atomFeedService = atomFeedService;
+        this.eventRelay = eventRelay;
     }
 
     @MotechListener(subjects = { EventSubjects.POLLING_SUBJECT })
     public void onPollingEvent(MotechEvent event) {
-        atomFeedService.fetchOpenMrsChangesSinceLastUpdate();
+        LOGGER.debug("Handling OpenMRS Atom Feed Polling event");
+        try {
+            atomFeedService.fetchOpenMrsChangesSinceLastUpdate();
+        } catch (MotechException e) {
+            LOGGER.error("There was an error fetching the atom feed from the OpenMRS");
+            MotechEvent exceptionEvent = new MotechEvent(EventSubjects.POLLING_EXCEPTION);
+            eventRelay.sendEventMessage(exceptionEvent);
+        }
     }
 }

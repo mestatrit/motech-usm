@@ -74,6 +74,7 @@
                             *,
                             org.ektorp.impl,
                             org.ektorp.spring,
+                            org.motechproject.server.event,
                             org.springframework.beans.factory.xml,
                             org.springframework.context.config,
                             org.springframework.osgi.config

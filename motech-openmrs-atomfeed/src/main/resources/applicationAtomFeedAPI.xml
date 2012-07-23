@@ -24,4 +24,6 @@
 
     <bean class="org.motechproject.openmrs.atomfeed.PollingConfiguration" init-method="schedulePolling"
         destroy-method="unschedulePolling" />
+
+    <bean class="org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor" />
 </beans>
