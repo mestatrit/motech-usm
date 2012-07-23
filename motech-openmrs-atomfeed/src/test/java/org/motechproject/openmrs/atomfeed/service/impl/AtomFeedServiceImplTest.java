@@ -28,7 +28,7 @@ import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.event.EventRelay;
 import org.springframework.core.io.ClassPathResource;
 
-public class AtomFeedClientImplTest {
+public class AtomFeedServiceImplTest {
 
     @Mock
     private EventRelay eventRelay;
@@ -226,5 +226,14 @@ public class AtomFeedClientImplTest {
         atomFeedClient.fetchOpenMrsChangesSinceLastUpdate();
 
         verify(eventRelay, times(1)).sendEventMessage(any(MotechEvent.class));
+    }
+    
+    @Test
+    public void shouldNotProcessAnyEntriesOnEmptyFeed() throws IOException {
+        when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("empty-feed.xml"));
+        
+        atomFeedClient.fetchAllOpenMrsChanges();
+
+        verifyZeroInteractions(eventRelay);
     }
 }

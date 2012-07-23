@@ -4,6 +4,7 @@ public class EventSubjects {
 
     public static final String BASE_SUBJECT = "org.motechproject.openmrs.atomfeed";
     public static final String POLLING_SUBJECT = BASE_SUBJECT + ".poll";
+    public static final String POLLING_EXCEPTION = BASE_SUBJECT + ".exception";
 
     // Patients
     public static final String PATIENT_CREATE = BASE_SUBJECT + ".create.patient";

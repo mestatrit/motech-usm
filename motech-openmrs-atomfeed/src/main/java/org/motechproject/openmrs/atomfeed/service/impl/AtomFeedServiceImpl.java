@@ -3,7 +3,10 @@ package org.motechproject.openmrs.atomfeed.service.impl;
 import java.util.Collections;
 import java.util.List;
 
+import net.sf.cglib.core.CollectionUtils;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.motechproject.openmrs.atomfeed.OpenMrsHttpClient;
 import org.motechproject.openmrs.atomfeed.builder.ConceptEvent;
 import org.motechproject.openmrs.atomfeed.builder.EncounterEvent;
@@ -11,6 +14,7 @@ import org.motechproject.openmrs.atomfeed.builder.ObservationEvent;
 import org.motechproject.openmrs.atomfeed.builder.PatientEvent;
 import org.motechproject.openmrs.atomfeed.model.Entry;
 import org.motechproject.openmrs.atomfeed.model.Feed;
+import org.motechproject.openmrs.atomfeed.model.Link;
 import org.motechproject.openmrs.atomfeed.repository.AtomFeedDao;
 import org.motechproject.openmrs.atomfeed.service.AtomFeedService;
 import org.motechproject.scheduler.domain.MotechEvent;
@@ -22,6 +26,8 @@ import com.thoughtworks.xstream.XStream;
 
 @Component("atomFeedService")
 public class AtomFeedServiceImpl implements AtomFeedService {
+    
+    private static final Logger LOGGER = Logger.getLogger(AtomFeedServiceImpl.class);
 
     private final OpenMrsHttpClient client;
     private final XStream xstream;
@@ -33,8 +39,15 @@ public class AtomFeedServiceImpl implements AtomFeedService {
         this.client = client;
         this.eventRelay = eventRelay;
         this.atomFeedDao = atomFeedDao;
+        
         xstream = new XStream();
+        xstream.setClassLoader(getClass().getClassLoader());
+        
         xstream.processAnnotations(Feed.class);
+        xstream.processAnnotations(Entry.class);
+        xstream.processAnnotations(Entry.Author.class);
+        xstream.processAnnotations(Link.class);
+        
         xstream.omitField(Entry.class, "summary");
     }
 
@@ -51,6 +64,7 @@ public class AtomFeedServiceImpl implements AtomFeedService {
 
     private void parseFeed(String feed, String lastId) {
         if (StringUtils.isEmpty(feed)) {
+            LOGGER.debug("No XML found from OpenMRS Atom Feed");
             return;
         }
 
@@ -60,7 +74,12 @@ public class AtomFeedServiceImpl implements AtomFeedService {
     private void parseChanges(String feedXml, String lastId) {
         Feed feed = (Feed) xstream.fromXML(feedXml);
         List<Entry> entries = feed.getEntry();
-
+        
+        if (entries == null || entries.isEmpty()) {
+            LOGGER.debug("No entries present");
+            return;
+        }
+        
         // entries from the atom feed come in descending order
         // reversing puts them in ascending order so if there is
         // an exception that occurs during the processing of entries
@@ -76,12 +95,16 @@ public class AtomFeedServiceImpl implements AtomFeedService {
                 }
                 MotechEvent event = null;
                 if ("org.openmrs.Patient".equals(entry.getClassname())) {
+                    LOGGER.debug("Found a patient change");
                     event = handlePatientEntry(entry);
                 } else if ("org.openmrs.Concept".equals(entry.getClassname())) {
+                    LOGGER.debug("Found a concept change");
                     event = handleConceptEntry(entry);
                 } else if ("org.openmrs.Encounter".equals(entry.getClassname())) {
+                    LOGGER.debug("Found a encounter change");
                     event = handleEncounterEntry(entry);
                 } else if ("org.openmrs.Obs".equals(entry.getClassname())) {
+                    LOGGER.debug("Found a observation change");
                     event = handleObservationEntry(entry);
                 }
 
@@ -126,6 +149,8 @@ public class AtomFeedServiceImpl implements AtomFeedService {
 
     @Override
     public void fetchOpenMrsChangesSince(String sinceDateTime, String lastId) {
+        LOGGER.debug("Fetching OpenMRS Atom Feed since: " + sinceDateTime);
+        
         String feed = null;
 
         if (StringUtils.isNotBlank(sinceDateTime)) {

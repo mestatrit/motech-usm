@@ -11,10 +11,13 @@ public class AtomFeedUpdate extends MotechBaseDataObject {
 
     @JsonProperty
     private String lastUpdateTime;
-    
+
     @JsonProperty
     private String lastId;
-    
+
+    public AtomFeedUpdate() {
+    }
+
     public AtomFeedUpdate(String lastUpdateTime, String lastId) {
         this.lastUpdateTime = lastUpdateTime;
         this.lastId = lastId;
