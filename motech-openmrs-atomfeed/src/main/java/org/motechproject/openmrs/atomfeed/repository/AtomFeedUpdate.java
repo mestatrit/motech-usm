@@ -4,6 +4,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.ektorp.support.TypeDiscriminator;
 import org.motechproject.model.MotechBaseDataObject;
 
+/**
+ * Represents a time when the OpenMRS Atom Feed was last updated. There should only ever be one instance saved in the
+ * database at a time. The last update is represented as a time, and an id of the last processed entity. In theory, it's
+ * possible 2 entities can be updated at the same time, but with different ids.
+ */
 @TypeDiscriminator("doc.type === 'AtomFeedUpdate'")
 public class AtomFeedUpdate extends MotechBaseDataObject {
 

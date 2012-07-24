@@ -1,4 +1,4 @@
-package org.motechproject.openmrs.atomfeed;
+package org.motechproject.openmrs.atomfeed.osgi;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

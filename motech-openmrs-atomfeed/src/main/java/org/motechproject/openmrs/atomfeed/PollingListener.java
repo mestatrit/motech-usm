@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Listens for the {@link EventSubjects#POLLING_SUBJECT}, then invokes the
- * {@link AtomFeedService#fetchNewOpenMrsEvents()} to retrieve latest events
- * from the OpenMRS
+ * {@link AtomFeedService#fetchNewOpenMrsEvents()} to retrieve latest events from the OpenMRS
  */
 @Component
 public class PollingListener {

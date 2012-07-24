@@ -3,10 +3,9 @@ package org.motechproject.openmrs.atomfeed.service.impl;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.cglib.core.CollectionUtils;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.motechproject.MotechException;
 import org.motechproject.openmrs.atomfeed.OpenMrsHttpClient;
 import org.motechproject.openmrs.atomfeed.builder.ConceptEvent;
 import org.motechproject.openmrs.atomfeed.builder.EncounterEvent;
@@ -26,7 +25,7 @@ import com.thoughtworks.xstream.XStream;
 
 @Component("atomFeedService")
 public class AtomFeedServiceImpl implements AtomFeedService {
-    
+
     private static final Logger LOGGER = Logger.getLogger(AtomFeedServiceImpl.class);
 
     private final OpenMrsHttpClient client;
@@ -39,15 +38,15 @@ public class AtomFeedServiceImpl implements AtomFeedService {
         this.client = client;
         this.eventRelay = eventRelay;
         this.atomFeedDao = atomFeedDao;
-        
+
         xstream = new XStream();
         xstream.setClassLoader(getClass().getClassLoader());
-        
+
         xstream.processAnnotations(Feed.class);
         xstream.processAnnotations(Entry.class);
         xstream.processAnnotations(Entry.Author.class);
         xstream.processAnnotations(Link.class);
-        
+
         xstream.omitField(Entry.class, "summary");
     }
 
@@ -74,12 +73,12 @@ public class AtomFeedServiceImpl implements AtomFeedService {
     private void parseChanges(String feedXml, String lastId) {
         Feed feed = (Feed) xstream.fromXML(feedXml);
         List<Entry> entries = feed.getEntry();
-        
+
         if (entries == null || entries.isEmpty()) {
             LOGGER.debug("No entries present");
             return;
         }
-        
+
         // entries from the atom feed come in descending order
         // reversing puts them in ascending order so if there is
         // an exception that occurs during the processing of entries
@@ -113,7 +112,8 @@ public class AtomFeedServiceImpl implements AtomFeedService {
                 lastProcessedId = entry.getId();
             }
         } catch (Exception e) {
-            //
+            LOGGER.error("There was a problem processing an OpenMRS Atom Feed entry: " + e.getMessage());
+            throw new MotechException("Problem processing an OpenMRS Atom Feed entry", e);
         } finally {
             if (StringUtils.isNotBlank(lastProcessedEntryUpdateTime)) {
                 // the OpenMRS Atom Feed module does not currently recognize the time zone
@@ -150,7 +150,7 @@ public class AtomFeedServiceImpl implements AtomFeedService {
     @Override
     public void fetchOpenMrsChangesSince(String sinceDateTime, String lastId) {
         LOGGER.debug("Fetching OpenMRS Atom Feed since: " + sinceDateTime);
-        
+
         String feed = null;
 
         if (StringUtils.isNotBlank(sinceDateTime)) {

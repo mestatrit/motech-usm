@@ -8,18 +8,18 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("feed")
 public class Feed {
-    String updated;
-    String versionId;
-    String title;
-    String id;
-    String entriesSize;
+    private String updated;
+    private String versionId;
+    private String title;
+    private String id;
+    private String entriesSize;
 
     @XStreamImplicit(itemFieldName = "link")
-    List<Link> link = new ArrayList<Link>();
+    private List<Link> link = new ArrayList<Link>();
 
     @XStreamImplicit(itemFieldName = "entry")
-    List<Entry> entry = new ArrayList<Entry>();
-    
+    private List<Entry> entry = new ArrayList<Entry>();
+
     public String getUpdated() {
         return updated;
     }

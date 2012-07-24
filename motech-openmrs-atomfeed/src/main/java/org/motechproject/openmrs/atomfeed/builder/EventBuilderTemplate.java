@@ -14,7 +14,7 @@ public abstract class EventBuilderTemplate {
     public EventBuilderTemplate(Entry entry) {
         this.entry = entry;
     }
-    
+
     public MotechEvent toEvent() {
         String subject = getSubjectFromAction(entry.getAction());
         return buildMotechEvent(entry, subject);
@@ -30,7 +30,7 @@ public abstract class EventBuilderTemplate {
         } else if ("delete".equals(action)) {
             return getDeleteAction();
         }
-        
+
         return null;
     }
 

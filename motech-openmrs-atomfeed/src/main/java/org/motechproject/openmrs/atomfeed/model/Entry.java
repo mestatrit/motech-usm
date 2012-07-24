@@ -10,8 +10,8 @@ public class Entry {
     private String updated;
     private String action;
     private String classname;
-    
-    Author author;
+
+    private Author author;
 
     @XStreamAlias("author")
     public static class Author {
@@ -25,7 +25,6 @@ public class Entry {
             this.name = name;
         }
     }
-    
 
     public String getTitle() {
         return title;
@@ -74,7 +73,6 @@ public class Entry {
     public void setClassname(String classname) {
         this.classname = classname;
     }
-    
 
     public Author getAuthor() {
         return author;

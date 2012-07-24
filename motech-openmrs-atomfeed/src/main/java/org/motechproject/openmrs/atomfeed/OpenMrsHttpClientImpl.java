@@ -1,6 +1,7 @@
 package org.motechproject.openmrs.atomfeed;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -9,10 +10,11 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.motechproject.MotechException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,9 +24,14 @@ public class OpenMrsHttpClientImpl implements OpenMrsHttpClient {
 
     private final HttpClient httpClient;
     private final String openmrsPath;
+    private final String openmrsUrl;
 
     @Autowired
-    public OpenMrsHttpClientImpl(@Value("${openmrs.url}") String openmrsUrl) throws URIException {
+    public OpenMrsHttpClientImpl(@Qualifier("atomFeedProperties") Properties properties) throws URIException {
+        openmrsUrl = properties.getProperty("openmrs.url");
+        Validate.notEmpty(
+                openmrsUrl,
+                "Did not find property for OpenMRS Url (openmrs.url). Cannot use the Motech Atom Feed module until this property is set");
         httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         URI uri = new URI(openmrsUrl, false);
         openmrsPath = uri.getPath();

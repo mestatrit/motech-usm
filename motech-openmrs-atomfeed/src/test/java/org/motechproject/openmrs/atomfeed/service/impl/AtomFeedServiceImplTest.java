@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.motechproject.MotechException;
 import org.motechproject.openmrs.atomfeed.OpenMrsHttpClient;
 import org.motechproject.openmrs.atomfeed.events.EventDataKeys;
 import org.motechproject.openmrs.atomfeed.events.EventSubjects;
@@ -45,8 +46,8 @@ public class AtomFeedServiceImplTest {
         atomFeedClient = new AtomFeedServiceImpl(client, eventRelay, atomFeedDao);
     }
 
-    private final static String PATIENT_LINK = "http://localhost:8092/openmrs/ws/rest/v1/person/64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc";
-    private final static String PATIENT_UUID = "64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc";
+    private static final String PATIENT_LINK = "http://localhost:8092/openmrs/ws/rest/v1/person/64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc";
+    private static final String PATIENT_UUID = "64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc";
 
     private static final String CONCEPT_UUID = "a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
     private static final String CONCEPT_LINK = "http://localhost:8092/openmrs/ws/rest/v1/concept/a8f54bd7-429a-43d1-b47a-5ee56f18f0f2";
@@ -188,24 +189,27 @@ public class AtomFeedServiceImplTest {
         verify(atomFeedDao).setLastUpdateTime("urn:uuid:64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc", "2012-07-02T17:00:00");
     }
 
-    @Test
+    @Test(expected = MotechException.class)
     public void shouldNotSetLastUpdateTimeWhenFirstEntryFails() throws IOException {
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("multiple-patient-updates.xml"));
         doThrow(new RuntimeException()).when(eventRelay).sendEventMessage(any(MotechEvent.class));
-
-        atomFeedClient.fetchAllOpenMrsChanges();
-
-        verifyZeroInteractions(atomFeedDao);
+        try {
+            atomFeedClient.fetchAllOpenMrsChanges();
+        } finally {
+            verifyZeroInteractions(atomFeedDao);
+        }
     }
 
-    @Test
+    @Test(expected = MotechException.class)
     public void shouldSetLastUpdateTimeToFirstEntry() throws IOException {
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("multiple-patient-updates.xml"));
         doNothing().doThrow(new RuntimeException()).when(eventRelay).sendEventMessage(any(MotechEvent.class));
-
-        atomFeedClient.fetchAllOpenMrsChanges();
-
-        verify(atomFeedDao).setLastUpdateTime("urn:uuid:64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc", "2012-07-02T15:00:00");
+        try {
+            atomFeedClient.fetchAllOpenMrsChanges();
+        } finally {
+            verify(atomFeedDao).setLastUpdateTime("urn:uuid:64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc",
+                    "2012-07-02T15:00:00");
+        }
     }
 
     @Test
@@ -216,22 +220,23 @@ public class AtomFeedServiceImplTest {
 
         verify(client).getOpenMrsAtomFeed();
     }
-    
+
     @Test
     public void shouldIgnoreAlreadyProcessedEntry() throws IOException {
-        when(client.getOpenMrsAtomFeedSinceDate(anyString())).thenReturn(readXmlFile("multiple-patients-updates-with-same-time.xml"));
+        when(client.getOpenMrsAtomFeedSinceDate(anyString())).thenReturn(
+                readXmlFile("multiple-patients-updates-with-same-time.xml"));
         when(atomFeedDao.getLastUpdateTime()).thenReturn("2012-07-02T15:00:00-04:00");
         when(atomFeedDao.getLastId()).thenReturn("urn:uuid:64f6f0e2-1acc-4a00-8a54-6adcd8cbfdfc");
-        
+
         atomFeedClient.fetchOpenMrsChangesSinceLastUpdate();
 
         verify(eventRelay, times(1)).sendEventMessage(any(MotechEvent.class));
     }
-    
+
     @Test
     public void shouldNotProcessAnyEntriesOnEmptyFeed() throws IOException {
         when(client.getOpenMrsAtomFeed()).thenReturn(readXmlFile("empty-feed.xml"));
-        
+
         atomFeedClient.fetchAllOpenMrsChanges();
 
         verifyZeroInteractions(eventRelay);

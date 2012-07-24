@@ -19,10 +19,12 @@ import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.domain.RepeatingSchedulableJob;
 
 public class PollingConfigurationTest {
-
     private static final Long MILLISECONDS_IN_MINUTE = 1000 * 60L;
     private static final Long MILLISECONDS_IN_HOUR = MILLISECONDS_IN_MINUTE * 60;
     private static final Long MILLISECONDS_IN_DAY = MILLISECONDS_IN_HOUR * 24;
+
+    private static final int TIME_MINUTE = 0;
+    private static final int TIME_HOUR = 10;
 
     @Mock
     private MotechSchedulerService scheduleService;
@@ -60,7 +62,7 @@ public class PollingConfigurationTest {
 
     private RepeatingSchedulableJob createExceptedRepeatSchedulableJob() {
         MotechEvent event = buildMotechEvent();
-        LocalTime startTime = new LocalTime(10, 0);
+        LocalTime startTime = new LocalTime(TIME_HOUR, TIME_MINUTE);
         RepeatingSchedulableJob job = new RepeatingSchedulableJob(event, startTime.toDateTimeToday().toDate(), null,
                 MILLISECONDS_IN_DAY);
         return job;
@@ -178,15 +180,15 @@ public class PollingConfigurationTest {
         verify(scheduleService).safeUnscheduleRepeatingJob(EventSubjects.POLLING_SUBJECT,
                 PollingConfiguration.POLLING_JOB_ID);
     }
-    
+
     @Test
     public void shouldNotScheduleIfNotEnabled() {
         Properties props = new Properties();
         props.put(PollingConfiguration.POLLING_ENABLED_PROP_KEY, "false");
         PollingConfiguration pollConfig = new PollingConfiguration(scheduleService, props);
-        
+
         pollConfig.schedulePolling();
-        
+
         verifyZeroInteractions(scheduleService);
     }
 
