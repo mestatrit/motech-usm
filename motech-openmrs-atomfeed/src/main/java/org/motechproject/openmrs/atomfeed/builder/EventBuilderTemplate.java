@@ -50,7 +50,7 @@ public abstract class EventBuilderTemplate {
 
     private Map<String, Object> addDefaultParams(Entry entry) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(EventDataKeys.UUID, extractPatientUuid(entry.getId()));
+        params.put(EventDataKeys.UUID, extractEntryUuid(entry.getId()));
         params.put(EventDataKeys.AUTHOR, entry.getAuthor().getName());
         params.put(EventDataKeys.ACTION, entry.getAction());
         params.put(EventDataKeys.LINK, entry.getLink().getHref());
@@ -59,7 +59,7 @@ public abstract class EventBuilderTemplate {
         return params;
     }
 
-    private Object extractPatientUuid(String id) {
+    private Object extractEntryUuid(String id) {
         int index = id.indexOf("uuid:");
         if (index >= 0) {
             return id.substring(index + 5);

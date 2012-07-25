@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * This class is responsible for configuring the motech scheduler to fire events to poll the OpenMRS. Currently it can
  * be configured in 2 ways: <br />
  * - Daily polling, where an event is fired once a day at a time specified by the user <br />
- * - Interval polling, where an event is fired on some interval specified by the user (e.g. every 1 hour)
+ * - Interval polling, where an event is fired on some interval specified by the user (e.g. every 1 hour) <br />
  */
 public class PollingConfiguration {
 
@@ -52,16 +52,7 @@ public class PollingConfiguration {
         String pollingInterval = properties.getProperty(POLLING_INTERVAL_VALUE_PROP_KEY);
 
         if ("true".equals(pollingEnabled)) {
-            if (!ObjectUtils.equals("daily", pollingType) && !ObjectUtils.equals("interval", pollingType)) {
-                throw new MotechException("Motech OpenMRS Atom Feed polling type can only be: interval or daily");
-            }
-
-            parseDailyConfigString(pollingStartTime);
-
-            if ("interval".equals(pollingType)) {
-                intervalPolling = true;
-                parseIntervalConfigString(pollingInterval);
-            }
+            configurePolling(pollingType, pollingStartTime, pollingInterval);
         } else {
             pollingDisabled = true;
         }
@@ -69,7 +60,20 @@ public class PollingConfiguration {
         this.scheduleService = scheduleService;
     }
 
-    private void parseDailyConfigString(String time) {
+    private void configurePolling(String pollingType, String pollingStartTime, String pollingInterval) {
+        if (!ObjectUtils.equals("daily", pollingType) && !ObjectUtils.equals("interval", pollingType)) {
+            throw new MotechException("Motech OpenMRS Atom Feed polling type can only be: interval or daily");
+        }
+
+        parseRequiredConfigString(pollingStartTime);
+
+        if ("interval".equals(pollingType)) {
+            intervalPolling = true;
+            parseIntervalConfigString(pollingInterval);
+        }
+    }
+
+    private void parseRequiredConfigString(String time) {
         String[] hourMinutes = time.split(":");
         if (hourMinutes.length != 2) {
             throw new MotechException(

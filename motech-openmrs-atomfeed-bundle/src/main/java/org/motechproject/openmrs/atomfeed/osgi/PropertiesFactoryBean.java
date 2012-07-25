@@ -30,19 +30,15 @@ public class PropertiesFactoryBean implements FactoryBean<Properties>, BundleCon
                     MOTECH_ATOMFEED_PROPERTIES);
 
             if (props == null) {
-                // generating a default properties file
+                // used built in properties file defaults
                 LOGGER.warn("Did not configuration file for Motech OpenMRS Atom Feed module.");
                 LOGGER.warn("Polling will be disabled by default");
                 LOGGER.warn("Using http://localhost:8080/openmrs as default OpenMRS Url");
-                Properties defaultProperties = new Properties();
-
+                
+                props = new Properties();
                 ClassPathResource resource = new ClassPathResource("polling-config.properties");
-                defaultProperties.load(resource.getInputStream());
+                props.load(resource.getInputStream());
                 resource.getInputStream().close();
-
-                platformSettingsService.saveBundleProperties(bundleContext.getBundle().getSymbolicName(),
-                        MOTECH_ATOMFEED_PROPERTIES, defaultProperties);
-                props = defaultProperties;
             }
         }
 

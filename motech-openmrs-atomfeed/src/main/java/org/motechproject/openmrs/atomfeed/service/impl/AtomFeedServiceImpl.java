@@ -26,6 +26,8 @@ import com.thoughtworks.xstream.XStream;
 @Component("atomFeedService")
 public class AtomFeedServiceImpl implements AtomFeedService {
 
+    private static final int CHARACTERS_TO_TIMEZONE = 19;
+
     private static final Logger LOGGER = Logger.getLogger(AtomFeedServiceImpl.class);
 
     private final OpenMrsHttpClient client;
@@ -117,8 +119,7 @@ public class AtomFeedServiceImpl implements AtomFeedService {
         } finally {
             if (StringUtils.isNotBlank(lastProcessedEntryUpdateTime)) {
                 // the OpenMRS Atom Feed module does not currently recognize the time zone
-                // an issue has been filed in the OpenMRS Issue tracker to address this
-                lastProcessedEntryUpdateTime = lastProcessedEntryUpdateTime.substring(0, 19);
+                lastProcessedEntryUpdateTime = lastProcessedEntryUpdateTime.substring(0, CHARACTERS_TO_TIMEZONE);
                 atomFeedDao.setLastUpdateTime(lastProcessedId, lastProcessedEntryUpdateTime);
             }
         }
