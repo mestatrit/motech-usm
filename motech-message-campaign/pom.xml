@@ -106,7 +106,9 @@
                             org.springframework.beans.factory.xml,
                             org.springframework.osgi.config,
                             org.ektorp.impl,
-                            org.ektorp.spring
+                            org.ektorp.spring,
+                            net.sf.cglib.core,
+                            net.sf.cglib.proxy
                         </Import-Package>
                         <Embed-Dependency>!*</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
