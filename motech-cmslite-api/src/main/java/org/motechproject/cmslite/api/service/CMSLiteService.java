@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 /**
  * \ingroup cmslite
  * CMS Lite is lightweight content management based on couchdb storage. It supports storing and retrieving of stream / text along with
- * custom meta data for each language. Implementer can also use {@link org.motechproject.cmslite.api.web.ResourceServlet} to export rest based
+ * custom meta data for each language. Implementer can also use {@link org.motechproject.cmslite.api.web.ResourceController} to export rest based
  * content retrieval.
  */
 @Component

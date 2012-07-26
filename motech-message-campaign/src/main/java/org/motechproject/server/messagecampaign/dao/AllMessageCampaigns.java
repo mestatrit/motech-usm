@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -43,7 +44,7 @@ public class AllMessageCampaigns {
 
     private List<Campaign> readCampaignsFromJSON() {
         if (CollectionUtils.isEmpty(campaigns)) {
-            List<CampaignRecord> campaignRecords = (List<CampaignRecord>) motechJsonReader.readFromFile(definitionFile(),
+            List<CampaignRecord> campaignRecords = (List<CampaignRecord>) motechJsonReader.readFromStream(definitionFile(),
                     new TypeToken<List<CampaignRecord>>() {
                     }.getType());
 
@@ -68,8 +69,9 @@ public class AllMessageCampaigns {
         return null;
     }
 
-    private String definitionFile() {
-        return this.properties.getProperty(MESSAGECAMPAIGN_DEFINITION_FILE);
+    private InputStream definitionFile() {
+        String defFile = this.properties.getProperty(MESSAGECAMPAIGN_DEFINITION_FILE);
+        return getClass().getResourceAsStream("/"+defFile);
     }
 
 }

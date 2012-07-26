@@ -1,5 +1,6 @@
 package org.motechproject.cmslite.api.osgi;
 
+import org.motechproject.cmslite.api.web.ResourceController;
 import org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -15,7 +16,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class Activator implements BundleActivator {
     private static Logger logger = LoggerFactory.getLogger(Activator.class);
     private static final String CONTEXT_CONFIG_LOCATION = "applicationCmsLiteApiBundle.xml";
-    private static final String SERVLET_URL_MAPPING = "/cmsliteapi";
+    private static final String SERVLET_URL_MAPPING = "/cmslite";
     private ServiceTracker tracker;
     private ServiceReference httpService;
 
@@ -74,7 +75,9 @@ public class Activator implements BundleActivator {
             ClassLoader old = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                        
                 service.registerServlet(SERVLET_URL_MAPPING, dispatcherServlet, null, null);
+
                 logger.debug("Servlet registered");
             } finally {
                 Thread.currentThread().setContextClassLoader(old);

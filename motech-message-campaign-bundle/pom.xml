@@ -71,13 +71,14 @@
                             org.motechproject.server.messagecampaign.osgi.Activator
                         </Bundle-Activator>
                         <Import-Package>
-                            org.ektorp.impl,
-                            org.ektorp.spring,
+                            *,
                             org.springframework.context.config,
                             org.springframework.beans.factory.xml,
                             org.springframework.osgi.config,
-                            org.motechproject.scheduler.gateway,
-                            *
+                            org.ektorp.impl,
+                            org.ektorp.spring,
+                            net.sf.cglib.core,
+                            net.sf.cglib.proxy
                         </Import-Package>
                         <Embed-Dependency>motech-message-campaign</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
