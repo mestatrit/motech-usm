@@ -152,7 +152,6 @@
 							org.motechproject.sms.api.service,
 							org.motechproject.cmslite.api.service,
 							org.motechproject.server.event,
-							org.motechproject.server.messagecampaign.domain.campaign,
 							org.springframework.beans.factory.xml,
 							org.springframework.context.config,
 							org.springframework.context.support,

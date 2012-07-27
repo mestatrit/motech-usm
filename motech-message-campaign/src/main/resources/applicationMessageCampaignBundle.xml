@@ -8,6 +8,10 @@
     <import resource="classpath:applicationMessageCampaign.xml" />
 
     <bean class="org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor" />
+    
+    <osgi:reference id="eventListenerRegistryService"
+		cardinality="0..1"
+		interface="org.motechproject.server.event.EventListenerRegistryService" />
 
     <osgi:service id="messageCampaignServiceOsgi" auto-export="interfaces" ref="messageCampaignService"
         interface="org.motechproject.server.messagecampaign.service.MessageCampaignService" />

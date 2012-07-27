@@ -70,7 +70,6 @@ public class CampaignController extends MultiActionController {
         campaignRequest.setCampaignName(campaignName);
         campaignRequest.setExternalId(externalId);
         campaignRequest.setStartOffset(offsetValue);
-        campaignRequest.setReminderTime(new Time(5,0));
         LocalDate date = new LocalDate();
         campaignRequest.setReferenceDate(date.now());
 
