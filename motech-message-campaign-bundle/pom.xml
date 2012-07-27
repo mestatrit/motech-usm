@@ -76,6 +76,8 @@
                             org.springframework.context.config,
                             org.springframework.beans.factory.xml,
                             org.springframework.osgi.config,
+                            org.motechproject.server.event,
+                            org.motechproject.scheduler.gateway,
                             org.ektorp.impl,
                             org.ektorp.spring,
                             net.sf.cglib.core,
