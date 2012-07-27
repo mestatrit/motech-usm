@@ -33,10 +33,4 @@ public class FormController extends MultiActionController {
             HttpServletResponse response) {
         return new ModelAndView("patients");
     }
-    
-    @RequestMapping(value = "/form/test", method = RequestMethod.GET)
-    public ModelAndView test(HttpServletRequest request,
-            HttpServletResponse response) {
-        return new ModelAndView("testForm");
-    }
 }
