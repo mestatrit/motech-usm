@@ -88,7 +88,7 @@ public class OffsetProgramScheduler extends
 
         LocalDate campaignEndDate = campaignRequest.referenceDate().plusDays(
                 max(timeOffsets));
-        return newDateTime(campaignEndDate, campaignRequest.reminderTime());
+        return newDateTime(campaignEndDate, 0,0,0);
     }
 
     @Override

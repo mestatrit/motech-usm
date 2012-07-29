@@ -83,7 +83,7 @@ public class OsgiFrameworkService implements ApplicationContextAware {
                     startBundle(bundle.getSymbolicName());
                 }
             }
-
+            
             registerPlatformServices(bundleContext);
 
             osgiFramework.start();

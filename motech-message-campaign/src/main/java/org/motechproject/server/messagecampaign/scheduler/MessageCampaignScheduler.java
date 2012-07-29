@@ -52,7 +52,7 @@ public abstract class MessageCampaignScheduler<T extends CampaignMessage, E exte
 
     private void scheduleCompletionJob(CampaignEnrollment enrollment) {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put(EventKeys.ENROLLMENT_KEY, enrollment);
+        parameters.put(EventKeys.ENROLLMENT_KEY, enrollment.getExternalId());
         parameters.put(EventKeys.SCHEDULE_JOB_ID_KEY, jobIdFactory.getCampaignCompletedJobIdFor(campaign.name(), campaignRequest.externalId()));
         MotechEvent event = new MotechEvent(EventKeys.MESSAGE_CAMPAIGN_COMPLETED_EVENT_SUBJECT, parameters);
         schedulerService.safeScheduleRunOnceJob(new RunOnceSchedulableJob(event, getCampaignEnd().toDate()));
