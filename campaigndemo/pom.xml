@@ -98,6 +98,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>motech-scheduler</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${springVersion}</version>
@@ -152,6 +157,8 @@
 							org.motechproject.sms.api.service,
 							org.motechproject.cmslite.api.service,
 							org.motechproject.server.event,
+							org.motechproject.scheduler.gateway,
+							org.motechproject.server.messagecampaign.domain.campaign,
 							org.springframework.beans.factory.xml,
 							org.springframework.context.config,
 							org.springframework.context.support,
