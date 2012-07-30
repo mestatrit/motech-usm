@@ -83,7 +83,7 @@ public class TestListener {
         String messageKey = (String) event.getParameters().get(
                 EventKeys.MESSAGE_KEY);
         String externalId = (String) event.getParameters().get(
-                EventKeys.SCHEDULE_JOB_ID_KEY);
+                EventKeys.EXTERNAL_ID_KEY);
         @SuppressWarnings("unchecked")
         List<String> languages = ((List<String>) event.getParameters().get(
                 EventKeys.MESSAGE_LANGUAGES));
