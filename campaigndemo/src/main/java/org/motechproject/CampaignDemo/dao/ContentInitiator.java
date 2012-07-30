@@ -27,7 +27,7 @@ public class ContentInitiator {
     public void bootstrap() throws CMSLiteException {
         for (int i = 5; i <= 40; i++) {
             InputStream ghanaMessageStream = this.getClass()
-                    .getResourceAsStream("/week" + i + ".wav");
+                    .getResourceAsStream("english/week" + i + ".wav");
 
             StreamContent pregnancyCampaignIVR = new StreamContent("en",
                     "ghanaPregnancyWeek" + i, ghanaMessageStream, "checksum"
@@ -49,7 +49,7 @@ public class ContentInitiator {
         cmsLiteService.addContent(cronIVR);
 
         StringContent cronVxmlIVR = new StringContent("en", "cron-message",
-                "vxmlContent/cron.xml");
+                "english/cron.xml");
         cmsLiteService.addContent(cronVxmlIVR); // IVR
 
         StringContent hardCronSMS = new StringContent("en", "cron-message",

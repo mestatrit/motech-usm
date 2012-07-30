@@ -1,3 +1,8 @@
+---
+layout: main
+title: MOTECH
+---
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 
@@ -10,7 +15,7 @@
 <title>Campaign demonstration using Voxeo</title>
 </head>
 <body>
-
+<p>
 	This is a demonstration of message campaigns with voice calling and SMS
 	messaging. It uses the core platform (server, server-api, common) along
 	with scheduler, message-campaign, cmslite, sms-api, sms-http and voxeo.
@@ -19,8 +24,9 @@
 	which would result in redirecting the campaign messages to that number.
 	The cron campaign will send a message every two minutes until the user
 	is unregistered in the campaign or the user is removed from the system.
-	<br>
-	<br> Register a user into the system
+	<br></p>
+	
+	<br> <h5>Register a user into the system</h5>
 	<form method="post"
 		action="/motech-platform-server/module/campaigndemo/user/addCronUser">
 		ID:<input type="text" name="externalId" size="12" maxlength="12" />
