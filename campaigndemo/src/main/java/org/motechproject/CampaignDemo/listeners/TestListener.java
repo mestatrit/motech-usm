@@ -5,6 +5,7 @@ import java.util.List;
 import org.motechproject.CampaignDemo.dao.PatientDAO;
 import org.motechproject.CampaignDemo.model.Patient;
 import org.motechproject.cmslite.api.model.ContentNotFoundException;
+import org.motechproject.cmslite.api.model.StreamContent;
 import org.motechproject.cmslite.api.model.StringContent;
 import org.motechproject.cmslite.api.service.CMSLiteService;
 import org.motechproject.ivr.model.CallInitiationException;
@@ -115,9 +116,9 @@ public class TestListener {
              * If the format is IVR, send IVR
              */
             if (format.equals("IVR")) {
-                if (cmsliteService.isStringContentAvailable(language,
+                if (cmsliteService.isStreamContentAvailable(language,
                         messageKey)) {
-                    StringContent content = cmsliteService.getStringContent(
+                    StreamContent content = cmsliteService.getStreamContent(
                             language, messageKey);
 
                     // Call requests are used to place IVR calls. They
@@ -125,7 +126,7 @@ public class TestListener {
                     // phone number, timeout duration, and vxml URL for
                     // content.
                     CallRequest request = new CallRequest(phoneNum, 119,
-                            content.getValue());
+                            content.getName());
 
                     request.getPayload().put("USER_ID",
                             patientList.get(0).getExternalid()); // put Id
@@ -151,13 +152,14 @@ public class TestListener {
                     } catch (CallInitiationException e) {
                         log.error("Unable to place the call. ", e);
                     }
+                } else { // no content, don't place IVR call
+                    log.error("No content available");
                 }
-            } else { // no content, don't place IVR call
-                log.error("No content available");
             }
 
             if (format.equals("SMS")) {
-                if (cmsliteService.isStringContentAvailable(language, messageKey)) { // SMS
+                if (cmsliteService.isStringContentAvailable(language,
+                        messageKey)) { // SMS
                     StringContent content = cmsliteService.getStringContent(
                             language, messageKey); // sms
                     smsService.sendSMS(phoneNum, content.getValue());

@@ -35,6 +35,7 @@ public class IvrController extends MultiActionController {
     private static final int DEFAULT_FLASH_SLEEP = 5000;
     private EventRelay eventRelay = EventContext.getInstance().getEventRelay();
 
+    @Autowired
     private AllPhoneCalls allPhoneCalls;
 
     @Autowired
@@ -111,7 +112,7 @@ public class IvrController extends MultiActionController {
 
         updateState(phoneCall, event);
 
-        // TODO: I should retry a couple of times with exponential backoff. Or move events to a seperate document
+        // TODO: I should retry a couple of times with exponential backoff. Or move events to a separate document
         try {
             allPhoneCalls.update(phoneCall);
         } catch (UpdateConflictException e) {

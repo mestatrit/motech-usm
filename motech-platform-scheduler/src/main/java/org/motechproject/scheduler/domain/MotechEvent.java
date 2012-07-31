@@ -5,24 +5,41 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
- * Motech Scheduled Event data carrier class,
- * Instance of this class with event specific data will be send by Motech Scheduler when a scheduled event is fired
- * <p></p>
+ * Motech Scheduled Event data carrier class, Instance of this class with event
+ * specific data will be send by Motech Scheduler when a scheduled event is
+ * fired
+ * <p>
+ * </p>
  * This class is immutable
  */
 public final class MotechEvent implements Serializable {
+
+    @JsonProperty
     public static final String EVENT_TYPE_KEY_NAME = "eventType";
 
+    @JsonProperty
     private String subject;
+
+    @JsonProperty
     private Map<String, Object> parameters;
+
+    @JsonProperty
     private Date endTime;
+
+    @JsonProperty
     private boolean isLastEvent;
+
+    public MotechEvent() {
+    }
 
     /**
      * Constructor with subject only (parameters can be added interactively)
-     *
-     * @param subject - event destination
+     * 
+     * @param subject
+     *            - event destination
      * @throws IllegalArgumentException
      */
     public MotechEvent(String subject) {
@@ -31,11 +48,13 @@ public final class MotechEvent implements Serializable {
         }
 
         if (subject.contains("*")) {
-            throw new IllegalArgumentException("subject can not contain wildcard: " + subject);
+            throw new IllegalArgumentException(
+                    "subject can not contain wildcard: " + subject);
         }
 
         if (subject.contains("..")) {
-            throw new IllegalArgumentException("subject can not contain empty path segment: " + subject);
+            throw new IllegalArgumentException(
+                    "subject can not contain empty path segment: " + subject);
         }
 
         this.subject = subject;
@@ -43,9 +62,11 @@ public final class MotechEvent implements Serializable {
 
     /**
      * Constructor
-     *
-     * @param subject    - event type: Pill Reminder, Appointment Reminder ...
-     * @param parameters - a Map<String, Object> of additional parameters
+     * 
+     * @param subject
+     *            - event type: Pill Reminder, Appointment Reminder ...
+     * @param parameters
+     *            - a Map<String, Object> of additional parameters
      * @throws IllegalArgumentException
      */
     public MotechEvent(String subject, Map<String, Object> parameters) {
@@ -59,11 +80,12 @@ public final class MotechEvent implements Serializable {
 
     /**
      * Sets empty HashMap if parameters=null
-     *
+     * 
      * @return
      */
     public Map<String, Object> getParameters() {
-        return parameters != null ? parameters : (parameters = new HashMap<String, Object>());
+        return parameters != null ? parameters
+                : (parameters = new HashMap<String, Object>());
     }
 
     public Date getEndTime() {
@@ -97,13 +119,18 @@ public final class MotechEvent implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         MotechEvent that = (MotechEvent) o;
 
-        if (!subject.equals(that.subject)) return false;
-        if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) return false;
+        if (!subject.equals(that.subject))
+            return false;
+        if (parameters != null ? !parameters.equals(that.parameters)
+                : that.parameters != null)
+            return false;
 
         return true;
     }
@@ -117,9 +144,7 @@ public final class MotechEvent implements Serializable {
 
     @Override
     public String toString() {
-        return "MotechEvent{" +
-                "subject='" + subject + '\'' +
-                ", parameters=" + parameters +
-                '}';
+        return "MotechEvent{" + "subject='" + subject + '\'' + ", parameters="
+                + parameters + '}';
     }
 }

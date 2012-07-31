@@ -99,7 +99,9 @@
                             *,
                             org.springframework.beans.factory.xml,
                             org.springframework.context.config,
-                            org.springframework.osgi.config
+                            org.springframework.osgi.config,
+                            org.motechproject.server.event,
+                            org.motechproject.scheduler.gateway
                         </Import-Package>
                         <Embed-Dependency>!*</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

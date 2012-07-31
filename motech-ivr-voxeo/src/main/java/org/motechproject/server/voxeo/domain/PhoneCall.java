@@ -1,5 +1,6 @@
 package org.motechproject.server.voxeo.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.ektorp.support.TypeDiscriminator;
 import org.motechproject.ivr.model.CallDetailRecord;
@@ -24,6 +25,8 @@ public class PhoneCall extends MotechBaseDataObject {
         INCOMING, OUTGOING
     }
 
+    @JsonIgnore
+    private Integer duration;
     @JsonProperty
     private Date startDate;
     @JsonProperty

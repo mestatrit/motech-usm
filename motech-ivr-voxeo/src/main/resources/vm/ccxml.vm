@@ -12,7 +12,7 @@
 
   <!-- Set this to the MOTECH server base URL.  This is used for callbacks to report
        on call events -->
-  <var name="base_url" expr="'${baseUrl}'"/>
+  <var name="base_url" expr="'http://localhost:8080/motech-platform-server'"/>
 
   <!-- The timeout attribute specifies the amount of time to allow the call attempt
        to be made. If the call is not answered by the end of the duration of the
@@ -50,22 +50,22 @@
 
   <eventprocessor statevariable="app_state">
     <!-- This transition detects if this is an outgoing or incoming call and sets the
-     state appropiatly.  For an outgoing call it also creates the call -->
+	 state appropriately.  For an outgoing call it also creates the call -->
     <transition event="ccxml.loaded">
       <log expr="'*** CCXML.LOADED ***'"/>
 
       <!-- Timebox script execution to prevent stale sessions from accumulating -->
-      <send name="'TIMEOUT_REACHED'" target="session.id" delay="timeout"/>
+      <send name="'TIMEOUT_REACHED'" target="session.id" delay="call_timeout"/>
 
       <if cond="typeof vxml !== 'undefined'">
-        <log expr="vxml"/>
-        <log expr="phonenum"/>
-        <log expr="cid"/>
+	    <log expr="vxml"/>
+	    <log expr="phonenum"/>
+	    <log expr="cid"/>
 
         <assign name="app_state" expr="'outgoing'"/>
         <log expr="'*** PLACING CALL ***'"/>
 
-        <createcall dest="'tel:+' + session.values.phonenum" callerid="session.values.cid" timeout="call_timeout"/>
+        <createcall dest="'tel:' + session.values.phonenum" timeout="call_timeout"/>
       </if>
     </transition>
 
@@ -78,7 +78,7 @@
       <var name="status" expr="'ALERTING'"/>
       <assign name="application.callerId" expr="event$.connection.remote"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
 
       <accept connectionid="callId"/>
     </transition>
@@ -89,7 +89,7 @@
       <dialogstart src="incomingVXML" type="'application/voicexml+xml'"/>
       <var name="status" expr="'CONNECTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
     </transition>
 
     <transition state="incoming" event="dialog.started">
@@ -97,7 +97,7 @@
 
       <var name="status" expr="'DIALOG_STARTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
     </transition>
 
     <transition state="incoming" event="dialog.exit">
@@ -105,7 +105,7 @@
 
       <var name="status" expr="'DIALOG_EXIT'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
 
       <disconnect connectionid="callId"/>
     </transition>
@@ -115,7 +115,7 @@
 
       <var name="status" expr="'DISCONNECTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/incoming'" targettype="'basichttp'" name="'http.get'" namelist="session.id status application.callerId timestamp"/>
     </transition>
 
     <!-- ******************************* OUTGOING **************************** -->
@@ -127,16 +127,17 @@
       <var name="status" expr="'PROGRESSING'"/>
       <assign name="application.callerId" expr="event$.connection.remote"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
     </transition>
 
     <transition state="outgoing" event="connection.connected">
       <log expr="'***** CONNECTION.CONNECTED: OUTGOING *****'"/>
 
+    	<log expr="application.callerId"/>
       <var name="status" expr="'CONNECTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
-      <dialogstart src="vxml" type="'application/voicexml+xml'"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
+      <dialogstart src="vxml" type="'application/voicexml+xml'" namelist="base_url"/>
     </transition>
 
     <transition state="outgoing" event="dialog.started">
@@ -144,7 +145,7 @@
 
       <var name="status" expr="'DIALOG_STARTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
     </transition>
 
     <transition state="outgoing" event="dialog.exit">
@@ -152,7 +153,7 @@
 
       <var name="status" expr="'DIALOG_EXIT'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
 
       <disconnect connectionid="callId"/>
     </transition>
@@ -162,7 +163,7 @@
 
       <var name="status" expr="'DISCONNECTED'"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status application.callerId timestamp"/>
     </transition>
 
     <transition state="outgoing" event="connection.failed">
@@ -171,7 +172,7 @@
       <var name="status" expr="'FAILED'"/>
       <var name="reason" expr="event$.reason"/>
       <var name="timestamp" expr="(+new Date)"/>
-      <send target="base_url + '/ivr/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status reason application.callerId timestamp"/>
+      <send target="base_url + '/module/voxeo/outgoing'" targettype="'basichttp'" name="'http.get'" namelist="session.id externalId status reason application.callerId timestamp"/>
     </transition>
 
     <transition event="TIMEOUT_REACHED">

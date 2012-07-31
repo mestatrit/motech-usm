@@ -11,6 +11,12 @@
 
 
     <import resource="applicationSmsAPI.xml" />
+    
+    <bean class="org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor" />
+    
+    <osgi:reference id="eventListenerRegistryService"
+		cardinality="0..1"
+		interface="org.motechproject.server.event.EventListenerRegistryService" />
 
     <osgi:service id="smsServiceOsgi" auto-export="interfaces" ref="smsService"
                   interface="org.motechproject.sms.api.service.SmsService"/>

@@ -16,7 +16,6 @@ public class Activator implements BundleActivator {
     private static Logger logger = LoggerFactory.getLogger(Activator.class);
     private static final String CONTEXT_CONFIG_LOCATION = "classpath:campaignDemoResourcesBundle.xml";
     private static final String SERVLET_URL_MAPPING = "/campaigndemo";
-//    private static final String RESOURCE_URL_MAPPING = "/campaigndemo";
     private ServiceTracker tracker;
     private ServiceReference httpService;
 
@@ -77,16 +76,8 @@ public class Activator implements BundleActivator {
                 Thread.currentThread().setContextClassLoader(
                         getClass().getClassLoader());
 
-                // CampaignDemoHttpContext httpContext = new
-                // CampaignDemoHttpContext(
-                // service.createDefaultHttpContext());
                 service.registerServlet(SERVLET_URL_MAPPING, dispatcherServlet,
                         null, null);
-                // service.registerServlet(SERVLET_URL_MAPPING,
-                // dispatcherServlet,
-                // null, httpContext);
-                // service.registerResources(RESOURCE_URL_MAPPING, "/webapp",
-                // httpContext);
                 logger.debug("Servlet registered");
             } finally {
                 Thread.currentThread().setContextClassLoader(old);

@@ -18,8 +18,8 @@
 	href="/css/prettyPhoto.css" />
 <style>
 * {
-	font-size: 16px;
-	font-family: garamond
+	font-size: 14px;
+	font-family: tahoma;
 }
 </style>
 </head>

@@ -18,11 +18,11 @@ public class VoxeoConfig {
     }
 
     /**
-     * get Token for givin application name, typically read from JSON.
+     * get Token for given application name, typically read from JSON.
      * @param applicationName
      * @return
      */
     public String getTokenId(String applicationName) {
-        return applications.get(applicationName);
+        return applications.get("CampaignDemo");
     }
 }
