@@ -4,21 +4,35 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.motechproject.model.MotechBaseDataObject;
+
 /**
  * Represents Form definition, typically read from json configuration file. bean is class that extends {@link FormBean} to handle xml data.
  */
-public class Form {
+public class Form extends MotechBaseDataObject {
+    @JsonProperty
     private Integer id;
+    @JsonProperty
     private String name;
+    @JsonProperty
     private String bean;
+    @JsonProperty
     private String content;
+    @JsonProperty
     private String fileName;
+    @JsonProperty
     private List<String> depends;
+    @JsonProperty
     private String studyName;
+    @JsonProperty
     private String validator;
 
     public static final String XF_XFORMS_ID = "<xf:xforms.*?id=\"(.*?)\"";
 
+    public Form() {
+    }
+    
     public Form(String name, String fileName) {
         this.name = name;
         this.fileName = fileName;

@@ -26,32 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public abstract class BaseFormServlet extends HttpServlet {
+public abstract class BaseFormServlet {
 
     public static final byte RESPONSE_ERROR = 0;
     public static final byte RESPONSE_SUCCESS = 1;
 
     public static final String FAILED_TO_SERIALIZE_DATA = "failed to serialize data";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-
-    private UsersService usersService;
-    private ApplicationContext context;
-    private FormGroupPublisher formGroupPublisher;
-    private MobileFormsService mobileFormsService;
-    private AllMobileForms allMobileForms;
-    private String marker;
-    private FormGroupValidator formGroupValidator;
-
-
-    protected BaseFormServlet() {
-        context = new ClassPathXmlApplicationContext("applicationMobileFormsAPI.xml");
-        mobileFormsService = context.getBean("mobileFormsServiceImpl", MobileFormsService.class);
-        usersService = context.getBean("usersServiceImpl", UsersService.class);
-        formGroupPublisher = context.getBean("formGroupPublisher", FormGroupPublisher.class);
-        allMobileForms = context.getBean("allMobileForms", AllMobileForms.class);
-        marker = context.getBean("mobileFormsProperties", Properties.class).getProperty("forms.xml.form.name");
-        formGroupValidator = new FormGroupValidator();
-    }
 
     protected EpihandyXformSerializer serializer() {
         return new EpihandyXformSerializer();
@@ -64,51 +45,7 @@ public abstract class BaseFormServlet extends HttpServlet {
         String locale = dataInput.readUTF();
     }
 
-    @Override
-    protected abstract void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
-
-    protected Map<String, FormValidator> getFormValidators() {
-        Map<String, FormValidator> validators = new HashMap<String, FormValidator>();
-        final Enumeration attributeNames = getServletContext().getAttributeNames();
-        while (attributeNames.hasMoreElements()) {
-            final String attributeName = (String) attributeNames.nextElement();
-            final Object attributeValue = getServletContext().getAttribute(attributeName);
-            if (attributeValue instanceof FormValidator) {
-                validators.put(attributeName, (FormValidator) attributeValue);
-            }
-        }
-        return validators;
-    }
-
-    protected FormValidator getValidatorFor(FormBean formBean) {
-        return (FormValidator) getServletContext().getAttribute(formBean.getValidator());
-    }
-
     protected byte readActionByte(DataInputStream dataInput) throws IOException {
         return dataInput.readByte();
-    }
-
-    protected FormOutput getFormOutput() {
-        return new FormOutput();
-    }
-
-    protected FormParser createFormProcessor() {
-        return new FormParser(new FormDataParser(), new MapToBeanConvertor(), allMobileForms, marker);
-    }
-
-    public UsersService getUsersService() {
-        return usersService;
-    }
-
-    public MobileFormsService getMobileFormsService() {
-        return mobileFormsService;
-    }
-
-    public FormGroupValidator getFormGroupValidator() {
-        return formGroupValidator;
-    }
-
-    public FormGroupPublisher getFormGroupPublisher() {
-        return formGroupPublisher;
     }
 }

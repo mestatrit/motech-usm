@@ -1,33 +1,52 @@
 package org.motechproject.mobileforms.api.web;
 
-import com.jcraft.jzlib.JZlib;
-import com.jcraft.jzlib.ZOutputStream;
-import org.fcitmuk.epihandy.EpihandyXformSerializer;
-import org.motechproject.mobileforms.api.domain.Form;
-import org.motechproject.mobileforms.api.domain.FormGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static ch.lambdaj.Lambda.collect;
+import static ch.lambdaj.Lambda.on;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.collect;
-import static ch.lambdaj.Lambda.on;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.fcitmuk.epihandy.EpihandyXformSerializer;
+import org.motechproject.mobileforms.api.domain.Form;
+import org.motechproject.mobileforms.api.domain.FormGroup;
+import org.motechproject.mobileforms.api.service.MobileFormsService;
+import org.motechproject.mobileforms.api.service.UsersService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.jcraft.jzlib.JZlib;
+import com.jcraft.jzlib.ZOutputStream;
+
+@Controller
 public class FormDownloadServlet extends BaseFormServlet {
     private final Logger log = LoggerFactory.getLogger(FormUploadServlet.class);
 
     public static final byte ACTION_DOWNLOAD_STUDY_LIST = 2;
     public static final byte ACTION_DOWNLOAD_USERS_AND_FORMS = 11;
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private final UsersService usersService;
+    private final MobileFormsService mobileFormsService;
+
+    @Autowired
+    public FormDownloadServlet(UsersService usersService, MobileFormsService mobileFormsService) {
+        this.usersService = usersService;
+        this.mobileFormsService = mobileFormsService;
+    }
+
+    @RequestMapping(value = "/formdownload", method = RequestMethod.POST)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+            IOException {
         ZOutputStream zOutput = new ZOutputStream(response.getOutputStream(), JZlib.Z_BEST_COMPRESSION);
         DataInputStream dataInput = new DataInputStream(request.getInputStream());
         DataOutputStream dataOutput = new DataOutputStream(zOutput);
@@ -63,7 +82,8 @@ public class FormDownloadServlet extends BaseFormServlet {
         serializer.serializeStudies(byteStream, getMobileFormsService().getAllFormGroups());
     }
 
-    private void handleDownloadUsersAndForms(ByteArrayOutputStream byteStream, DataInputStream dataInput) throws Exception {
+    private void handleDownloadUsersAndForms(ByteArrayOutputStream byteStream, DataInputStream dataInput)
+            throws Exception {
         EpihandyXformSerializer epiSerializer = serializer();
         epiSerializer.serializeUsers(byteStream, getUsersService().getUsers());
         int studyIndex = dataInput.readInt();

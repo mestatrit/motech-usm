@@ -2,11 +2,25 @@ package org.motechproject.mobileforms.api.domain;
 
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.ektorp.support.TypeDiscriminator;
+import org.motechproject.model.MotechBaseDataObject;
+
 /** Represents set of form definitions provided in json config file. */
-public class FormGroup {
+@TypeDiscriminator("doc.type === 'FormGroup'")
+public class FormGroup extends MotechBaseDataObject {
+    @JsonProperty
     private String name;
+    
+    @JsonProperty
+    Integer index;
+    
+    @JsonProperty
     private List<Form> forms;
 
+    public FormGroup() {
+    }
+    
     public FormGroup(String name, List<Form> forms) {
         this.name = name;
         this.forms = forms;
@@ -18,6 +32,14 @@ public class FormGroup {
 
     public List<Form> getForms() {
         return forms;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 
     @Override

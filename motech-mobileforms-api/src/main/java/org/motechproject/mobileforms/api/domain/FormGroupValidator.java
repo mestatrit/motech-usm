@@ -1,22 +1,32 @@
 package org.motechproject.mobileforms.api.domain;
 
-import org.motechproject.mobileforms.api.validator.FormValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
+import static ch.lambdaj.Lambda.index;
+import static ch.lambdaj.Lambda.join;
+import static ch.lambdaj.Lambda.on;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ch.lambdaj.Lambda.index;
-import static ch.lambdaj.Lambda.join;
-import static ch.lambdaj.Lambda.on;
+import org.motechproject.mobileforms.api.osgi.FormsProvider;
+import org.motechproject.mobileforms.api.validator.FormValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
+@Component
 public class FormGroupValidator {
     private final Logger log = LoggerFactory.getLogger(FormGroupValidator.class);
+    private final List<FormsProvider> formProviders;
 
-    public void validate(FormBeanGroup formGroup, Map<String, FormValidator> validators, List<FormBean> allForms) {
+    @Autowired
+    public FormGroupValidator(List<FormsProvider> formProviders) {
+        this.formProviders = formProviders;
+    }
+    
+    public void validate(FormBeanGroup formGroup, List<FormBean> allForms) {
         try {
             final List<FormBean> formBeansOrderedByPriority = formGroup.sortByDependency();
             final Map<String, FormBean> formBeansIndexedByName = index(formBeansOrderedByPriority, on(FormBean.class).getFormname());
@@ -24,7 +34,18 @@ public class FormGroupValidator {
                 final List<String> invalidDependentForms = getInvalidDependentForms(formBean, formBeansIndexedByName);
                 if (CollectionUtils.isEmpty(invalidDependentForms)) {
                     try {
-                        formBean.addFormErrors(validators.get(formBean.getValidator()).validate(formBean, formGroup, allForms));
+                        boolean foundProvider = false;
+                        for(FormsProvider provider : formProviders) {
+                            if (provider.hasValidator(formBean.getValidator())) {
+                                FormValidator<FormBean> validator = provider.getValidator(formBean.getValidator());
+                                formBean.addFormErrors(validator.validate(formBean, formGroup, allForms));
+                                foundProvider = true;
+                            }
+                        }
+                        
+                        if (!foundProvider) {
+                            log.warn("Did not find a validator with name: " + formBean.getValidator());
+                        }
                     } catch (Exception e) {
                         formBean.addFormError(new FormError("Form Error:" + formBean.getFormname(), "Server exception, contact your administrator"));
                         log.error("Encountered exception while validating form group, " + formGroup.toString(), e);

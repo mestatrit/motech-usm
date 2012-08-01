@@ -1,5 +1,10 @@
 package org.motechproject.mobileforms.api.callbacks;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.fcitmuk.epihandy.DeserializationListenerAdapter;
 import org.fcitmuk.epihandy.FormData;
@@ -7,17 +12,13 @@ import org.fcitmuk.epihandy.StudyData;
 import org.motechproject.MotechException;
 import org.motechproject.mobileforms.api.domain.Form;
 import org.motechproject.mobileforms.api.domain.FormBean;
+import org.motechproject.mobileforms.api.osgi.FormsProvider;
 import org.motechproject.mobileforms.api.parser.FormDataParser;
 import org.motechproject.mobileforms.api.repository.AllMobileForms;
 import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
 import org.motechproject.mobileforms.api.vo.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class FormParser extends DeserializationListenerAdapter {
     private final Logger log = LoggerFactory.getLogger(FormParser.class);
@@ -31,6 +32,8 @@ public class FormParser extends DeserializationListenerAdapter {
     private AllMobileForms allMobileForms;
 
     private String marker;
+        
+    List<FormsProvider> formProviders;
 
     public FormParser() {
     }
@@ -52,16 +55,26 @@ public class FormParser extends DeserializationListenerAdapter {
         try {
             Map<String, String> data = parser.parse(formXml);
             Form form = allMobileForms.getFormByName(data.get(marker));
-
-            FormBean formBean = (FormBean) Class.forName(form.bean()).newInstance();
-            formBean.setValidator(form.validator());
-            formBean.setFormname(form.name());
-            formBean.setStudyName(form.studyName());
-            formBean.setXmlContent(formXml);
-            formBean.setDepends(form.getDepends());
-
-            mapToBeanConvertor.convert(formBean, handleEmptyStrings(data));
-            studies.get(studies.size() - 1).addForm(formBean);
+            FormBean formBean = null;
+            
+            for(FormsProvider provider : formProviders) {
+                if (provider.isFormProviderFor(form.bean())) {
+                    formBean = provider.makeInstance(form.bean());
+                    formBean.setValidator(form.validator());
+                    formBean.setFormname(form.name());
+                    formBean.setStudyName(form.studyName());
+                    formBean.setXmlContent(formXml);
+                    formBean.setDepends(form.getDepends());
+                    break;
+                }
+            }
+            
+            if (formBean != null) {
+                mapToBeanConvertor.convert(formBean, handleEmptyStrings(data));
+                studies.get(studies.size() - 1).addForm(formBean);
+            } else {
+                log.warn("Did not find a provider that supports form bean: " + form.bean());
+            }
 
         } catch (Exception e) {
             throw new MotechException("Exception occurred while parsing form xml", e);

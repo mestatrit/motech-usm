@@ -54,4 +54,14 @@ public class MobileFormsServiceImpl implements MobileFormsService {
         return studyNamesWithIndex;
     }
 
+    @Override
+    public void addFormGroup(FormGroup formGroup) {
+        
+    }
+
+    @Override
+    public void removeFormGroup(String formGroupName) {
+        
+    }
+
 }

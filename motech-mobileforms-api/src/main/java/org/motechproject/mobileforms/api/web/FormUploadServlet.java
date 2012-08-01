@@ -1,36 +1,64 @@
 package org.motechproject.mobileforms.api.web;
 
-import com.jcraft.jzlib.JZlib;
-import com.jcraft.jzlib.ZOutputStream;
-import org.fcitmuk.epihandy.EpihandyXformSerializer;
-import org.motechproject.mobileforms.api.callbacks.FormParser;
-import org.motechproject.mobileforms.api.domain.FormBean;
-import org.motechproject.mobileforms.api.domain.FormBeanGroup;
-import org.motechproject.mobileforms.api.domain.FormOutput;
-import org.motechproject.mobileforms.api.validator.FormValidator;
-import org.motechproject.mobileforms.api.vo.Study;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import static ch.lambdaj.Lambda.collect;
 import static ch.lambdaj.Lambda.flatten;
 import static ch.lambdaj.Lambda.on;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.fcitmuk.epihandy.EpihandyXformSerializer;
+import org.motechproject.mobileforms.api.callbacks.FormGroupPublisher;
+import org.motechproject.mobileforms.api.callbacks.FormParser;
+import org.motechproject.mobileforms.api.domain.FormBean;
+import org.motechproject.mobileforms.api.domain.FormBeanGroup;
+import org.motechproject.mobileforms.api.domain.FormGroupValidator;
+import org.motechproject.mobileforms.api.domain.FormOutput;
+import org.motechproject.mobileforms.api.parser.FormDataParser;
+import org.motechproject.mobileforms.api.repository.AllMobileForms;
+import org.motechproject.mobileforms.api.service.MobileFormsService;
+import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
+import org.motechproject.mobileforms.api.vo.Study;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.jcraft.jzlib.JZlib;
+import com.jcraft.jzlib.ZOutputStream;
+
+@Controller
 public class FormUploadServlet extends BaseFormServlet {
 
-    private final Logger log = LoggerFactory.getLogger(FormUploadServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(FormUploadServlet.class);
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private final FormGroupValidator formGroupValidator;
+    private final FormGroupPublisher formGroupPublisher;
+    private final AllMobileForms allMobileForms;
+    private final String marker;
+    private MobileFormsService mobileFormsService;
+
+    @Autowired
+    public FormUploadServlet(FormGroupValidator formGroupValidator, FormGroupPublisher formGroupPublisher,
+            AllMobileForms allMobileForms, String marker, MobileFormsService mobileFormsService) {
+        this.formGroupValidator = formGroupValidator;
+        this.formGroupPublisher = formGroupPublisher;
+        this.allMobileForms = allMobileForms;
+        this.marker = marker;
+        this.mobileFormsService = mobileFormsService;
+    }
+
+    @RequestMapping(value = "/formupload", method=RequestMethod.POST)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+            IOException {
         ZOutputStream zOutput = new ZOutputStream(response.getOutputStream(), JZlib.Z_BEST_COMPRESSION);
         DataInputStream dataInput = new DataInputStream(request.getInputStream());
         DataOutputStream dataOutput = new DataOutputStream(zOutput);
@@ -39,12 +67,12 @@ public class FormUploadServlet extends BaseFormServlet {
             readParameters(dataInput);
             readActionByte(dataInput);
             List<Study> studies = extractBeans(dataInput);
-            final Map<String, FormValidator> formValidators = getFormValidators();
             List<FormBean> allForms = flatten(collect(studies, on(Study.class).forms()));
             for (Study study : studies) {
                 for (FormBeanGroup group : study.groupedForms()) {
-                    getFormGroupValidator().validate(group, formValidators, allForms);
-                    getFormGroupPublisher().publish(new FormBeanGroup(new FormBeanGroup(group.validForms()).sortByDependency()));
+                    formGroupValidator.validate(group, allForms);
+                    formGroupPublisher.publish(new FormBeanGroup(new FormBeanGroup(group.validForms())
+                            .sortByDependency()));
                 }
                 formOutput.addStudy(study);
             }
@@ -70,4 +98,11 @@ public class FormUploadServlet extends BaseFormServlet {
         return formParser.getStudies();
     }
 
+    protected FormOutput getFormOutput() {
+        return new FormOutput();
+    }
+
+    protected FormParser createFormProcessor() {
+        return new FormParser(new FormDataParser(), new MapToBeanConvertor(), allMobileForms, marker);
+    }
 }
