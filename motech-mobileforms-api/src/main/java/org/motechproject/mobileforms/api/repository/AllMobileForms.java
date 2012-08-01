@@ -2,7 +2,9 @@ package org.motechproject.mobileforms.api.repository;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.ektorp.CouchDbConnector;
+import org.ektorp.support.View;
 import org.motechproject.dao.MotechBaseRepository;
 import org.motechproject.mobileforms.api.domain.Form;
 import org.motechproject.mobileforms.api.domain.FormGroup;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class AllMobileForms extends MotechBaseRepository<FormGroup> {
+    private static final Logger LOGGER = Logger.getLogger(AllMobileForms.class);
 
     protected AllMobileForms(Class<FormGroup> type, CouchDbConnector db) {
         super(type, db);
@@ -19,8 +22,17 @@ public class AllMobileForms extends MotechBaseRepository<FormGroup> {
         return getAll();
     }
 
+    @View(name = "by_index", map = "function(doc) { if(doc.type === 'FormGroup') emit(doc.groupIndex); }")
     public FormGroup getFormGroup(Integer index) {
-        return formGroups.get(index);
+        List<FormGroup> groups = queryView("by_index", index);
+        if (groups.size() == 0) {
+            return null;
+        } else if (groups.size() > 1) {
+            LOGGER.warn("There are multiple Form Groups with the same group index. The group index should be unique for each Form Group");
+            LOGGER.warn("Selecting first Form Group");
+        }
+        
+        return groups.get(0);
     }
 
     public Form getFormByName(String formName) {

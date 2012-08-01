@@ -52,15 +52,9 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            org.motechproject.mobileforms.api.callbacks,
                             org.motechproject.mobileforms.api.domain,
-                            org.motechproject.mobileforms.api.parser,
-                            org.motechproject.mobileforms.api.repository,
                             org.motechproject.mobileforms.api.service,
-                            org.motechproject.mobileforms.api.utils,
                             org.motechproject.mobileforms.api.validator,
-                            org.motechproject.mobileforms.api.vo,
-                            org.motechproject.mobileforms.api.web
                         </Export-Package>
                         <Bundle-Activator>
                             org.motechproject.mobileforms.api.osgi.Activator

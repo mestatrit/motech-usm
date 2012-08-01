@@ -48,5 +48,10 @@ public interface MobileFormsService {
      */
     void addFormGroup(FormGroup formGroup);
     
+    /**
+     * Removes a form group from the mobile forms module
+     * 
+     * @param formGroupName The name of the form group to remove
+     */
     void removeFormGroup(String formGroupName);
 }

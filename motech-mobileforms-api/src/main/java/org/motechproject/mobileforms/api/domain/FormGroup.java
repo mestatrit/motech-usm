@@ -13,7 +13,7 @@ public class FormGroup extends MotechBaseDataObject {
     private String name;
     
     @JsonProperty
-    Integer index;
+    private Integer groupIndex;
     
     @JsonProperty
     private List<Form> forms;
@@ -34,12 +34,12 @@ public class FormGroup extends MotechBaseDataObject {
         return forms;
     }
 
-    public Integer getIndex() {
-        return index;
+    public Integer getGroupIndex() {
+        return groupIndex;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
+    public void setGroupIndex(Integer groupIndex) {
+        this.groupIndex = groupIndex;
     }
 
     @Override
