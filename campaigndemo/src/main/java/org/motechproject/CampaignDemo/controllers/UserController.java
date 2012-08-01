@@ -72,8 +72,8 @@ public class UserController extends MultiActionController {
         modelMap.put("patients", patientList); // List of patients is for
                                                // display purposes only
 
-               
-        ModelAndView mv = new ModelAndView("formPage", modelMap);
+        
+        ModelAndView mv = new ModelAndView(returnPage, modelMap);
 
         return mv;
     }
@@ -91,7 +91,7 @@ public class UserController extends MultiActionController {
         modelMap.put("patients", patientList); // List of patients is for
                                                // display purposes only
 
-        ModelAndView mv = new ModelAndView("formPage", modelMap);
+        ModelAndView mv = new ModelAndView(returnPage, modelMap);
 
         return mv;
     }

@@ -97,7 +97,7 @@ public class CampaignController extends MultiActionController {
 
         ModelAndView mv = null;
 
-        if (campaignName.equals("Cron based Message Program")) {
+        if (campaignName.equals("Cron based SMS Program")||campaignName.equals("Cron based IVR Program")) {
             mv = new ModelAndView("cronFormPage", modelMap);
         } else {
             mv = new ModelAndView("formPage", modelMap);
@@ -137,7 +137,7 @@ public class CampaignController extends MultiActionController {
 
         ModelAndView mv = null;
 
-        if (campaignName.equals("Cron based Message Program")) {
+        if (campaignName.equals("Cron based SMS Program")||campaignName.equals("Cron based IVR Program")){
             mv = new ModelAndView("cronFormPage", modelMap);
         } else {
             mv = new ModelAndView("formPage", modelMap);

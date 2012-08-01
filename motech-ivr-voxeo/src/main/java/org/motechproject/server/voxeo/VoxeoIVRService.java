@@ -106,6 +106,7 @@ public class VoxeoIVRService implements IVRService {
         } catch (Exception e) {
             log.error("Exception: ", e);
         }
+        
     }
 
     private HttpMethod generateRequestFor(String voxeoUrl, String phoneNumber,

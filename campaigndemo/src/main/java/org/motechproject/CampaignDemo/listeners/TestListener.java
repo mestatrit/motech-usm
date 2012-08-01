@@ -116,9 +116,9 @@ public class TestListener {
              * If the format is IVR, send IVR
              */
             if (format.equals("IVR")) {
-                if (cmsliteService.isStreamContentAvailable(language,
+                if (cmsliteService.isStringContentAvailable(language,
                         messageKey)) {
-                    StreamContent content = cmsliteService.getStreamContent(
+                    StringContent content = cmsliteService.getStringContent(
                             language, messageKey);
 
                     // Call requests are used to place IVR calls. They
@@ -126,7 +126,7 @@ public class TestListener {
                     // phone number, timeout duration, and vxml URL for
                     // content.
                     CallRequest request = new CallRequest(phoneNum, 119,
-                            content.getName());
+                            content.getValue());
 
                     request.getPayload().put("USER_ID",
                             patientList.get(0).getExternalid()); // put Id

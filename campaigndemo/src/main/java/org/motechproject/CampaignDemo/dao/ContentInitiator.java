@@ -29,12 +29,18 @@ public class ContentInitiator {
             InputStream ghanaMessageStream = this.getClass()
                     .getResourceAsStream("/week" + i + ".wav");
 
-            StreamContent pregnancyCampaignIVR = new StreamContent("en",
+            StreamContent ghanaFile = new StreamContent("en",
                     "ghanaPregnancyWeek" + i, ghanaMessageStream, "checksum"
-                            + i, "audio/wav"); // IVR?
-
+                            + i, "audio/wav"); // IVR
+            try {
+                cmsLiteService.addContent(ghanaFile);
+            } catch (CMSLiteException e) {
+            }
+            StringContent pregnancyCampaignIVR = new StringContent("en",
+                    "ghanaPregnancyWeekNum" + i, "week" + i + ".xml"); // IVR
             StringContent pregnancyCampaignSMS = new StringContent("en",
                     "pregnancy-info-week-" + i, getPregnancyMessage(i)); // SMS
+
             try {
                 cmsLiteService.addContent(pregnancyCampaignIVR);
                 cmsLiteService.addContent(pregnancyCampaignSMS);
@@ -48,13 +54,13 @@ public class ContentInitiator {
                 inputStreamToResource1, "checksum1", "audio/wav"); // IVR
         cmsLiteService.addContent(cronIVR);
 
-        StringContent cronVxmlIVR = new StringContent("en", "cron-message",
-                "/cron.xml");
+        StringContent cronVxmlIVR = new StringContent("en", "cronIVRMessage",
+                "cron.xml");
         cmsLiteService.addContent(cronVxmlIVR); // IVR
 
         StringContent hardCronSMS = new StringContent("en", "cron-message",
                 "This is an SMS cron message that will repeat every "
-                     + "two minutes until you unenroll");
+                        + "two minutes until you unenroll");
         cmsLiteService.addContent(hardCronSMS); // SMS
 
     }

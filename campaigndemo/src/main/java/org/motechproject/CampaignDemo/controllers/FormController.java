@@ -16,21 +16,16 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 @Controller
 public class FormController extends MultiActionController {
 
-    @RequestMapping(value = "/form/jsp", method = RequestMethod.GET)
+    @RequestMapping(value = "/form/cron", method = RequestMethod.GET)
     public ModelAndView cronCampaign(HttpServletRequest request,
             HttpServletResponse response) {
         return new ModelAndView("cronFormPage");
     }
 
-    @RequestMapping(value = "/form/offsetForm", method = RequestMethod.GET)
+    @RequestMapping(value = "/form/offset", method = RequestMethod.GET)
     public ModelAndView offsetCampaign(HttpServletRequest request,
             HttpServletResponse response) {
         return new ModelAndView("formPage");
     }
 
-    @RequestMapping(value = "/form/patients", method = RequestMethod.GET)
-    public ModelAndView openMRSPatients(HttpServletRequest request,
-            HttpServletResponse response) {
-        return new ModelAndView("patients");
-    }
 }

@@ -8,14 +8,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Campaign Demonstration</title>
-<h5>Message Campaign Demonstration</h5>
-<!-- CSS -->
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/light-blue.css" />
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/padding.css" />
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/prettyPhoto.css" />
+<h3>Message Campaign Demonstration</h3>
 <style>
 * {
 	font-size: 14px;
@@ -46,35 +39,54 @@
 		messages from week 5 to week 40.</p>
 	<h4>Register a user into the system</h4>
 	<form method="post"
-		action="/motech-platform-server/module/campaigndemo/user/add">
+		action="/motech-platform-server/module/campaigndemo/user/addOffsetUser">
 		ID:<input type="text" name="externalId" size="12" maxlength="12" />
-		Phone Number (with no special characters, like in 2071234567):<input
+		Phone Number (with no special characters, reflecting the format 2071234567):<input
 			type="text" name="phoneNum" size="24" maxlength="24" /> <input
 			type="submit" value="Register User" />
 	</form>
 	<h4>Unregister a user from the system</h4>
 	<form method="post"
-		action="/motech-platform-server/module/campaigndemo/user/remove">
+		action="/motech-platform-server/module/campaigndemo/user/removeOffsetUser">
 		ID:<input type="text" name="externalId" size="12" maxlength="12" /> <input
 			type="submit" value="Unregister User" />
 	</form>
 
-	<h4>Register a user in an offset campaign</h4>
+	<h4>Register a user in an offset SMS message campaign</h4>
 	<form method="post"
 		action="/motech-platform-server/module/campaigndemo/start">
 		ID:<input type="text" name="externalId" size="12" maxlength="12" />
 		Offset time:<input type="text" name="offset" size="12" maxlength="12" />
 		<input type="hidden" name="campaignName"
-			value="Ghana Pregnancy Message Program" /> <input type="submit"
+			value="Ghana Pregnancy SMS Program" /> <input type="submit"
 			value="Register in campaign" />
 	</form>
-
-	<h4>Unregister a user from the campaign</h4>
+	
+	<h4>Register a user in an offset IVR message campaign</h4>
+	<form method="post"
+		action="/motech-platform-server/module/campaigndemo/start">
+		ID:<input type="text" name="externalId" size="12" maxlength="12" />
+		Offset time:<input type="text" name="offset" size="12" maxlength="12" />
+		<input type="hidden" name="campaignName"
+			value="Ghana Pregnancy IVR Program" /> <input type="submit"
+			value="Register in campaign" />
+	</form>
+	
+	<h4>Unregister a user from an SMS campaign</h4>
 	<form method="post"
 		action="/motech-platform-server/module/campaigndemo/stop">
 		ID:<input type="text" name="externalId" size="12" maxlength="12" /> <input
 			type="hidden" name="campaignName"
-			value="Ghana Pregnancy Message Program" /> <input type="submit"
+			value="Ghana Pregnancy SMS Program" /> <input type="submit"
+			value="Unregister" />
+	</form>
+
+	<h4>Unregister a user from an IVR campaign</h4>
+	<form method="post"
+		action="/motech-platform-server/module/campaigndemo/stop">
+		ID:<input type="text" name="externalId" size="12" maxlength="12" /> <input
+			type="hidden" name="campaignName"
+			value="Ghana Pregnancy IVR Program" /> <input type="submit"
 			value="Unregister" />
 	</form>
 

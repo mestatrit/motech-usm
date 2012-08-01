@@ -20,7 +20,7 @@
         ]
     },
         {
-        "name" : "Ghana Pregnancy Message Program" ,
+        "name" : "Ghana Pregnancy SMS Program" ,
         "type" : "OFFSET",
         "messages" : [
             {
@@ -278,7 +278,7 @@
         ]
     },
     {
-        "name" : "Ghana Pregnancy Message Program" ,
+        "name" : "Ghana Pregnancy IVR Program" ,
         "type" : "OFFSET",
         "messages" : [
         {
@@ -625,12 +625,25 @@
         ]
     },
     {
-        "name" : "Cron based Message Program",
+        "name" : "Cron based IVR Program",
         "type" : "CRON",
         "messages" : [
             {
                 "name" : "First",
                 "formats" : ["IVR", "SMS"],
+                "languages" : ["en"],
+                "messageKey": "cron-message",
+                "cron" : "0 0/2 * * * ?"
+            }
+        ]
+    },
+    {
+        "name" : "Cron based SMS Program",
+        "type" : "CRON",
+        "messages" : [
+            {
+                "name" : "First",
+                "formats" : ["SMS"],
                 "languages" : ["en"],
                 "messageKey": "cron-message",
                 "cron" : "0 0/2 * * * ?"
