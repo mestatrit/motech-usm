@@ -157,4 +157,9 @@ public class ScheduleTrackingServiceImpl implements ScheduleTrackingService {
             }
         }
     }
+
+    @Override
+    public Schedule getSchedule(String scheduleName) {
+        return allSchedules.getByName(scheduleName);
+    }
 }
