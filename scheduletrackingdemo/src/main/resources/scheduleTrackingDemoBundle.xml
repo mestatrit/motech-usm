@@ -12,4 +12,9 @@
     <osgi:service id="patientEncounterFormProviderOsgi" ref="patientEncounterFormProvider"
         interface="org.motechproject.mobileforms.api.service.FormProvider" />
 
+    <osgi:service id="patientEnrollmentFormProviderOsgi" ref="patientEnrollmentFormProvider"
+        interface="org.motechproject.mobileforms.api.service.FormProvider" />
+
+    <osgi:service id="patientRegistrationFormProviderOsgi" ref="patientRegistrationFormProvider"
+        interface="org.motechproject.mobileforms.api.service.FormProvider" />
 </beans>
