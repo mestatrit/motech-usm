@@ -9,7 +9,6 @@ import org.motechproject.scheduletrackingdemo.model.Patient;
 import org.motechproject.scheduletracking.api.domain.EnrollmentStatus;
 import org.motechproject.scheduletracking.api.domain.Milestone;
 import org.motechproject.scheduletracking.api.domain.Schedule;
-import org.motechproject.scheduletracking.api.repository.AllSchedules;
 import org.motechproject.scheduletracking.api.service.EnrollmentRecord;
 import org.motechproject.scheduletracking.api.service.EnrollmentRequest;
 import org.motechproject.scheduletracking.api.service.EnrollmentsQuery;
@@ -37,9 +36,6 @@ public class PatientScheduler {
 
     @Autowired
     private ScheduleTrackingService scheduleTrackingService;
-
-    @Autowired
-    private AllSchedules allSchedules;
 
     public void enrollIntoSchedule(String externalID, String scheduleName) {
         if (!patientDAO.findByExternalid(externalID).isEmpty()
