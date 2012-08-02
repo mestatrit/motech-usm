@@ -24,11 +24,11 @@
 <!-- 			<artifactId>motech-outbox-api</artifactId> -->
 <!-- 			<version>${project.version}</version> -->
 <!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>${project.groupId}</groupId> -->
-<!-- 			<artifactId>motech-scheduletracking-api</artifactId> -->
-<!-- 			<version>${project.version}</version> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>motech-scheduletracking-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>${project.groupId}</groupId> -->
 <!-- 			<artifactId>motech-cmslite-api</artifactId> -->
@@ -54,11 +54,11 @@
 <!-- 			<artifactId>motech-ivr-voxeo</artifactId> -->
 <!-- 			<version>${project.version}</version> -->
 <!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>${project.groupId}</groupId> -->
-<!-- 			<artifactId>motech-mrs-api</artifactId> -->
-<!-- 			<version>${project.version}</version> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>motech-mrs-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>${project.groupId}</groupId> -->
 <!-- 			<artifactId>motech-openmrs-ws</artifactId> -->
