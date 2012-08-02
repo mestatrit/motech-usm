@@ -1,5 +1,9 @@
 package org.motechproject.scheduletrackingdemo.controllers;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +11,8 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.motechproject.scheduletrackingdemo.OpenMrsClient;
 import org.motechproject.scheduletrackingdemo.PatientScheduler;
 import org.motechproject.scheduletrackingdemo.DAO.MRSPatientDAO;
@@ -29,6 +35,8 @@ public class EnrollController {
 
     @Autowired
     private OpenMrsClient openMrsClient;
+    
+    private static final String MAPPING_FILE_NAME = "simple-schedule.json";
 
     @Autowired
     private PatientScheduler patientSchedule;
@@ -149,5 +157,24 @@ public class EnrollController {
         mv.addObject("patientsList", patientList);
 
         return mv;
+    }
+    
+    @RequestMapping("/addschedules")
+    public ModelAndView addschedules(HttpServletRequest request,
+            HttpServletResponse response) {
+        
+        InputStream is = getClass().getClassLoader().getResourceAsStream(MAPPING_FILE_NAME);
+
+        StringWriter writer = new StringWriter();
+        try {
+            IOUtils.copy(is, writer, "UTF-8");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        scheduleTrackingService.add(writer.toString());
+
+        return null;
     }
 }
