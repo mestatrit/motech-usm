@@ -12,6 +12,7 @@ public class PatientRegistrationBean extends FormBean {
     private String firstName;
     private String lastName;
     private String gender;
+    private String location;
     private Date dateOfBirth;
     private String phoneNumber;
     private boolean enrollPatient;
@@ -47,6 +48,14 @@ public class PatientRegistrationBean extends FormBean {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public Date getDateOfBirth() {
