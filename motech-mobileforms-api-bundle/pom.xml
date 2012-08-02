@@ -53,6 +53,7 @@
                     <instructions>
                         <Export-Package>
                             org.motechproject.mobileforms.api.domain,
+                            org.motechproject.mobileforms.api.event.constants,
                             org.motechproject.mobileforms.api.service,
                             org.motechproject.mobileforms.api.validator,
                         </Export-Package>
