@@ -27,11 +27,11 @@
 			<artifactId>motech-scheduletracking-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>${project.groupId}</groupId> -->
-		<!-- <artifactId>motech-cmslite-api</artifactId> -->
-		<!-- <version>${project.version}</version> -->
-		<!-- </dependency> -->
+		<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>motech-cmslite-api</artifactId>
+		<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>motech-mobileforms-api</artifactId>
