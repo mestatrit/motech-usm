@@ -44,11 +44,9 @@ public class EnrollController {
 
         List<Patient> patientList = patientDAO.findAllPatients();
 
-        Map<String, Object> modelMap = new TreeMap<String, Object>();
-        modelMap.put("patients", patientList); // List of patients is for
-                                               // display purposes only
-
-        ModelAndView mv = new ModelAndView("scheduleTrackingPage", modelMap);
+        ModelAndView mv = new ModelAndView("scheduleTrackingPage");
+        
+        mv.addObject("patientsList", patientList);
 
         return mv;
 
@@ -71,11 +69,9 @@ public class EnrollController {
 
         List<Patient> patientList = patientDAO.findAllPatients();
 
-        Map<String, Object> modelMap = new TreeMap<String, Object>();
-        modelMap.put("patients", patientList); // List of patients is for
-                                               // display purposes only
-
-        ModelAndView mv = new ModelAndView("scheduleTrackingPage", modelMap);
+        ModelAndView mv = new ModelAndView("scheduleTrackingPage");
+        
+        mv.addObject("patientsList", patientList);
 
         return mv;
     }
@@ -148,11 +144,9 @@ public class EnrollController {
 
         List<Patient> patientList = patientDAO.findAllPatients();
 
-        Map<String, Object> modelMap = new TreeMap<String, Object>();
-        modelMap.put("patients", patientList); // List of patients is for
-                                               // display purposes only
-
-        ModelAndView mv = new ModelAndView("scheduleTrackingPage", modelMap);
+        ModelAndView mv = new ModelAndView("scheduleTrackingPage");
+        
+        mv.addObject("patientsList", patientList);
 
         return mv;
     }

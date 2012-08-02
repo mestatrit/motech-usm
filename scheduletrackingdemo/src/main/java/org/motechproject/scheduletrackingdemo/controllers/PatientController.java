@@ -37,7 +37,6 @@ public class PatientController {
         this.patientDAO = patientDAO;
     }
 
-    @RequestMapping("/patient/add")
     private ModelAndView add(String returnPage, HttpServletRequest request) {
         List<Patient> patientList = null;
 
@@ -48,16 +47,13 @@ public class PatientController {
 
         patientList = patientDAO.findAllPatients();
 
-        Map<String, Object> modelMap = new TreeMap<String, Object>();
-        modelMap.put("patients", patientList); // List of patients is for
-                                               // display purposes only
-
-        ModelAndView mv = new ModelAndView(returnPage, modelMap);
+        ModelAndView mv = new ModelAndView(returnPage);
+        
+        mv.addObject("patientsList", patientList);
 
         return mv;
     }
 
-    @RequestMapping("/patient/remove")
     private ModelAndView remove(String returnPage, HttpServletRequest request) {
 
         String externalID = request.getParameter("externalId");
@@ -65,21 +61,21 @@ public class PatientController {
         patientDAO.removePatient(externalID);
 
         List<Patient> patientList = patientDAO.findAllPatients();
-
-        Map<String, Object> modelMap = new TreeMap<String, Object>();
-        modelMap.put("patients", patientList); // List of patients is for
-                                               // display purposes only
-
-        ModelAndView mv = new ModelAndView(returnPage, modelMap);
+        
+        ModelAndView mv = new ModelAndView(returnPage);
+        
+        mv.addObject("patientsList", patientList);
 
         return mv;
     }
 
+    @RequestMapping("/patient/add")
     public ModelAndView addScheduleUser(HttpServletRequest request,
             HttpServletResponse response) {
         return add("scheduleTrackingPage", request);
     }
 
+    @RequestMapping("/patient/remove")
     public ModelAndView removeScheduleUser(HttpServletRequest request,
             HttpServletResponse response) {
         return remove("scheduleTrackingPage", request);
