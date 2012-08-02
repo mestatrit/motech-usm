@@ -9,6 +9,7 @@ import org.motechproject.cmslite.api.model.StreamContent;
 import org.motechproject.cmslite.api.model.StringContent;
 import org.motechproject.cmslite.api.repository.AllStreamContents;
 import org.motechproject.cmslite.api.repository.AllStringContents;
+import org.motechproject.cmslite.api.service.CMSLiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -52,13 +53,15 @@ public class ResourceControllerIT {
     AllStreamContents allStreamContents;
     @Autowired
     AllStringContents allStringContents;
+    @Mock
+    CMSLiteService cmsListService;
 
     private ResourceController resourceServlet;
 
     @Before
     public void setUp() throws IOException {
         initMocks(this);
-        resourceServlet = new ResourceController();
+        resourceServlet = new ResourceController(cmsListService);
 
         when(httpServletRequest.getContextPath()).thenReturn(CONTEXT_PATH);
         when(httpServletRequest.getServletPath()).thenReturn(SERVLET_PATH);
