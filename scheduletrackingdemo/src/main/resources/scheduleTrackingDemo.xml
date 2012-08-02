@@ -12,4 +12,6 @@
     <context:component-scan base-package="org.motechproject.scheduletrackingdemo" />
 
     <bean class="org.motechproject.scheduletrackingdemo.MobileFormBootstrap" init-method="bootstrapForms" />
+
+    <bean class="org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor" />
 </beans>
