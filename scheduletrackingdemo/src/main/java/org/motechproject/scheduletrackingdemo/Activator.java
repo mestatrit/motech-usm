@@ -1,6 +1,5 @@
 package org.motechproject.scheduletrackingdemo;
 
-import org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -8,7 +7,6 @@ import org.osgi.service.http.HttpService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.osgi.web.context.support.OsgiBundleXmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -25,8 +23,7 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         bundleContext = context;
 
-        this.tracker = new ServiceTracker(context, HttpService.class.getName(),
-                null) {
+        this.tracker = new ServiceTracker(context, HttpService.class.getName(), null) {
 
             @Override
             public Object addingService(ServiceReference ref) {
@@ -61,8 +58,7 @@ public class Activator implements BundleActivator {
         }
     }
 
-    public static class ScheduleTrackingDemoApplicationContext extends
-            OsgiBundleXmlWebApplicationContext {
+    public static class ScheduleTrackingDemoApplicationContext extends OsgiBundleXmlWebApplicationContext {
 
         public ScheduleTrackingDemoApplicationContext() {
             super();
@@ -75,25 +71,17 @@ public class Activator implements BundleActivator {
         try {
             DispatcherServlet dispatcherServlet = new DispatcherServlet();
             dispatcherServlet.setContextConfigLocation(CONTEXT_CONFIG_LOCATION);
-            dispatcherServlet
-                    .setContextClass(ScheduleTrackingDemoApplicationContext.class);
+            dispatcherServlet.setContextClass(ScheduleTrackingDemoApplicationContext.class);
             ClassLoader old = Thread.currentThread().getContextClassLoader();
 
             try {
-                Thread.currentThread().setContextClassLoader(
-                        getClass().getClassLoader());
-                service.registerServlet(SERVLET_URL_MAPPING, dispatcherServlet,
-                        null, null);
+                Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                service.registerServlet(SERVLET_URL_MAPPING, dispatcherServlet, null, null);
                 logger.debug("Servlet registered");
             } finally {
                 Thread.currentThread().setContextClassLoader(old);
             }
 
-            // register all annotated handlers
-            EventAnnotationBeanPostProcessor.registerHandlers(BeanFactoryUtils
-                    .beansOfTypeIncludingAncestors(
-                            dispatcherServlet.getWebApplicationContext(),
-                            Object.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

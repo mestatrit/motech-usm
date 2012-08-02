@@ -1,6 +1,7 @@
 [
     {
         "name" : "DemoGroup",
+        "groupIndex": 0,
         "forms" : [
             {
                 "name" : "DemoPatientRegistration",

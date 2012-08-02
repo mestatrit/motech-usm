@@ -8,11 +8,32 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.motechproject.model.MotechBaseDataObject;
 
 /**
- * Represents Form definition, typically read from json configuration file. bean is class that extends {@link FormBean} to handle xml data.
+ * Represents Form definition, typically read from json configurati
+ * on file. bean is class that extends {@link FormBean} to handle xml data.
  */
 public class Form extends MotechBaseDataObject {
     @JsonProperty
-    private Integer id;
+    private Integer formId;
+    public void setFormId(Integer formId) {
+        this.formId = formId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBean(String bean) {
+        this.bean = bean;
+    }
+
+    public void setStudyName(String studyName) {
+        this.studyName = studyName;
+    }
+
+    public void setValidator(String validator) {
+        this.validator = validator;
+    }
+
     @JsonProperty
     private String name;
     @JsonProperty
@@ -45,7 +66,7 @@ public class Form extends MotechBaseDataObject {
         this.validator = validator;
         this.studyName = studyName;
         this.depends = depends;
-        this.id = extractId(content);
+        this.formId = extractId(content);
     }
 
     public String name() {
@@ -57,11 +78,16 @@ public class Form extends MotechBaseDataObject {
     }
 
     public Integer id() {
-        return id;
+        return formId;
     }
 
     public String content() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+        this.formId = extractId(content);
     }
 
     public String bean() {
@@ -113,7 +139,7 @@ public class Form extends MotechBaseDataObject {
         if (fileName != null ? !fileName.equals(form.fileName) : form.fileName != null) {
             return false;
         }
-        if (id != null ? !id.equals(form.id) : form.id != null) {
+        if (formId != null ? !formId.equals(form.formId) : form.formId != null) {
             return false;
         }
         if (name != null ? !name.equals(form.name) : form.name != null) {
@@ -131,7 +157,7 @@ public class Form extends MotechBaseDataObject {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = formId != null ? formId.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (bean != null ? bean.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
@@ -145,7 +171,7 @@ public class Form extends MotechBaseDataObject {
     @Override
     public String toString() {
         return "Form{" +
-                "id=" + id +
+                "id=" + formId +
                 ", name='" + name + '\'' +
                 ", bean='" + bean + '\'' +
                 ", content='" + content + '\'' +

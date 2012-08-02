@@ -1,4 +1,4 @@
-package org.motechproject.mobileforms.api.osgi;
+package org.motechproject.mobileforms.api.service;
 
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.validator.FormValidator;

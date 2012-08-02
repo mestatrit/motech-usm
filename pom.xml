@@ -200,6 +200,7 @@
         <module>motech-event-logging-bundle</module>
         <!-- Keep this module in last, the module checks if everything is alright after deploy motech on tomcat server -->
         <module>motech-deployment-tests</module>
+        <module>scheduletrackingdemo</module>
     </modules>
 
     <build>

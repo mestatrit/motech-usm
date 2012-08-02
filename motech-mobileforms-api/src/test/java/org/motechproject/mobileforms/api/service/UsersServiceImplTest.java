@@ -24,7 +24,7 @@ public class UsersServiceImplTest {
     @Before
     public void setUp() {
         initMocks(this);
-        usersService = new UsersServiceImpl(TestUtilities.setupProperties("forms.user.accounts", "motech|ghs|7357658437bd298b4a48b7357489357,guyzb|daniel123|135df6eacf3e3f21866ecff10378035edbf7"), passwordEncoder);
+        usersService = new UsersServiceImpl(passwordEncoder);
     }
 
     @Test

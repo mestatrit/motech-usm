@@ -79,15 +79,15 @@ public class FormDownloadServlet extends BaseFormServlet {
 
     private void handleDownloadStudies(ByteArrayOutputStream byteStream) throws Exception {
         EpihandyXformSerializer serializer = serializer();
-        serializer.serializeStudies(byteStream, getMobileFormsService().getAllFormGroups());
+        serializer.serializeStudies(byteStream, mobileFormsService.getAllFormGroups());
     }
 
     private void handleDownloadUsersAndForms(ByteArrayOutputStream byteStream, DataInputStream dataInput)
             throws Exception {
         EpihandyXformSerializer epiSerializer = serializer();
-        epiSerializer.serializeUsers(byteStream, getUsersService().getUsers());
+        epiSerializer.serializeUsers(byteStream, usersService.getUsers());
         int studyIndex = dataInput.readInt();
-        FormGroup groupNameAndForms = getMobileFormsService().getForms(studyIndex);
+        FormGroup groupNameAndForms = mobileFormsService.getForms(studyIndex);
         List<String> formsXmlContent = collect(groupNameAndForms.getForms(), on(Form.class).content());
         epiSerializer.serializeForms(byteStream, formsXmlContent, studyIndex, groupNameAndForms.getName());
     }

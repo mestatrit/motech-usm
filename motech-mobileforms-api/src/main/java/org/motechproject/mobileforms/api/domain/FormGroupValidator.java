@@ -8,20 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.motechproject.mobileforms.api.osgi.FormsProvider;
+import org.motechproject.mobileforms.api.service.FormsProvider;
 import org.motechproject.mobileforms.api.validator.FormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-@Component
 public class FormGroupValidator {
     private final Logger log = LoggerFactory.getLogger(FormGroupValidator.class);
     private final List<FormsProvider> formProviders;
 
-    @Autowired
     public FormGroupValidator(List<FormsProvider> formProviders) {
         this.formProviders = formProviders;
     }

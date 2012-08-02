@@ -27,7 +27,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.motechproject.mobileforms.api.osgi.FormsProvider;
+import org.motechproject.mobileforms.api.service.FormsProvider;
 import org.motechproject.mobileforms.api.validator.FormValidator;
 import org.motechproject.mobileforms.api.validator.TestFormBean;
 

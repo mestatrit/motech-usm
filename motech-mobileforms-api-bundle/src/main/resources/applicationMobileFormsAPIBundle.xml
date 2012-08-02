@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-    <import resource="classpath*:applicationMobileFormsAPI.xml"/>
+    <import resource="classpath*:applicationMobileFormsAPI.xml" />
 
+    <osgi:list id="formProviderList" cardinality="0..N"
+        interface="org.motechproject.mobileforms.api.service.FormsProvider" />
+        
+    <osgi:service id="mobileFormsServiceOsgi" ref="mobileFormsService"
+                  interface="org.motechproject.mobileforms.api.service.MobileFormsService" />
+        
+    <osgi:reference id="platformSettingsService" interface="org.motechproject.server.config.service.PlatformSettingsService" />
+    
+    <bean id="motech-mobileforms-connector" factory-bean="platformSettingsService" factory-method="getCouchConnector">
+        <constructor-arg value="motech-mobileforms" />
+    </bean>
 </beans>

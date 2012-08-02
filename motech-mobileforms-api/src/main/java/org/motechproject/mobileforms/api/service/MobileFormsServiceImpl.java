@@ -14,7 +14,7 @@ import java.util.Map;
 import static ch.lambdaj.Lambda.extract;
 import static ch.lambdaj.Lambda.on;
 
-@Service
+@Service("mobileFormsService")
 public class MobileFormsServiceImpl implements MobileFormsService {
 
     private AllMobileForms allMobileForms;
@@ -56,7 +56,7 @@ public class MobileFormsServiceImpl implements MobileFormsService {
 
     @Override
     public void addFormGroup(FormGroup formGroup) {
-        
+        allMobileForms.add(formGroup);
     }
 
     @Override

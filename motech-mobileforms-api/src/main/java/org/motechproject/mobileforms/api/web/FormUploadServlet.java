@@ -43,20 +43,19 @@ public class FormUploadServlet extends BaseFormServlet {
     private final FormGroupValidator formGroupValidator;
     private final FormGroupPublisher formGroupPublisher;
     private final AllMobileForms allMobileForms;
-    private final String marker;
+    private final String marker = "formname";
     private MobileFormsService mobileFormsService;
 
     @Autowired
     public FormUploadServlet(FormGroupValidator formGroupValidator, FormGroupPublisher formGroupPublisher,
-            AllMobileForms allMobileForms, String marker, MobileFormsService mobileFormsService) {
+            AllMobileForms allMobileForms, MobileFormsService mobileFormsService) {
         this.formGroupValidator = formGroupValidator;
         this.formGroupPublisher = formGroupPublisher;
         this.allMobileForms = allMobileForms;
-        this.marker = marker;
         this.mobileFormsService = mobileFormsService;
     }
 
-    @RequestMapping(value = "/formupload", method=RequestMethod.POST)
+    @RequestMapping(value = "/formupload", method = RequestMethod.POST)
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
         ZOutputStream zOutput = new ZOutputStream(response.getOutputStream(), JZlib.Z_BEST_COMPRESSION);
@@ -94,7 +93,7 @@ public class FormUploadServlet extends BaseFormServlet {
         EpihandyXformSerializer serializer = serializer();
         FormParser formParser = createFormProcessor();
         serializer.addDeserializationListener(formParser);
-        serializer.deserializeStudiesWithEvents(dataInput, getMobileFormsService().getFormIdMap());
+        serializer.deserializeStudiesWithEvents(dataInput, mobileFormsService.getFormIdMap());
         return formParser.getStudies();
     }
 

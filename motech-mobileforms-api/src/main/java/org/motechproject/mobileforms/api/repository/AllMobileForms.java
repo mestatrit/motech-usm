@@ -8,14 +8,17 @@ import org.ektorp.support.View;
 import org.motechproject.dao.MotechBaseRepository;
 import org.motechproject.mobileforms.api.domain.Form;
 import org.motechproject.mobileforms.api.domain.FormGroup;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class AllMobileForms extends MotechBaseRepository<FormGroup> {
     private static final Logger LOGGER = Logger.getLogger(AllMobileForms.class);
 
-    protected AllMobileForms(Class<FormGroup> type, CouchDbConnector db) {
-        super(type, db);
+    @Autowired
+    protected AllMobileForms(@Qualifier("motech-mobileforms-connector") CouchDbConnector db) {
+        super(FormGroup.class, db);
     }
 
     public List<FormGroup> getAllFormGroups() {
