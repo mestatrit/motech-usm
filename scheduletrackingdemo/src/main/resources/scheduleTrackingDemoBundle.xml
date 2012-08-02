@@ -9,4 +9,7 @@
     <osgi:reference id="mobileFormsServiceOsgi" interface="org.motechproject.mobileforms.api.service.MobileFormsService"
         cardinality="0..1" />
 
+    <osgi:service id="patientEncounterFormProviderOsgi" ref="patientEncounterFormProvider"
+        interface="org.motechproject.mobileforms.api.service.FormProvider" />
+
 </beans>

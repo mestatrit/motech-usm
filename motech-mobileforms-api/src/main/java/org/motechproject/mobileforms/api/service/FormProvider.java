@@ -3,13 +3,13 @@ package org.motechproject.mobileforms.api.service;
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.validator.FormValidator;
 
-public interface FormsProvider {
+public interface FormProvider<T extends FormBean, V extends FormValidator<? extends FormBean>> {
 
-    <T extends FormBean> T makeInstance(String formBeanName);
-    
-    <T extends FormValidator<? extends FormBean>> T getValidator(String formBean);
-    
+    T makeInstance();
+
+    V getValidator();
+
     boolean isFormProviderFor(String formBeanName);
     
-    boolean hasValidator(String validatorName);
+    boolean isValidatorFor(String validatorName);
 }

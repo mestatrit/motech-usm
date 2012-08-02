@@ -14,7 +14,7 @@ import org.motechproject.mobileforms.api.domain.Form;
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.parser.FormDataParser;
 import org.motechproject.mobileforms.api.repository.AllMobileForms;
-import org.motechproject.mobileforms.api.service.FormsProvider;
+import org.motechproject.mobileforms.api.service.FormProvider;
 import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
 import org.motechproject.mobileforms.api.vo.Study;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class FormParser extends DeserializationListenerAdapter {
 
     private String marker;
         
-    List<FormsProvider> formProviders;
+    List<FormProvider> formProviders;
 
     public FormParser() {
     }
@@ -57,9 +57,9 @@ public class FormParser extends DeserializationListenerAdapter {
             Form form = allMobileForms.getFormByName(data.get(marker));
             FormBean formBean = null;
             
-            for(FormsProvider provider : formProviders) {
+            for(FormProvider<?, ?> provider : formProviders) {
                 if (provider.isFormProviderFor(form.bean())) {
-                    formBean = provider.makeInstance(form.bean());
+                    formBean = provider.makeInstance();
                     formBean.setValidator(form.validator());
                     formBean.setFormname(form.name());
                     formBean.setStudyName(form.studyName());

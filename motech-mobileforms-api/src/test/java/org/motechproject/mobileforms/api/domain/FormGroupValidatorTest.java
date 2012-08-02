@@ -27,7 +27,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.motechproject.mobileforms.api.service.FormsProvider;
+import org.motechproject.mobileforms.api.service.FormProvider;
 import org.motechproject.mobileforms.api.validator.FormValidator;
 import org.motechproject.mobileforms.api.validator.TestFormBean;
 
@@ -36,12 +36,12 @@ public class FormGroupValidatorTest {
     private FormGroupValidator validator;
 
     @Mock
-    FormsProvider formProvider;
+    FormProvider formProvider;
     
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        List<FormsProvider> providers = new ArrayList<>();
+        List<FormProvider> providers = new ArrayList<>();
         providers.add(formProvider);
         validator = new FormGroupValidator(providers);
     }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.motechproject.mobileforms.api.service.FormsProvider;
+import org.motechproject.mobileforms.api.service.FormProvider;
 import org.motechproject.mobileforms.api.validator.FormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,9 @@ import org.springframework.util.CollectionUtils;
 
 public class FormGroupValidator {
     private final Logger log = LoggerFactory.getLogger(FormGroupValidator.class);
-    private final List<FormsProvider> formProviders;
+    private final List<FormProvider> formProviders;
 
-    public FormGroupValidator(List<FormsProvider> formProviders) {
+    public FormGroupValidator(List<FormProvider> formProviders) {
         this.formProviders = formProviders;
     }
     
@@ -34,9 +34,9 @@ public class FormGroupValidator {
                 if (CollectionUtils.isEmpty(invalidDependentForms)) {
                     try {
                         boolean foundProvider = false;
-                        for(FormsProvider provider : formProviders) {
-                            if (provider.hasValidator(formBean.getValidator())) {
-                                FormValidator<FormBean> validator = provider.getValidator(formBean.getValidator());
+                        for(FormProvider provider : formProviders) {
+                            if (provider.isValidatorFor(formBean.getValidator())) {
+                                FormValidator<FormBean> validator = provider.getValidator();
                                 formBean.addFormErrors(validator.validate(formBean, formGroup, allForms));
                                 foundProvider = true;
                             }
