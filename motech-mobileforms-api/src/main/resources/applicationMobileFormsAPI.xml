@@ -14,4 +14,16 @@
     <bean class="org.motechproject.mobileforms.api.domain.FormGroupValidator">
         <constructor-arg ref="formProviderList" />
     </bean>
+    
+    <bean class="org.motechproject.mobileforms.api.callbacks.FormParser">
+        <constructor-arg ref="formProviderList" />
+        <constructor-arg>
+            <bean class="org.motechproject.mobileforms.api.parser.FormDataParser" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.motechproject.mobileforms.api.utils.MapToBeanConvertor" />
+        </constructor-arg>
+        <constructor-arg ref="allMobileForms" />
+        <constructor-arg value="formname" />
+    </bean>
 </beans>

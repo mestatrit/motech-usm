@@ -19,6 +19,7 @@ import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
 import org.motechproject.mobileforms.api.vo.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class FormParser extends DeserializationListenerAdapter {
     private final Logger log = LoggerFactory.getLogger(FormParser.class);
@@ -33,12 +34,10 @@ public class FormParser extends DeserializationListenerAdapter {
 
     private String marker;
         
-    List<FormProvider> formProviders;
+    private final List<FormProvider> formProviders;
 
-    public FormParser() {
-    }
-
-    public FormParser(FormDataParser parser, MapToBeanConvertor mapToBeanConvertor, AllMobileForms allMobileForms, String marker) {
+    public FormParser(List<FormProvider> formProviders, FormDataParser parser, MapToBeanConvertor mapToBeanConvertor, AllMobileForms allMobileForms, String marker) {
+        this.formProviders = formProviders;
         this.parser = parser;
         this.mapToBeanConvertor = mapToBeanConvertor;
         this.allMobileForms = allMobileForms;

@@ -1,5 +1,20 @@
 package org.motechproject.mobileforms.api.callbacks;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.fcitmuk.epihandy.StudyData;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,21 +29,6 @@ import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
 import org.motechproject.mobileforms.api.vo.Study;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 public class FormProcessorTest {
     private FormParser formParser;
     @Mock
@@ -39,7 +39,7 @@ public class FormProcessorTest {
     @Before
     public void setUp() {
         initMocks(this);
-        formParser = new FormParser();
+        formParser = new FormParser(null, formDataParser, null, allMobileForms, null);
         ReflectionTestUtils.setField(formParser, "parser", formDataParser);
         ReflectionTestUtils.setField(formParser, "allMobileForms", allMobileForms);
         ReflectionTestUtils.setField(formParser, "marker", "formname");

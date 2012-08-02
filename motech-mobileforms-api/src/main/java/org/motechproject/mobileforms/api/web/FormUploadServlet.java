@@ -20,10 +20,7 @@ import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.domain.FormBeanGroup;
 import org.motechproject.mobileforms.api.domain.FormGroupValidator;
 import org.motechproject.mobileforms.api.domain.FormOutput;
-import org.motechproject.mobileforms.api.parser.FormDataParser;
-import org.motechproject.mobileforms.api.repository.AllMobileForms;
 import org.motechproject.mobileforms.api.service.MobileFormsService;
-import org.motechproject.mobileforms.api.utils.MapToBeanConvertor;
 import org.motechproject.mobileforms.api.vo.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,17 +39,16 @@ public class FormUploadServlet extends BaseFormServlet {
 
     private final FormGroupValidator formGroupValidator;
     private final FormGroupPublisher formGroupPublisher;
-    private final AllMobileForms allMobileForms;
-    private final String marker = "formname";
-    private MobileFormsService mobileFormsService;
+    private final MobileFormsService mobileFormsService;
+    private final FormParser formParser;
 
     @Autowired
     public FormUploadServlet(FormGroupValidator formGroupValidator, FormGroupPublisher formGroupPublisher,
-            AllMobileForms allMobileForms, MobileFormsService mobileFormsService) {
+            MobileFormsService mobileFormsService, FormParser formParser) {
         this.formGroupValidator = formGroupValidator;
         this.formGroupPublisher = formGroupPublisher;
-        this.allMobileForms = allMobileForms;
         this.mobileFormsService = mobileFormsService;
+        this.formParser = formParser;
     }
 
     @RequestMapping(value = "/formupload", method = RequestMethod.POST)
@@ -91,7 +87,6 @@ public class FormUploadServlet extends BaseFormServlet {
 
     private List<Study> extractBeans(DataInputStream dataInput) throws Exception {
         EpihandyXformSerializer serializer = serializer();
-        FormParser formParser = createFormProcessor();
         serializer.addDeserializationListener(formParser);
         serializer.deserializeStudiesWithEvents(dataInput, mobileFormsService.getFormIdMap());
         return formParser.getStudies();
@@ -101,7 +96,7 @@ public class FormUploadServlet extends BaseFormServlet {
         return new FormOutput();
     }
 
-    protected FormParser createFormProcessor() {
-        return new FormParser(new FormDataParser(), new MapToBeanConvertor(), allMobileForms, marker);
-    }
+    // protected FormParser createFormProcessor() {
+    // return new FormParser(formProviders, new FormDataParser(), new MapToBeanConvertor(), allMobileForms, marker);
+    // }
 }

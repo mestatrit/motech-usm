@@ -65,12 +65,12 @@ public class FormGroupValidatorTest {
         mockValidatorToPass(formBean2, formValidator2, methodCalls);
         mockValidatorToPass(formBean3, formValidator3, methodCalls);
         
-        when(formProvider.hasValidator("validator1")).thenReturn(true);
-        when(formProvider.hasValidator("validator2")).thenReturn(true);
-        when(formProvider.hasValidator("validator3")).thenReturn(true);
-        when(formProvider.getValidator("validator1")).thenReturn(formValidator1);
-        when(formProvider.getValidator("validator2")).thenReturn(formValidator2);
-        when(formProvider.getValidator("validator3")).thenReturn(formValidator3);
+        when(formProvider.isValidatorFor("validator1")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator2")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator3")).thenReturn(true);
+        when(formProvider.getValidator()).thenReturn(formValidator1);
+        when(formProvider.getValidator()).thenReturn(formValidator2);
+        when(formProvider.getValidator()).thenReturn(formValidator3);
         
         validator.validate(formGroup, formBeans);
 
@@ -100,14 +100,14 @@ public class FormGroupValidatorTest {
         mockValidatorToPass(formBean3, formValidator3, methodCalls);
         mockValidatorToPass(formBean4, formValidator4, methodCalls);
 
-        when(formProvider.hasValidator("validator1")).thenReturn(true);
-        when(formProvider.hasValidator("validator2")).thenReturn(true);
-        when(formProvider.hasValidator("validator3")).thenReturn(true);
-        when(formProvider.hasValidator("validator4")).thenReturn(true);
-        when(formProvider.getValidator("validator1")).thenReturn(formValidator1);
-        when(formProvider.getValidator("validator2")).thenReturn(formValidator2);
-        when(formProvider.getValidator("validator3")).thenReturn(formValidator3);
-        when(formProvider.getValidator("validator4")).thenReturn(formValidator4);
+        when(formProvider.isValidatorFor("validator1")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator2")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator3")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator4")).thenReturn(true);
+        when(formProvider.getValidator()).thenReturn(formValidator1);
+        when(formProvider.getValidator()).thenReturn(formValidator2);
+        when(formProvider.getValidator()).thenReturn(formValidator3);
+        when(formProvider.getValidator()).thenReturn(formValidator4);
 
         validator.validate(formGroup, formBeans);
 
@@ -144,10 +144,10 @@ public class FormGroupValidatorTest {
 
         final List<String> methodCalls = new ArrayList<String>();
 
-        when(formProvider.hasValidator("validator1")).thenReturn(true);
-        when(formProvider.hasValidator("validator2")).thenReturn(true);
-        when(formProvider.getValidator("validator1")).thenReturn(formValidator1);
-        when(formProvider.getValidator("validator2")).thenReturn(formValidator2);
+        when(formProvider.isValidatorFor("validator1")).thenReturn(true);
+        when(formProvider.isValidatorFor("validator2")).thenReturn(true);
+        when(formProvider.getValidator()).thenReturn(formValidator1);
+        when(formProvider.getValidator()).thenReturn(formValidator2);
 
         mockValidatorToPass(formBean1, formValidator1, methodCalls);
         doThrow(new RuntimeException()).when(formValidator2).validate(formBean2, formGroup, formBeans);
