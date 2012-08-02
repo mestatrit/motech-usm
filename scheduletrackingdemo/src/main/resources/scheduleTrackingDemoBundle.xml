@@ -21,4 +21,14 @@
 
 	<osgi:reference id="platformSettingsServiceOsgi" interface="org.motechproject.server.config.service.PlatformSettingsService" cardinality="0..1" />
 
+	<osgi:reference id="mrsEncounterAdapterOsgi" interface="org.motechproject.mrs.services.MRSEncounterAdapter" cardinality="0..1" />
+
+	<osgi:reference id="mrsFacilityAdapterOsgi" interface="org.motechproject.mrs.services.MRSFacilityAdapter" cardinality="0..1" />
+
+	<osgi:reference id="mrsPatientAdapterOsgi" interface="org.motechproject.mrs.services.MRSPatientAdapter" cardinality="0..1" />
+
+	<osgi:reference id="mrsUserAdapterOsgi" interface="org.motechproject.mrs.services.MRSUserAdapter" cardinality="0..1" />
+
+	<osgi:reference id="mrsObservationAdapterOsgi" interface="org.motechproject.mrs.services.MRSObservationAdapter" cardinality="0..1" />
+
 </beans>
