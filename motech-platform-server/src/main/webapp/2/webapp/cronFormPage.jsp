@@ -7,8 +7,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Campaign Demonstration using Voxeo</title>
-<h2><b>Campaign Demonstration using Voxeo</b></h2>
+<title>Campaign Demonstration</title>
+<h2><b>Cron Campaign Demonstration using Voxeo</b></h2>
 <style>
 * {
 	font-size: 14px;
@@ -17,10 +17,6 @@
 </style>
 </head>
 <body>
-	<p>This is a demonstration of message campaigns with voice calling
-		and SMS messaging. It uses the core platform (server, server-api,
-		common) along with scheduler, message-campaign, cmslite, sms-api,
-		sms-http and voxeo.
 	<p>**Note: Registering a duplicate ID overwrites its phone number,
 		resulting in the redirection of all campaign messages to the new
 		number.</p>

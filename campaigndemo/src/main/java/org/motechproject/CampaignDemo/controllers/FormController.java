@@ -27,5 +27,11 @@ public class FormController extends MultiActionController {
             HttpServletResponse response) {
         return new ModelAndView("formPage");
     }
+    
+    @RequestMapping(value = "/main", method = RequestMethod.GET)
+    public ModelAndView main(HttpServletRequest request,
+            HttpServletResponse response) {
+        return new ModelAndView("main");
+    }
 
 }

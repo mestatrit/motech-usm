@@ -7,8 +7,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Campaign Demonstration</title>
-<h3>Message Campaign Demonstration</h3>
+<title>Offset Demonstration</title>
+<h3>Offset Message Campaign Demonstration using Voxeo</h3>
 <style>
 * {
 	font-size: 14px;
@@ -18,9 +18,6 @@
 </head>
 <body>
 
-	<p>This is a demonstration of an offset message campaign. It uses
-		the core platform (server, server-api, common) along with scheduler,
-		message-campaign, cmslite, sms-api, sms-http, and voxeo.</p>
 	<p>**Note: Registering a duplicate ID overwrites its phone number,
 		resulting in the redirection of all campaign messages to the new
 		number.</p>
