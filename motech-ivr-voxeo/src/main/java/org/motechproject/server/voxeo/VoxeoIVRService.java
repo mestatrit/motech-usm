@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,8 +55,9 @@ public class VoxeoIVRService implements IVRService {
 
     /**
      * Initiates call to given phone number/sip id in call request.
-     *
+     * 
      * @param callRequest - data required by IVR phone system to start outbound call
+     * @throws UnsupportedEncodingException
      */
 
     @Override
@@ -73,8 +76,18 @@ public class VoxeoIVRService implements IVRService {
         String voxeoURL = voxeoConfig.getServerUrl();
         String tokenId = voxeoConfig.getTokenId(callRequest.getPayload().get(APPLICATION_NAME));
 
+        String vxmlURL = null;
         try {
-            HttpMethod httpMethod = generateRequestFor(voxeoURL, callRequest.getPhone(), tokenId, callRequest.getTimeOut());
+            vxmlURL = URLEncoder.encode(callRequest.getCallBackUrl(), "UTF-8");
+        } catch (UnsupportedEncodingException e1) {
+            e1.printStackTrace();
+        }
+        String externalId = phoneCall.getId();
+
+        try {
+            HttpMethod httpMethod = generateRequestFor(voxeoURL,
+                    callRequest.getPhone(), tokenId, callRequest.getTimeOut(),
+                    vxmlURL, externalId);
             int status = commonsHttpClient.executeMethod(httpMethod);
             String response = httpMethod.getResponseBodyAsString();
             log.info("HTTP Status:" + status + "|Response:" + response);
@@ -90,16 +103,22 @@ public class VoxeoIVRService implements IVRService {
         }
     }
 
-    private HttpMethod generateRequestFor(String voxeoUrl, String phoneNumber, String tokenId, int callTimeOut) {
+    private HttpMethod generateRequestFor(String voxeoUrl, String phoneNumber,
+            String tokenId, int callTimeOut, String vxmlUrl, String externalId) {
         GetMethod getMethod = new GetMethod(voxeoUrl);
 
         List<NameValuePair> queryStringValues = new ArrayList<NameValuePair>();
         queryStringValues.add(new NameValuePair("tokenid", tokenId));
         queryStringValues.add(new NameValuePair("numbertodial", phoneNumber));
+        String callTime = Integer.toString(callTimeOut) + "s";
         if (0 != callTimeOut) {
-            queryStringValues.add(new NameValuePair("calltimeout", Integer.toString(callTimeOut)));
+            queryStringValues.add(new NameValuePair("calltimeout", callTime));
         }
-        getMethod.setQueryString(queryStringValues.toArray(new NameValuePair[queryStringValues.size()]));
+        queryStringValues.add(new NameValuePair("vxml", vxmlUrl));
+        queryStringValues.add(new NameValuePair("externalId", externalId));
+        queryStringValues.add(new NameValuePair("cid", "1234567890"));
+        getMethod.setQueryString(queryStringValues
+                .toArray(new NameValuePair[queryStringValues.size()]));
         return getMethod;
     }
 }
