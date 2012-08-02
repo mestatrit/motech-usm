@@ -34,7 +34,20 @@ public class AllMobileForms extends MotechBaseRepository<FormGroup> {
             LOGGER.warn("There are multiple Form Groups with the same group index. The group index should be unique for each Form Group");
             LOGGER.warn("Selecting first Form Group");
         }
-        
+
+        return groups.get(0);
+    }
+
+    @View(name = "by_group_name", map = "function(doc) { if(doc.type === 'FormGroup') emit(doc.name); }")
+    public FormGroup getFormGroupByName(String name) {
+        List<FormGroup> groups = queryView("by_group_name", name);
+        if (groups.size() == 0) {
+            return null;
+        } else if (groups.size() > 1) {
+            LOGGER.warn("There is more than 1 form group with the same name: " + name);
+            LOGGER.warn("Selecting first Form Group");
+        }
+
         return groups.get(0);
     }
 
