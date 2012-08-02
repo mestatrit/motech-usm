@@ -8,12 +8,14 @@
 
     <osgi:list id="formProviderList" cardinality="0..N"
         interface="org.motechproject.mobileforms.api.service.FormProvider" />
-        
+                
     <osgi:service id="mobileFormsServiceOsgi" ref="mobileFormsService"
                   interface="org.motechproject.mobileforms.api.service.MobileFormsService" />
         
     <osgi:reference id="platformSettingsService" interface="org.motechproject.server.config.service.PlatformSettingsService" />
-    
+
+    <osgi:reference id="eventRelay" interface="org.motechproject.scheduler.event.EventRelay" />
+
     <bean id="motech-mobileforms-connector" factory-bean="platformSettingsService" factory-method="getCouchConnector">
         <constructor-arg value="motech-mobileforms" />
     </bean>

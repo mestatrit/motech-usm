@@ -1,36 +1,44 @@
 package org.motechproject.mobileforms.api.callbacks;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.domain.FormBeanGroup;
-import org.motechproject.scheduler.context.EventContext;
+import org.motechproject.mobileforms.api.events.constants.EventDataKeys;
+import org.motechproject.mobileforms.api.events.constants.EventSubjects;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduler.event.EventRelay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Component
 public class FormGroupPublisher {
 
     private final Logger log = LoggerFactory.getLogger(FormGroupPublisher.class);
 
-    public static final String FORM_BEAN_GROUP = "formBeanGroup";
-    public static final String FORM_VALID_FROMS = "handle.valid.xforms.group";
-
     private EventRelay eventRelay;
 
-    public FormGroupPublisher() {
-        this.eventRelay = EventContext.getInstance().getEventRelay();
+    @Autowired
+    public FormGroupPublisher(EventRelay eventRelay) {
+        this.eventRelay = eventRelay;
     }
 
     public void publish(FormBeanGroup formBeanGroup) {
+        Gson gson = new GsonBuilder().create();
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put(FORM_BEAN_GROUP, formBeanGroup);
-            MotechEvent motechEvent = new MotechEvent(FORM_VALID_FROMS, params);
-            eventRelay.sendEventMessage(motechEvent);
+            for (FormBean bean : formBeanGroup.getFormBeans()) {
+                Map<String, Object> params = new HashMap<String, Object>();
+                String json = gson.toJson(bean);
+                params.put(EventDataKeys.FORM_BEAN, json);
+                MotechEvent motechEvent = new MotechEvent(EventSubjects.BASE_SUBJECT + bean.getFormname(), params);
+                eventRelay.sendEventMessage(motechEvent);
+            }
         } catch (Exception e) {
             formBeanGroup.markAllFormAsFailed("Server exception, contact your administrator");
             log.error("Encountered exception while validating form group, " + formBeanGroup.toString(), e);
