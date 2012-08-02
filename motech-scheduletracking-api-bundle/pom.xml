@@ -59,7 +59,8 @@
                             org.motechproject.scheduletracking.api.service.impl,
                             org.motechproject.scheduletracking.api.events,
                             org.motechproject.scheduletracking.api.events.constants,
-                            org.motechproject.scheduletracking.api.domain
+                            org.motechproject.scheduletracking.api.domain,
+                            org.motechproject.scheduletracking.api.domain.exception
                         </Export-Package>
                         <Bundle-Activator>
                             org.motechproject.scheduletracking.api.osgi.Activator
