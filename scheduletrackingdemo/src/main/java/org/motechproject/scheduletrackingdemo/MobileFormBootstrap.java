@@ -49,7 +49,8 @@ public class MobileFormBootstrap {
                 form.setContent(xform);
             }
             
-            //mobileFormService.addFormGroup(group);
+            mobileFormService.removeFormGroup(group.getName());
+            mobileFormService.addFormGroup(group);
         }
     }
 

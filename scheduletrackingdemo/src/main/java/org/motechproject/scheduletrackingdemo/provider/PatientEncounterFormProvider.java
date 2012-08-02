@@ -1,4 +1,4 @@
-package org.motechproject.scheduletrackingdemo;
+package org.motechproject.scheduletrackingdemo.provider;
 
 import org.motechproject.mobileforms.api.service.FormProvider;
 import org.motechproject.scheduletrackingdemo.beans.PatientEncounterBean;

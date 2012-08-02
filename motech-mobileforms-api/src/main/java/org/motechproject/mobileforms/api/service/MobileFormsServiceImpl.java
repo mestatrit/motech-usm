@@ -61,7 +61,9 @@ public class MobileFormsServiceImpl implements MobileFormsService {
 
     @Override
     public void removeFormGroup(String formGroupName) {
-        
+        FormGroup group = allMobileForms.getFormGroupByName(formGroupName);
+        if (group != null) {
+            allMobileForms.remove(group);
+        }
     }
-
 }
