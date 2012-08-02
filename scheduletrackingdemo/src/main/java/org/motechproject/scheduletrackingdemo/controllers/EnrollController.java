@@ -14,10 +14,12 @@ import org.motechproject.scheduletrackingdemo.model.Patient;
 import org.motechproject.scheduletracking.api.domain.exception.InvalidEnrollmentException;
 import org.motechproject.scheduletracking.api.service.ScheduleTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-public class EnrollController extends MultiActionController {
+@Controller
+public class EnrollController {
 
     @Autowired
     MRSPatientDAO patientDAO;
@@ -31,6 +33,7 @@ public class EnrollController extends MultiActionController {
     @Autowired
     private PatientScheduler patientSchedule;
 
+    @RequestMapping("/enroll/start")
     public ModelAndView start(HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -51,6 +54,7 @@ public class EnrollController extends MultiActionController {
 
     }
 
+    @RequestMapping("/enroll/stop")
     public ModelAndView stop(HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -61,8 +65,8 @@ public class EnrollController extends MultiActionController {
         try {
             scheduleTrackingService.unenroll(externalID, scheduleNames);
         } catch (InvalidEnrollmentException e) {
-            logger.warn("Could not unenroll externalId=" + externalID
-                    + ", scheduleName=" + scheduleName);
+//            logger.warn("Could not unenroll externalId=" + externalID
+//                    + ", scheduleName=" + scheduleName);
         }
 
         List<Patient> patientList = patientDAO.findAllPatients();
@@ -138,6 +142,7 @@ public class EnrollController extends MultiActionController {
      * return mv; }
      */
 
+    @RequestMapping("/enroll/scheduletracking")
     public ModelAndView scheduleTracking(HttpServletRequest request,
             HttpServletResponse response) {
 
