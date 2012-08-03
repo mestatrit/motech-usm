@@ -35,6 +35,7 @@ public class IvrController extends MultiActionController {
     private static final int DEFAULT_FLASH_SLEEP = 5000;
     private EventRelay eventRelay = EventContext.getInstance().getEventRelay();
 
+    @Autowired
     private AllPhoneCalls allPhoneCalls;
 
     @Autowired

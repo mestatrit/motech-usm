@@ -1,6 +1,7 @@
 package org.motechproject.scheduletrackingdemo.listeners;
 
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.LocalDate;
 import org.motechproject.cmslite.api.model.ContentNotFoundException;
@@ -9,6 +10,8 @@ import org.motechproject.cmslite.api.service.CMSLiteService;
 import org.motechproject.ivr.service.CallRequest;
 import org.motechproject.ivr.service.IVRService;
 import org.motechproject.scheduler.domain.MotechEvent;
+import org.motechproject.scheduletracking.api.domain.Milestone;
+import org.motechproject.scheduletracking.api.domain.Schedule;
 import org.motechproject.scheduletracking.api.domain.exception.DefaultedMilestoneFulfillmentException;
 import org.motechproject.scheduletracking.api.domain.exception.InvalidEnrollmentException;
 import org.motechproject.scheduletracking.api.domain.exception.NoMoreMilestonesToFulfillException;
@@ -57,7 +60,11 @@ public class MilestoneListener {
         logger.debug("For: " + mEvent.getExternalId() + " --- " + mEvent.getScheduleName() + " --- "
                 + mEvent.getWindowName());
         
-        String milestoneConceptName = (String) event.getParameters().get("conceptName");
+        Schedule schedule = scheduleTrackingService.getSchedule(mEvent.getScheduleName());
+        Milestone milestone = schedule.getMilestone(mEvent.getMilestoneName());
+        Map<String, String> milestoneData = milestone.getData();
+        
+        String milestoneConceptName = milestoneData.get("conceptName");
 
         if (milestoneConceptName == null)
             return; // This method does not handle events without conceptName
@@ -99,14 +106,10 @@ public class MilestoneListener {
 
             if (patientList.size() > 0) {
 
-                String IVRFormat = (String) event.getParameters().get(
-                        "IVRFormat");
-                String SMSFormat = (String) event.getParameters().get(
-                        "SMSFormat");
-                String language = (String) event.getParameters()
-                        .get("language");
-                String messageName = (String) event.getParameters().get(
-                        "messageName");
+                String IVRFormat = milestoneData.get("IVRFormat");
+                String SMSFormat = milestoneData.get("SMSFormat");
+                String language = milestoneData.get("language");
+                String messageName = milestoneData.get("messageName");
 
                 if ("true".equals(IVRFormat) && language != null
                         && messageName != null) {
@@ -159,6 +162,7 @@ public class MilestoneListener {
                                                                               // the
                                                                               // payload
 
+                request.getPayload().put("applicationName", "ScheduleTrackingDemo");
                 // for some reason the project is not recognizing these.
                 request.setOnBusyEvent(new MotechEvent("CALL_BUSY"));
                 request.setOnFailureEvent(new MotechEvent("CALL_FAIL"));

@@ -18,6 +18,9 @@ public final class MotechEvent implements Serializable {
     private Map<String, Object> parameters;
     private Date endTime;
     private boolean isLastEvent;
+    
+    public MotechEvent() {
+    }
 
     /**
      * Constructor with subject only (parameters can be added interactively)

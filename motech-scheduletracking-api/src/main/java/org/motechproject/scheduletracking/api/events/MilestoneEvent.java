@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 public class MilestoneEvent {
     private String windowName;
-    private MilestoneAlert milestoneAlert;
+    private String milestoneName;
     private String scheduleName;
     private String externalId;
     private DateTime referenceDateTime;
@@ -30,7 +30,7 @@ public class MilestoneEvent {
      */
     public MilestoneEvent(String externalId, String scheduleName, MilestoneAlert milestoneAlert, String windowName, DateTime referenceDateTime) {
         this.scheduleName = scheduleName;
-        this.milestoneAlert = milestoneAlert;
+        this.milestoneName = milestoneAlert.getMilestoneName();
         this.windowName = windowName;
         this.externalId = externalId;
         this.referenceDateTime = referenceDateTime;
@@ -42,7 +42,7 @@ public class MilestoneEvent {
      */
     public MilestoneEvent(MotechEvent motechEvent) {
         this.scheduleName = (String) motechEvent.getParameters().get(EventDataKeys.SCHEDULE_NAME);
-//        this.milestoneAlert = (MilestoneAlert) motechEvent.getParameters().get(EventDataKeys.MILESTONE_NAME);
+        this.milestoneName = motechEvent.getParameters().get(EventDataKeys.MILESTONE_NAME).toString();
         this.windowName = (String) motechEvent.getParameters().get(EventDataKeys.WINDOW_NAME);
         this.externalId = (String) motechEvent.getParameters().get(EventDataKeys.EXTERNAL_ID);
         this.referenceDateTime = (DateTime) motechEvent.getParameters().get(EventDataKeys.REFERENCE_DATE);
@@ -57,7 +57,7 @@ public class MilestoneEvent {
     public MilestoneEvent(Enrollment enrollment, MilestoneAlert milestoneAlert, MilestoneWindow milestoneWindow) {
         this.externalId = enrollment.getExternalId();
         this.scheduleName = enrollment.getScheduleName();
-        this.milestoneAlert = milestoneAlert;
+        this.milestoneName = milestoneAlert.getMilestoneName();
         this.windowName = milestoneWindow.getName().toString();
         this.referenceDateTime = enrollment.getStartOfSchedule();
     }
@@ -69,7 +69,7 @@ public class MilestoneEvent {
     public MotechEvent toMotechEvent() {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(EventDataKeys.WINDOW_NAME, windowName);
-//        parameters.put(EventDataKeys.MILESTONE_NAME, milestoneAlert);
+        parameters.put(EventDataKeys.MILESTONE_NAME, milestoneName);
         parameters.put(EventDataKeys.SCHEDULE_NAME, scheduleName);
         parameters.put(EventDataKeys.EXTERNAL_ID, externalId);
         parameters.put(EventDataKeys.REFERENCE_DATE, referenceDateTime);
@@ -85,11 +85,11 @@ public class MilestoneEvent {
     }
 
     /**
-     * Returns the MilestoneAlert of the MilestoneEvent
+     * Returns the Milestone name of the MilestoneEvent
      * @return MilestoneAlert
      */
-    public MilestoneAlert getMilestoneAlert() {
-        return milestoneAlert;
+    public String getMilestoneName() {
+        return milestoneName;
     }
 
     /**
