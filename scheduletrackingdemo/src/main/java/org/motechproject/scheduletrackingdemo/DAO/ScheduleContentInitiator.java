@@ -29,12 +29,12 @@ public class ScheduleContentInitiator {
             InputStream demoMessageStream = this.getClass()
                     .getResourceAsStream("/duedemoconcept" + i + ".wav");
             StreamContent demoFile = new StreamContent("en",
-                    "DemoConceptQuestion" + i + "Due", demoMessageStream,
+                    "DemoConceptQuestionIVR" + i + "due", demoMessageStream,
                     "checksum" + i, "audio/wav"); // IVR
             InputStream demoMessageStream2 = this.getClass()
                     .getResourceAsStream("/latedemoconcept" + i + ".wav");
             StreamContent demoFile2 = new StreamContent("en",
-                    "DemoConceptQuestion" + i + "Late", demoMessageStream2,
+                    "DemoConceptQuestionIVR" + i + "late", demoMessageStream2,
                     "checksum" + i, "audio/wav"); // IVR
 
             try {
@@ -42,26 +42,28 @@ public class ScheduleContentInitiator {
                 cmsliteService.addContent(demoFile2);
             } catch (CMSLiteException e) {
             }
-            cmsliteService.addContent(new StringContent("en",
-                    "DemoConceptQuestion" + i + "due", "due" + i + ".xml")); // IVR
-            cmsliteService.addContent(new StringContent("en",
-                    "DemoConceptQuestion" + i + "due", getDemoDueMessage(i))); // SMS
-            cmsliteService.addContent(new StringContent("en",
-                    "DemoConceptQuestion" + i + "late", "late" + i + ".xml")); // IVR
-            cmsliteService.addContent(new StringContent("en",
-                    "DemoConceptQuestion" + i + "late", getDemoLateMessage(i))); // SMS
+
+            StringContent IVRDue = new StringContent("en", "DemoConceptQuestion" + i + "IVRdue", "due" + i + ".xml");
+            cmsliteService.addContent(IVRDue);
+
+            StringContent SMSDue = new StringContent("en", "DemoConceptQuestion" + i + "SMSdue", getDemoDueMessage(i));
+            cmsliteService.addContent(SMSDue); 
+            
+            StringContent IVRLate = new StringContent("en", "DemoConceptQuestion" + i + "IVRlate", "late" + i + ".xml");
+            cmsliteService.addContent(IVRLate); // IVR
+            
+            StringContent SMSLate = new StringContent("en", "DemoConceptQuestion" + i + "SMSlate", getDemoLateMessage(i));
+            cmsliteService.addContent(SMSLate); 
 
         }
 
-        InputStream inputStreamToResource1 = this.getClass()
-                .getResourceAsStream("/defaulteddemoschedule.wav");
-        StreamContent cron = new StreamContent("en", "defaultedDemoSchedule",
-                inputStreamToResource1, "checksum1", "audio/wav"); // IVR
-        cmsliteService.addContent(cron);
-        cmsliteService.addContent(new StringContent("en",
-                "defaulted-demo-message", "defaulted.xml")); // IVR
-        cmsliteService
-                .addContent(new StringContent(
+        InputStream inputStreamToResource1 = this.getClass().getResourceAsStream("/defaulteddemoschedule.wav");
+        
+        StreamContent defaulted = new StreamContent("en", "defaultedDemoSchedule",inputStreamToResource1, "checksum1", "audio/wav"); // IVR
+        cmsliteService.addContent(defaulted);
+        
+        cmsliteService.addContent(new StringContent("en", "defaulted-demo-message", "defaulted.xml")); // IVR
+        cmsliteService.addContent(new StringContent(
                         "en",
                         "defaulted-demo-message",
                         "You have "
@@ -70,12 +72,12 @@ public class ScheduleContentInitiator {
     }
 
     private String getDemoDueMessage(int messageNumber) {
-        return this.properties.getProperty("DemoConceptQuestion"
+        return this.properties.getProperty("SMSDemoConceptQuestion"
                 + messageNumber + "Due");
     }
 
     private String getDemoLateMessage(int messageNumber) {
-        return this.properties.getProperty("DemoConceptQuestion"
+        return this.properties.getProperty("SMSDemoConceptQuestion"
                 + messageNumber + "Late");
     }
 

@@ -113,11 +113,13 @@ public class MilestoneListener {
 
                 if ("true".equals(IVRFormat) && language != null
                         && messageName != null) {
+                    messageName +="IVR";
                     this.placeCall(patientList.get(0), language, messageName,
                             mEvent.getWindowName());
                 }
                 if ("true".equals(SMSFormat) && language != null
                         && messageName != null) {
+                    messageName +="SMS";
                     this.sendSMS(patientList.get(0), language, messageName,
                             mEvent.getWindowName());
                 }
