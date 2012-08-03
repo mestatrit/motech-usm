@@ -34,6 +34,8 @@
 
 	<osgi:reference id="mrsObservationAdapterOsgi" interface="org.motechproject.mrs.services.MRSObservationAdapter" cardinality="0..1" />
 
+	<osgi:reference id="cmsLiteServiceOsgi" interface="org.motechproject.cmslite.api.service.CMSLiteService" cardinality="0..1" />
+	
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/webapp/" />
 		<property name="suffix" value=".jsp" />
