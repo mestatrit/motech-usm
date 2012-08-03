@@ -28,27 +28,40 @@ public class ScheduleContentInitiator {
         for (int i = 1; i <= 4; i++) {
             InputStream demoMessageStream = this.getClass()
                     .getResourceAsStream("/duedemoconcept" + i + ".wav");
-            StreamContent demoFile = new StreamContent("en", "DemoConceptQuestion" + i + "Due", demoMessageStream, "checksum" + i, "audio/wav"); // IVR
-            InputStream demoMessageStream2 = this.getClass().getResourceAsStream("/latedemoconcept" + i + ".wav");
-            StreamContent demoFile2 = new StreamContent("en", "DemoConceptQuestion" + i + "Late", demoMessageStream2, "checksum" + i, "audio/wav"); // IVR
+            StreamContent demoFile = new StreamContent("en",
+                    "DemoConceptQuestion" + i + "Due", demoMessageStream,
+                    "checksum" + i, "audio/wav"); // IVR
+            InputStream demoMessageStream2 = this.getClass()
+                    .getResourceAsStream("/latedemoconcept" + i + ".wav");
+            StreamContent demoFile2 = new StreamContent("en",
+                    "DemoConceptQuestion" + i + "Late", demoMessageStream2,
+                    "checksum" + i, "audio/wav"); // IVR
 
             try {
                 cmsliteService.addContent(demoFile);
                 cmsliteService.addContent(demoFile2);
             } catch (CMSLiteException e) {
             }
-            cmsliteService.addContent(new StringContent("en", "DemoConceptQuestion" + i + "due", "due" + i + ".xml")); // IVR
-            cmsliteService.addContent(new StringContent("en", "DemoConceptQuestion" + i + "due", getDemoDueMessage(i))); // SMS
-            cmsliteService.addContent(new StringContent("en", "DemoConceptQuestion" + i + "late", "late" + i + ".xml")); // IVR
-            cmsliteService.addContent(new StringContent("en", "DemoConceptQuestion" + i + "late", getDemoLateMessage(i))); // SMS
+            cmsliteService.addContent(new StringContent("en",
+                    "DemoConceptQuestion" + i + "due", "due" + i + ".xml")); // IVR
+            cmsliteService.addContent(new StringContent("en",
+                    "DemoConceptQuestion" + i + "due", getDemoDueMessage(i))); // SMS
+            cmsliteService.addContent(new StringContent("en",
+                    "DemoConceptQuestion" + i + "late", "late" + i + ".xml")); // IVR
+            cmsliteService.addContent(new StringContent("en",
+                    "DemoConceptQuestion" + i + "late", getDemoLateMessage(i))); // SMS
 
         }
 
-        InputStream inputStreamToResource1 = this.getClass().getResourceAsStream("/defaulteddemoschedule.wav");
-        StreamContent cron = new StreamContent("en", "defaultedDemoSchedule", inputStreamToResource1, "checksum1", "audio/wav"); // IVR
+        InputStream inputStreamToResource1 = this.getClass()
+                .getResourceAsStream("/defaulteddemoschedule.wav");
+        StreamContent cron = new StreamContent("en", "defaultedDemoSchedule",
+                inputStreamToResource1, "checksum1", "audio/wav"); // IVR
         cmsliteService.addContent(cron);
-        cmsliteService.addContent(new StringContent("en", "defaulted-demo-message", "defaulted.xml")); // IVR
-        cmsliteService.addContent(new StringContent(
+        cmsliteService.addContent(new StringContent("en",
+                "defaulted-demo-message", "defaulted.xml")); // IVR
+        cmsliteService
+                .addContent(new StringContent(
                         "en",
                         "defaulted-demo-message",
                         "You have "
