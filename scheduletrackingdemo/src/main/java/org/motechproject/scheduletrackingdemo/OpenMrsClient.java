@@ -3,6 +3,7 @@ package org.motechproject.scheduletrackingdemo;
 import java.util.Date;
 
 import org.joda.time.DateTime;
+import org.motechproject.mrs.model.MRSFacility;
 import org.motechproject.mrs.model.MRSPatient;
 
 public interface OpenMrsClient {
@@ -20,4 +21,6 @@ public interface OpenMrsClient {
 
     void addEncounterForPatient(String motechId, String conceptName,
             Date observedDate);
+
+    MRSFacility findFacility(String location);
 }

@@ -8,7 +8,7 @@ public class PatientEncounterBean extends FormBean {
     private static final long serialVersionUID = 1L;
     private String motechId;
     private Date observedDate;
-    private int observedConcept;
+    private String observedConcept;
     private String groupId;
 
     public String getMotechId() {
@@ -27,11 +27,11 @@ public class PatientEncounterBean extends FormBean {
         this.observedDate = observedDate;
     }
 
-    public int getObservedConcept() {
+    public String getObservedConcept() {
         return observedConcept;
     }
 
-    public void setObservedConcept(int observedConcept) {
+    public void setObservedConcept(String observedConcept) {
         this.observedConcept = observedConcept;
     }
 

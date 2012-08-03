@@ -3,12 +3,20 @@ package org.motechproject.scheduletrackingdemo.provider;
 import org.motechproject.mobileforms.api.service.FormProvider;
 import org.motechproject.scheduletrackingdemo.beans.PatientRegistrationBean;
 import org.motechproject.scheduletrackingdemo.validator.PatientRegistrationValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("patientRegistrationFormProvider")
 public class PatientRegistrationFormProvider implements
         FormProvider<PatientRegistrationBean, PatientRegistrationValidator> {
 
+    private PatientRegistrationValidator patientRegistrationValidator;
+
+    @Autowired
+    public PatientRegistrationFormProvider(PatientRegistrationValidator patientRegistrationValidator) {
+        this.patientRegistrationValidator = patientRegistrationValidator;
+    }
+    
     @Override
     public PatientRegistrationBean makeInstance() {
         return new PatientRegistrationBean();
@@ -16,7 +24,7 @@ public class PatientRegistrationFormProvider implements
 
     @Override
     public PatientRegistrationValidator getValidator() {
-        return new PatientRegistrationValidator();
+        return patientRegistrationValidator;
     }
 
     @Override

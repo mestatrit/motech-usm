@@ -7,6 +7,7 @@
         <firstName />
         <lastName />
         <gender />
+        <location />
         <dateOfBirth />
         <phoneNumber />
         <enrollPatient />
@@ -18,6 +19,7 @@
     <xf:bind id="firstName" nodeset="/patient/firstName" required="true()" type="xsd:string" />
     <xf:bind id="lastName" nodeset="/patient/lastName" required="true()" type="xsd:string" />
     <xf:bind id="gender" nodeset="/patient/gender" required="true()" type="xsd:string" />
+    <xf:bind id="location" nodeset="/patient/location" required="true()" type="xsd:string" />
     <xf:bind constraint=". &lt; 'today()'" id="dateOfBirth" message="Invalid date: date specified is in the future" nodeset="/patient/dateOfBirth" required="true()" type="xsd:date" />
     <xf:bind id="phoneNumber" nodeset="/patient/phoneNumber" required="true()" type="xsd:string" constraint="" message="" />
     <xf:bind id="enrollPatient" nodeset="/patient/enrollPatient" required="true()" type="xsd:boolean" />
@@ -46,6 +48,17 @@
         <xf:value>F</xf:value>
       </xf:item>
     </xf:select1>
+    <xf:select1 bind="location">
+      <xf:label>Which location is the patient registering from?</xf:label>
+      <xf:item>
+        <xf:label>Hospital</xf:label>
+        <xf:value>hospital</xf:value>
+      </xf:item>
+      <xf:item>
+        <xf:label>Home</xf:label>
+        <xf:value>home</xf:value>
+      </xf:item>
+    </xf:select1>    
     <xf:input bind="dateOfBirth">
       <xf:label>Date of Birth</xf:label>
     </xf:input>

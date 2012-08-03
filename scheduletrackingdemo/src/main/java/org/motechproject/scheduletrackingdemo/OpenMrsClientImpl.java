@@ -6,11 +6,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.motechproject.mrs.model.MRSEncounter;
+import org.motechproject.mrs.model.MRSFacility;
 import org.motechproject.mrs.model.MRSObservation;
 import org.motechproject.mrs.model.MRSPatient;
 import org.motechproject.mrs.services.MRSEncounterAdapter;
+import org.motechproject.mrs.services.MRSFacilityAdapter;
 import org.motechproject.mrs.services.MRSObservationAdapter;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 import org.slf4j.Logger;
@@ -20,23 +23,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OpenMrsClientImpl implements OpenMrsClient {
-    private static Logger logger = LoggerFactory
-            .getLogger(OpenMrsClientImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(OpenMrsClientImpl.class);
     private MRSEncounterAdapter encounterAdapter;
     private MRSPatientAdapter patientAdapter;
     private MRSObservationAdapter observationAdapter;
-
+    private MRSFacilityAdapter facilityAdapter;
+    
     @Autowired
-    public OpenMrsClientImpl(MRSEncounterAdapter encounterAdapter,
-            MRSPatientAdapter patientAdapter,
-            MRSObservationAdapter observationAdapter) {
+    public OpenMrsClientImpl(MRSEncounterAdapter encounterAdapter, MRSPatientAdapter patientAdapter,
+            MRSObservationAdapter observationAdapter, MRSFacilityAdapter facilityAdapter) {
         this.encounterAdapter = encounterAdapter;
         this.patientAdapter = patientAdapter;
         this.observationAdapter = observationAdapter;
+        this.facilityAdapter = facilityAdapter;
     }
 
     public boolean hasConcept(String patientId, String conceptName) {
-        logger.debug(conceptName);
         List<MRSObservation> observationList = observationAdapter.findObservations(patientId, conceptName);
 
         boolean found = false;
@@ -51,33 +53,29 @@ public class OpenMrsClientImpl implements OpenMrsClient {
     }
 
     public void printValues(String externalID, String conceptName) {
-        List<MRSObservation> mrsObservations = observationAdapter
-                .findObservations(externalID, conceptName);
+        List<MRSObservation> mrsObservations = observationAdapter.findObservations(externalID, conceptName);
 
         System.out.println("***** OBSERVATIONS *****");
         for (MRSObservation mrsObservation : mrsObservations) {
             System.out.println(mrsObservation.toString());
         }
         System.out.println("***** ENCOUNTERS *****");
-//        List<MRSEncounter> mrsEncounters = encounterAdapter
-//                .getAllEncountersByPatientMotechId(externalID);
-//        for (MRSEncounter mrsEncounter : mrsEncounters) {
-//            for (MRSObservation mrsObservation : mrsEncounter.getObservations()) {
-//                System.out.println("Belongs to: " + mrsObservation.toString());
-//            }
-//        }
+        // List<MRSEncounter> mrsEncounters = encounterAdapter
+        // .getAllEncountersByPatientMotechId(externalID);
+        // for (MRSEncounter mrsEncounter : mrsEncounters) {
+        // for (MRSObservation mrsObservation : mrsEncounter.getObservations()) {
+        // System.out.println("Belongs to: " + mrsObservation.toString());
+        // }
+        // }
     }
 
-    public DateTime lastTimeFulfilledDateTimeObs(String patientId,
-            String conceptName) {
-        List<MRSObservation> mrsObservations = observationAdapter
-                .findObservations(patientId, conceptName);
+    public DateTime lastTimeFulfilledDateTimeObs(String patientId, String conceptName) {
+        List<MRSObservation> mrsObservations = observationAdapter.findObservations(patientId, conceptName);
         Collections.sort(mrsObservations, new DateComparator());
 
         if (mrsObservations.size() > 0) {
             Date date = (Date) mrsObservations.get(0).getValue();
-            Date date2 = (Date) mrsObservations.get(mrsObservations.size() - 1)
-                    .getValue();
+            Date date2 = (Date) mrsObservations.get(mrsObservations.size() - 1).getValue();
             DateTime dateTime = new DateTime(date);
             DateTime dateTime2 = new DateTime(date2);
 
@@ -112,15 +110,26 @@ public class OpenMrsClientImpl implements OpenMrsClient {
         patientAdapter.savePatient(patient);
     }
 
-    public void addEncounterForPatient(String motechId, String conceptName,
-            Date observedDate) {
-        MRSObservation<Date> observation = new MRSObservation<Date>(
-                observedDate, conceptName, observedDate);
+    public void addEncounterForPatient(String motechId, String conceptName, Date observedDate) {
+        MRSObservation<Date> observation = new MRSObservation<Date>(observedDate, conceptName, observedDate);
         Set<MRSObservation> observations = new HashSet<MRSObservation>();
         observations.add(observation);
         MRSPatient patient = patientAdapter.getPatientByMotechId(motechId);
-        MRSEncounter encounter = new MRSEncounter("1", "1", "1", observedDate,
-                patient.getId(), observations, "ADULTRETURN");
+        MRSEncounter encounter = new MRSEncounter("1", "1", "1", observedDate, patient.getId(), observations,
+                "ADULTRETURN");
         encounterAdapter.createEncounter(encounter);
+    }
+
+    @Override
+    public MRSFacility findFacility(String location) {
+        List<MRSFacility> facilities = facilityAdapter.getFacilities(location);
+        if (facilities.size() == 0) {
+            return null;
+        } else if (facilities.size() > 1) {
+            logger.warn("Multiple OpenMRS facilities found with name: " + location);
+            logger.warn("Using first facility");
+        }
+        
+        return facilities.get(0);
     }
 }
