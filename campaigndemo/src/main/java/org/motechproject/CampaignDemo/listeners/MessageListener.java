@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * the resource package in the demo. The json file defines the characteristics
  * of a campaign.
  */
-public class TestListener {
+public class MessageListener {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -53,11 +53,11 @@ public class TestListener {
     @Autowired
     private SmsService smsService;
 
-    public TestListener() {
+    public MessageListener() {
 
     }
 
-    public TestListener(CMSLiteService cmsliteService, PatientDAO patientDAO,
+    public MessageListener(CMSLiteService cmsliteService, PatientDAO patientDAO,
             IVRService ivrService, MessageCampaignService service) {
         this.cmsliteService = cmsliteService;
         this.patientDAO = patientDAO;

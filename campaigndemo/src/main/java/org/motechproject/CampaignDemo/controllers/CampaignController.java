@@ -22,8 +22,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 /**
  * A Spring controller for starting and stopping campaigns based on an external
- * ID.
- * The PatientDAO is used only to display the list of registered users
+ * ID. The PatientDAO is used only to display the list of registered users
  */
 @Controller
 public class CampaignController extends MultiActionController {
@@ -97,7 +96,8 @@ public class CampaignController extends MultiActionController {
 
         ModelAndView mv = null;
 
-        if (campaignName.equals("Cron based SMS Program")||campaignName.equals("Cron based IVR Program")) {
+        if (campaignName.equals("Cron based SMS Program")
+                || campaignName.equals("Cron based IVR Program")) {
             mv = new ModelAndView("cronFormPage", modelMap);
         } else {
             mv = new ModelAndView("formPage", modelMap);
@@ -106,7 +106,6 @@ public class CampaignController extends MultiActionController {
         return mv;
     }
 
-    
     @RequestMapping(value = "/stop", method = RequestMethod.POST)
     public ModelAndView stop(HttpServletRequest request,
             HttpServletResponse response) {
@@ -121,8 +120,8 @@ public class CampaignController extends MultiActionController {
         /**
          * See comment for service.startFor(campaignRequest) in above method for
          * a more detailed description. When stopping a campaign, an event is
-         * not raised, the job is simply removed from the Quartz scheduler and no
-         * more events are raised. stopAll stops ALL messages associated with
+         * not raised, the job is simply removed from the Quartz scheduler and
+         * no more events are raised. stopAll stops ALL messages associated with
          * the specific campaign and specific external id. To stop a specific
          * message, instead call service.stopFor(campaignRequest, messageKey)
          * with the provided message key as a parameter
@@ -137,9 +136,11 @@ public class CampaignController extends MultiActionController {
 
         ModelAndView mv = null;
 
-        if (campaignName.equals("Cron based SMS Program")||campaignName.equals("Cron based IVR Program")){
+        if (campaignName.equals("Cron based SMS Program")
+                || campaignName.equals("Cron based IVR Program")) {
             mv = new ModelAndView("cronFormPage", modelMap);
         } else {
+            patientDAO.removePatient(externalId);
             mv = new ModelAndView("formPage", modelMap);
         }
 

@@ -448,7 +448,6 @@ public class MotechSchedulerServiceImpl extends MotechObject implements MotechSc
             handleException(String.format("Can not unschedule the job: %s %s", jobId, e.getMessage()), e);
         }
     }
-
     private void safeUnscheduleJob(String jobId) {
         try {
             assertArgumentNotNull("ScheduledJobID", jobId);

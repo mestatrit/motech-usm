@@ -32,9 +32,7 @@
 		<!-- <property name="cmsLiteService" ref="cmsLiteServiceOsgi" /> -->
 	</bean>
 
-	<bean id="testListener" class="org.motechproject.CampaignDemo.listeners.TestListener">
-		<!-- <constructor-arg><ref bean="ivrServiceOsgi" /></constructor-arg> <constructor-arg><ref 
-			bean="smsServiceOsgi"/></constructor-arg> <constructor-arg><ref bean="messageCampaignServiceOsgi"/></constructor-arg> -->
+	<bean id="messageListener" class="org.motechproject.CampaignDemo.listeners.MessageListener">
 	</bean>
 
 

@@ -43,7 +43,7 @@ public class UserController extends MultiActionController {
         String externalID = request.getParameter("externalId");
 
         if (externalID.length() == 0 || externalID.equals("")
-                || externalID.trim().length() == 0){
+                || externalID.trim().length() == 0) {
         } else {
             patientList = patientDAO.findByExternalid(externalID); // Only one
                                                                    // patient
@@ -72,7 +72,6 @@ public class UserController extends MultiActionController {
         modelMap.put("patients", patientList); // List of patients is for
                                                // display purposes only
 
-        
         ModelAndView mv = new ModelAndView(returnPage, modelMap);
 
         return mv;
