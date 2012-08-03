@@ -42,7 +42,7 @@ public class MilestoneEvent {
      */
     public MilestoneEvent(MotechEvent motechEvent) {
         this.scheduleName = (String) motechEvent.getParameters().get(EventDataKeys.SCHEDULE_NAME);
-        this.milestoneAlert = (MilestoneAlert) motechEvent.getParameters().get(EventDataKeys.MILESTONE_NAME);
+//        this.milestoneAlert = (MilestoneAlert) motechEvent.getParameters().get(EventDataKeys.MILESTONE_NAME);
         this.windowName = (String) motechEvent.getParameters().get(EventDataKeys.WINDOW_NAME);
         this.externalId = (String) motechEvent.getParameters().get(EventDataKeys.EXTERNAL_ID);
         this.referenceDateTime = (DateTime) motechEvent.getParameters().get(EventDataKeys.REFERENCE_DATE);
@@ -69,7 +69,7 @@ public class MilestoneEvent {
     public MotechEvent toMotechEvent() {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(EventDataKeys.WINDOW_NAME, windowName);
-        parameters.put(EventDataKeys.MILESTONE_NAME, milestoneAlert);
+//        parameters.put(EventDataKeys.MILESTONE_NAME, milestoneAlert);
         parameters.put(EventDataKeys.SCHEDULE_NAME, scheduleName);
         parameters.put(EventDataKeys.EXTERNAL_ID, externalId);
         parameters.put(EventDataKeys.REFERENCE_DATE, referenceDateTime);

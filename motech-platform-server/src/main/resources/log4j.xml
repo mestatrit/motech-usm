@@ -20,6 +20,14 @@
     <logger name="org.motechproject">
         <level value="WARN" />
     </logger>
+    
+    <logger name="org.motechproject.scheduler">
+        <level value="DEBUG" />
+    </logger>
+    
+    <logger name="org.motechproject.scheduletrackingdemo">
+        <level value="DEBUG" />
+    </logger>
 
     <root>
         <priority value="WARN" />

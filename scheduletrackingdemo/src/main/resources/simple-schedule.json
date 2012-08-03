@@ -20,12 +20,12 @@
                     {
                         "window" : "due",
                         "interval" : ["1 minute"],
-                        "count" : "0"
+                        "count" : "1"
                     },
                     {
                         "window" : "late",
                         "interval" : ["1 minute"],
-                        "count" : "1"
+                        "count" : "2"
                     }, 
                     {
                     	"window" : "max",
@@ -53,12 +53,12 @@
                                     {
                         "window" : "due",
                         "interval" : ["1 minute"],
-                        "count" : "0"
+                        "count" : "1"
                     },
                     {
                         "window" : "late",
                         "interval" : ["1 minute"],
-                        "count" : "1"
+                        "count" : "2"
                     }, 
                     {
                     	"window" : "max",
@@ -87,12 +87,12 @@
                                     {
                         "window" : "due",
                         "interval" : ["1 minute"],
-                        "count" : "0"
+                        "count" : "1"
                     },
                     {
                         "window" : "late",
                         "interval" : ["1 minute"],
-                        "count" : "1"
+                        "count" : "2"
                     }, 
                     {
                     	"window" : "max",
@@ -121,12 +121,12 @@
                                     {
                         "window" : "due",
                         "interval" : ["1 minute"],
-                        "count" : "0"
+                        "count" : "1"
                     },
                     {
                         "window" : "late",
                         "interval" : ["1 minute"],
-                        "count" : "1"
+                        "count" : "2"
                     }, 
                     {
                     	"window" : "max",

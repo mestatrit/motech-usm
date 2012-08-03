@@ -1,29 +1,31 @@
 package org.motechproject.scheduletrackingdemo.listeners;
 
 import java.util.List;
-import java.util.Map;
+
 import org.joda.time.LocalDate;
-import org.motechproject.scheduler.domain.MotechEvent;
-import org.motechproject.scheduletrackingdemo.OpenMrsClient;
-import org.motechproject.scheduletrackingdemo.DAO.MRSPatientDAO;
-import org.motechproject.scheduletrackingdemo.model.Patient;
 import org.motechproject.cmslite.api.model.ContentNotFoundException;
 import org.motechproject.cmslite.api.model.StringContent;
 import org.motechproject.cmslite.api.service.CMSLiteService;
 import org.motechproject.ivr.service.CallRequest;
 import org.motechproject.ivr.service.IVRService;
-import org.motechproject.scheduletracking.api.domain.exception.InvalidEnrollmentException;
+import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduletracking.api.domain.exception.DefaultedMilestoneFulfillmentException;
+import org.motechproject.scheduletracking.api.domain.exception.InvalidEnrollmentException;
 import org.motechproject.scheduletracking.api.domain.exception.NoMoreMilestonesToFulfillException;
 import org.motechproject.scheduletracking.api.events.MilestoneEvent;
 import org.motechproject.scheduletracking.api.events.constants.EventSubjects;
 import org.motechproject.scheduletracking.api.service.ScheduleTrackingService;
+import org.motechproject.scheduletrackingdemo.OpenMrsClient;
+import org.motechproject.scheduletrackingdemo.DAO.MRSPatientDAO;
+import org.motechproject.scheduletrackingdemo.model.Patient;
 import org.motechproject.server.event.annotations.MotechListener;
 import org.motechproject.sms.api.service.SmsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MilestoneListener {
 
     private static Logger logger = LoggerFactory
@@ -51,11 +53,11 @@ public class MilestoneListener {
     public void execute(org.motechproject.scheduler.domain.MotechEvent event) {
         logger.debug("Handled milestone event");
         MilestoneEvent mEvent = new MilestoneEvent(event);
-        System.out.println("For: " + mEvent.getExternalId() + " --- "
-                + mEvent.getMilestoneAlert().getMilestoneName() + " --- "
-                + mEvent.getScheduleName() + " --- " + mEvent.getWindowName());
-        String milestoneConceptName = (String) event.getParameters().get(
-                "conceptName");
+        
+        logger.debug("For: " + mEvent.getExternalId() + " --- " + mEvent.getScheduleName() + " --- "
+                + mEvent.getWindowName());
+        
+        String milestoneConceptName = (String) event.getParameters().get("conceptName");
 
         if (milestoneConceptName == null)
             return; // This method does not handle events without conceptName
