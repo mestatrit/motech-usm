@@ -10,8 +10,6 @@ public interface OpenMrsClient {
 
     boolean hasConcept(String patientId, String conceptName);
 
-    void printValues(String externalID, String conceptName);
-
     DateTime lastTimeFulfilledDateTimeObs(String patientId,
             String conceptName);
 
@@ -19,8 +17,7 @@ public interface OpenMrsClient {
 
     void savePatient(MRSPatient patient);
 
-    void addEncounterForPatient(String motechId, String conceptName,
-            Date observedDate);
+    void addEncounterForPatient(String motechId, String conceptName, String facilityName, Date observedDate);
 
     MRSFacility findFacility(String location);
 }

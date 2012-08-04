@@ -3,18 +3,22 @@ package org.motechproject.scheduletrackingdemo.listeners;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.motechproject.cmslite.api.model.ContentNotFoundException;
 import org.motechproject.cmslite.api.model.StringContent;
 import org.motechproject.cmslite.api.service.CMSLiteService;
 import org.motechproject.ivr.service.CallRequest;
 import org.motechproject.ivr.service.IVRService;
+import org.motechproject.model.Time;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduletracking.api.domain.Milestone;
 import org.motechproject.scheduletracking.api.domain.Schedule;
 import org.motechproject.scheduletracking.api.domain.exception.DefaultedMilestoneFulfillmentException;
 import org.motechproject.scheduletracking.api.domain.exception.InvalidEnrollmentException;
 import org.motechproject.scheduletracking.api.domain.exception.NoMoreMilestonesToFulfillException;
+import org.motechproject.scheduletracking.api.events.DefaultmentCaptureEvent;
 import org.motechproject.scheduletracking.api.events.MilestoneEvent;
 import org.motechproject.scheduletracking.api.events.constants.EventSubjects;
 import org.motechproject.scheduletracking.api.service.ScheduleTrackingService;
@@ -54,11 +58,10 @@ public class MilestoneListener {
 
     @MotechListener(subjects = { EventSubjects.MILESTONE_ALERT })
     public void execute(org.motechproject.scheduler.domain.MotechEvent event) {
-        logger.debug("Handled milestone event");
         MilestoneEvent mEvent = new MilestoneEvent(event);
         
-        logger.debug("For: " + mEvent.getExternalId() + " --- " + mEvent.getScheduleName() + " --- "
-                + mEvent.getWindowName());
+        logger.debug("Handled milestone event for: " + mEvent.getExternalId() + " --- " + mEvent.getScheduleName()
+                + " --- " + mEvent.getWindowName());
         
         Schedule schedule = scheduleTrackingService.getSchedule(mEvent.getScheduleName());
         Milestone milestone = schedule.getMilestone(mEvent.getMilestoneName());
@@ -69,25 +72,16 @@ public class MilestoneListener {
         if (milestoneConceptName == null)
             return; // This method does not handle events without conceptName
 
-        boolean hasFulfilledMilestone = openmrsClient.hasConcept(
-                mEvent.getExternalId(), milestoneConceptName);
+        boolean hasFulfilledMilestone = openmrsClient.hasConcept(mEvent.getExternalId(), milestoneConceptName);
 
-        if (hasFulfilledMilestone
-                && mEvent
-                        .getReferenceDateTime()
-                        .minusDays(1)
-                        .isBefore(
-                                openmrsClient.lastTimeFulfilledDateTimeObs(
-                                        mEvent.getExternalId(),
-                                        milestoneConceptName))) {
-            logger.debug("Fulfilling milestone for: " + mEvent.getExternalId()
-                    + " with schedule: " + mEvent.getScheduleName());
+        if (hasFulfilledMilestone && fulfilledWithinScheduleEnrollment(mEvent, milestoneConceptName)) {
+            logger.debug("Fulfilling milestone for: " + mEvent.getExternalId() + " with schedule: "
+                    + mEvent.getScheduleName());
 
             try {
-
-                scheduleTrackingService.fulfillCurrentMilestone(
-                        mEvent.getExternalId(), mEvent.getScheduleName(),
-                        LocalDate.now());
+                LocalTime time = LocalTime.now();
+                scheduleTrackingService.fulfillCurrentMilestone(mEvent.getExternalId(), mEvent.getScheduleName(),
+                        LocalDate.now(), new Time(time.getHourOfDay(), time.getMinuteOfHour()));
             } catch (InvalidEnrollmentException e) {
 
             } catch (DefaultedMilestoneFulfillmentException e2) {
@@ -95,103 +89,88 @@ public class MilestoneListener {
             } catch (NoMoreMilestonesToFulfillException e3) {
 
             }
-        } else if (!mEvent.getWindowName().equals("max")) { // Place calls
-                                                            // and/or text
-                                                            // messages, but not
-                                                            // for the max
-                                                            // alerts
-
-            List<Patient> patientList = patientDAO.findByExternalid(mEvent
-                    .getExternalId());
+        } else if (!mEvent.getWindowName().equals("max")) {
+            logger.debug("Sending a message for milestone event");
+            // Place calls and/or text messages, but not for the max alerts
+            List<Patient> patientList = patientDAO.findByExternalid(mEvent.getExternalId());
 
             if (patientList.size() > 0) {
-
                 String IVRFormat = milestoneData.get("IVRFormat");
                 String SMSFormat = milestoneData.get("SMSFormat");
                 String language = milestoneData.get("language");
                 String messageName = milestoneData.get("messageName");
 
-                if ("true".equals(IVRFormat) && language != null
-                        && messageName != null) {
-                    messageName +="IVR";
-                    this.placeCall(patientList.get(0), language, messageName,
-                            mEvent.getWindowName());
+                if ("true".equals(IVRFormat) && language != null && messageName != null) {
+                    String ivrMessageName = messageName.concat("IVR");
+                    this.placeCall(patientList.get(0), language, ivrMessageName, mEvent.getWindowName());
                 }
-                if ("true".equals(SMSFormat) && language != null
-                        && messageName != null) {
-                    messageName +="SMS";
-                    this.sendSMS(patientList.get(0), language, messageName,
-                            mEvent.getWindowName());
+
+                if ("true".equals(SMSFormat) && language != null && messageName != null) {
+                    String smsMessageName = messageName.concat("SMS");
+                    this.sendSMS(patientList.get(0), language, smsMessageName, mEvent.getWindowName());
                 }
             }
         }
+    }
+
+    private boolean fulfilledWithinScheduleEnrollment(MilestoneEvent mEvent, String milestoneConceptName) {
+        // The OpenMRS (at least version 1.8.3) does not store the time for an observation, only the date
+        // therefore we can only verify the day on which the observation happened
+        // to make matters worse, the mobile client sends the date of the observation in UTC time at midnight
+        // depending on the time zone, this could result in the date being interpreted as the day before
+        DateTime referenceDate = mEvent.getReferenceDateTime();
+        DateTime dayBeforeAtMidnight = referenceDate.minusDays(1).toDateMidnight().toDateTime();
+        DateTime fulfilled = openmrsClient.lastTimeFulfilledDateTimeObs(mEvent.getExternalId(), milestoneConceptName);
+        return (dayBeforeAtMidnight.isBefore(fulfilled) || dayBeforeAtMidnight.isEqual(fulfilled));
     }
 
     @MotechListener(subjects = { EventSubjects.DEFAULTMENT_CAPTURE })
     public void defaulted(MotechEvent event) {
-        MilestoneEvent mEvent = new MilestoneEvent(event);
-        List<Patient> patientList = patientDAO.findByExternalid(mEvent
-                .getExternalId());
+        logger.debug("Handled milestone defaultment capture event");
+        DefaultmentCaptureEvent mEvent = new DefaultmentCaptureEvent(event);
+        List<Patient> patientList = patientDAO.findByExternalid(mEvent.getExternalId());
 
         if (patientList.size() > 0) {
-            this.placeCall(patientList.get(0), "en", "defaulted-demo-message",
-                    "");
+            this.placeCall(patientList.get(0), "en", "defaulted-demo-message-ivr", "");
             this.sendSMS(patientList.get(0), "en", "defaulted-demo-message", "");
-
         }
-        logger.debug("Handled milestone event"); // Currently do nothing with
-                                                 // defaultment event
     }
 
-    private void placeCall(Patient patient, String language,
-            String messageName, String windowName) {
-        if (cmsliteService.isStringContentAvailable(language, messageName
-                + windowName)) {
+    private void placeCall(Patient patient, String language, String messageName, String windowName) {
+        if (cmsliteService.isStringContentAvailable(language, messageName + windowName)) {
             StringContent content = null;
             try {
-                content = cmsliteService.getStringContent(language, messageName
-                        + windowName);
+                content = cmsliteService.getStringContent(language, messageName + windowName);
             } catch (ContentNotFoundException e) {
-                e.printStackTrace();
+                logger.error("Failed to retrieve IVR content for language: " + language + " and name: " + messageName
+                        + windowName);
+                return;
             }
-            if (content != null) {
-                System.out.println("Calling");
-                CallRequest request = new CallRequest(patient.getPhoneNum(),
-                        119, content.getValue());
-                request.getPayload().put("USER_ID", patient.getExternalid()); // put
-                                                                              // Id
-                                                                              // in
-                                                                              // the
-                                                                              // payload
 
-                request.getPayload().put("applicationName", "ScheduleTrackingDemo");
-                // for some reason the project is not recognizing these.
-                request.setOnBusyEvent(new MotechEvent("CALL_BUSY"));
-                request.setOnFailureEvent(new MotechEvent("CALL_FAIL"));
-                request.setOnNoAnswerEvent(new MotechEvent("CALL_NO_ANSWER"));
-                request.setOnSuccessEvent(new MotechEvent("CALL_SUCCESS"));
-                voxeoService.initiateCall(request);
-            }
+            CallRequest request = new CallRequest(patient.getPhoneNum(), 119, content.getValue());
+            request.getPayload().put("USER_ID", patient.getExternalid());
+            request.getPayload().put("applicationName", "ScheduleTrackingDemo");
+            voxeoService.initiateCall(request);
         } else {
-            logger.error("No IVR content available");
+            logger.error("Could not find IVR content for language: " + language + " and name: " + messageName
+                    + windowName);
         }
     }
 
-    private void sendSMS(Patient patient, String language, String messageName,
-            String windowName) {
-        if (cmsliteService.isStringContentAvailable(language, messageName
-                + windowName)) {
+    private void sendSMS(Patient patient, String language, String messageName, String windowName) {
+        if (cmsliteService.isStringContentAvailable(language, messageName + windowName)) {
             StringContent content = null;
             try {
-                content = cmsliteService.getStringContent(language, messageName
-                        + windowName);
+                content = cmsliteService.getStringContent(language, messageName + windowName);
             } catch (ContentNotFoundException e) {
+                logger.error("Failed to retrieve SMS content for language: " + language + " and name: " + messageName
+                        + windowName);
+                return;
             }
             smsService.sendSMS(patient.getPhoneNum(), content.getValue());
         } else { // no content, don't send SMS
-            logger.error("No SMS content available");
+            logger.error("Could not find SMS content for language: " + language + " and name: " + messageName
+                    + windowName);
         }
-
     }
-
 }

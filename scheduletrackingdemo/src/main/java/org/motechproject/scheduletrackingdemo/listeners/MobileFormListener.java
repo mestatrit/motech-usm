@@ -1,6 +1,7 @@
 package org.motechproject.scheduletrackingdemo.listeners;
 
-import org.motechproject.mobileforms.api.callbacks.FormGroupPublisher;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.events.constants.EventDataKeys;
 import org.motechproject.mobileforms.api.events.constants.EventSubjects;
@@ -9,6 +10,7 @@ import org.motechproject.mrs.model.MRSPatient;
 import org.motechproject.mrs.model.MRSPerson;
 import org.motechproject.scheduler.domain.MotechEvent;
 import org.motechproject.scheduletrackingdemo.OpenMrsClient;
+import org.motechproject.scheduletrackingdemo.OpenMrsConceptConverter;
 import org.motechproject.scheduletrackingdemo.PatientScheduler;
 import org.motechproject.scheduletrackingdemo.beans.PatientEncounterBean;
 import org.motechproject.scheduletrackingdemo.beans.PatientEnrollmentBean;
@@ -66,12 +68,8 @@ public class MobileFormListener {
     @MotechListener(subjects = { EventSubjects.BASE_SUBJECT + DEMO_PATIENT_ENROLLMENT_FORM_NAME})
     public void handlePatientEnrollment(MotechEvent event) {
         PatientEnrollmentBean bean = readJson(event, PatientEnrollmentBean.class);
-//        PatientEnrollmentBean bean = (PatientEnrollmentBean) event
-//                .getParameters().get(FormGroupPublisher.FORM_BEAN_GROUP);
-//        patientScheduler.saveMotechPatient(bean.getMotechId(),
-//                stripDashFromPhoneNumber(bean.getPhoneNumber()));
-//        patientScheduler.enrollIntoSchedule(bean.getMotechId(),
-//                DEMO_SCHEDULE_NAME);
+        patientScheduler.saveMotechPatient(bean.getMotechId(), stripDashFromPhoneNumber(bean.getPhoneNumber()));
+        patientScheduler.enrollIntoSchedule(bean.getMotechId(), DEMO_SCHEDULE_NAME);
     }
 
     private <T extends FormBean> T readJson(MotechEvent event, Class<T> classOfT) {
@@ -83,9 +81,14 @@ public class MobileFormListener {
     @MotechListener(subjects = { EventSubjects.BASE_SUBJECT + DEMO_PATIENT_ENCOUNTER_FORM_NAME})
     public void handlePatientEncounter(MotechEvent event) {
         PatientEncounterBean bean = readJson(event, PatientEncounterBean.class);
-//        String conceptName = OpenMrsConceptConverter
-//                .convertToNameFromIndex(bean.getObservedConcept());
-//        openmrsClient.addEncounterForPatient(bean.getMotechId(), conceptName,
-//                bean.getObservedDate());
+        long time = bean.getObservedDate().getTime();
+        // dates are sent based on UTC time zone
+        DateTime dateTime = new DateTime(bean.getObservedDate(), DateTimeZone.UTC);
+        DateTime localDate = dateTime.toLocalDate().toDateTimeAtStartOfDay();
+        bean.setObservedDate(localDate.toDate());
+        
+        String conceptName = OpenMrsConceptConverter.convertToNameFromIndex(bean.getObservedConcept());
+        openmrsClient.addEncounterForPatient(bean.getMotechId(), conceptName, bean.getLocationName(),
+                bean.getObservedDate());
     }
 }

@@ -62,7 +62,7 @@ public class ScheduleContentInitiator {
         StreamContent defaulted = new StreamContent("en", "defaultedDemoSchedule",inputStreamToResource1, "checksum1", "audio/wav"); // IVR
         cmsliteService.addContent(defaulted);
         
-        cmsliteService.addContent(new StringContent("en", "defaulted-demo-message", "defaulted.xml")); // IVR
+        cmsliteService.addContent(new StringContent("en", "defaulted-demo-message-ivr", "defaulted.xml")); // IVR
         cmsliteService.addContent(new StringContent(
                         "en",
                         "defaulted-demo-message",

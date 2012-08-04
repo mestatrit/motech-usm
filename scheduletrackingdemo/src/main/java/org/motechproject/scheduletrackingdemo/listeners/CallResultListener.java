@@ -25,11 +25,10 @@ public class CallResultListener {
         System.out.println("Handling event: " + event.getSubject());
         logger.debug("Handled call event");
 
-        CallDetailRecord cdr = (CallDetailRecord) event.getParameters().get(
-                IVREventDelegate.CALL_DETAIL_RECORD_KEY);
+        String phoneNumber = event.getParameters().get(IVREventDelegate.CALL_DETAIL_RECORD_KEY).toString();
 
         OutboundVoiceMessage outboundVoiceMessage = new OutboundVoiceMessage();
-        outboundVoiceMessage.setId(cdr.getPhoneNumber()); // Content is
+        outboundVoiceMessage.setId(phoneNumber); // Content is
                                                           // identified by phone
                                                           // number for now
 

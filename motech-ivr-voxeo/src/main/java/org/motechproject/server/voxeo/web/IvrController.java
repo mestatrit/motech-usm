@@ -232,7 +232,7 @@ public class IvrController extends MultiActionController {
                     phoneCall.getDisposition(), phoneCall.getDuration());
 
             Map<String, Object> parameters = motechEvent.getParameters();
-            parameters.put(IVREventDelegate.CALL_DETAIL_RECORD_KEY, cdr);
+            parameters.put(IVREventDelegate.CALL_DETAIL_RECORD_KEY, cdr.getPhoneNumber());
 
             eventRelay.sendEventMessage(motechEvent);
         }

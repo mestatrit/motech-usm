@@ -13,4 +13,7 @@
     <osgi:reference id="schedulerServiceOsgi" cardinality="0..1"
                     interface="org.motechproject.scheduler.MotechSchedulerService"/>
 
+    <osgi:reference id="eventRegistrationOsgi" cardinality="0..1"
+        interface="org.motechproject.server.event.EventListenerRegistryService" />
+
 </beans>

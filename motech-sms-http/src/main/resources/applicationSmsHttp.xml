@@ -20,4 +20,6 @@
     </bean>
 
     <bean id="smsAuditService" class="org.motechproject.sms.http.service.SmsAuditServiceImpl"/>
+
+    <bean class="org.motechproject.server.event.annotations.EventAnnotationBeanPostProcessor" />
 </beans>

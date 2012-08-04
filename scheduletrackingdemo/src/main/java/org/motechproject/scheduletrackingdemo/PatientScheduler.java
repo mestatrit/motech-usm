@@ -2,6 +2,8 @@ package org.motechproject.scheduletrackingdemo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalTime;
 import org.motechproject.model.Time;
 import org.motechproject.scheduletrackingdemo.DAO.MRSPatientDAO;
@@ -39,38 +41,29 @@ public class PatientScheduler {
 
     public void enrollIntoSchedule(String externalID, String scheduleName) {
         if (!patientDAO.findByExternalid(externalID).isEmpty()
-                && openMrsClient.getPatientByMotechId(externalID) != null) { // do
-            // not
-            // let
-            // users
-            // that
-            // aren't
-            // in
-            // both
-            // databases
-            // register
+                && openMrsClient.getPatientByMotechId(externalID) != null) {
             Schedule schedule = scheduleTrackingService.getSchedule(scheduleName);
 
-            if (schedule == null)
+            if (schedule == null) {
+                logger.error("There was no schedule found with name: " + scheduleName);
                 throw new RuntimeException("No schedule found with name: " + scheduleName);
+            }
 
-            String lastConceptFulfilled = "";
+            String lastMilestoneFulfilled = "";
             String checkConcept;
 
             for (Milestone milestone : schedule.getMilestones()) {
                 checkConcept = milestone.getData().get("conceptName");
                 if (checkConcept != null) {
                     if (openMrsClient.hasConcept(externalID, checkConcept)) {
-                        System.out.println(lastConceptFulfilled);
-                        lastConceptFulfilled = checkConcept;
-                        System.out.println(lastConceptFulfilled);
+                        lastMilestoneFulfilled = milestone.getName();
                     }
                 }
             }
 
             EnrollmentRequest enrollmentRequest;
 
-            if (lastConceptFulfilled.equals("")) { // enroll in new schedule
+            if (StringUtils.isEmpty(lastMilestoneFulfilled)) { // enroll in new schedule
                 enrollmentRequest = new EnrollmentRequest();
                 enrollmentRequest.setExternalId(externalID);
                 enrollmentRequest.setScheduleName(scheduleName);
@@ -78,7 +71,6 @@ public class PatientScheduler {
                 enrollmentRequest.setEnrollmentTime(new Time(LocalTime.now()));
                 enrollmentRequest.setReferenceDate(DateUtil.today());
                 enrollmentRequest.setReferenceTime(new Time(LocalTime.now()));
-                enrollmentRequest.setStartingMilestoneName(schedule.getNextMilestoneName(lastConceptFulfilled));
             } else { // start at the next milestone
                 EnrollmentsQuery query = new EnrollmentsQuery().havingSchedule(scheduleName).havingState(EnrollmentStatus.ACTIVE).havingExternalId(externalID);
                 List<EnrollmentRecord> enrollmentRecords = scheduleTrackingService.search(query);
@@ -90,7 +82,7 @@ public class PatientScheduler {
                     enrollmentRequest.setEnrollmentTime(new Time(LocalTime.now()));
                     enrollmentRequest.setReferenceDate(DateUtil.today());
                     enrollmentRequest.setReferenceTime(new Time(LocalTime.now()));
-                    enrollmentRequest.setStartingMilestoneName(schedule.getNextMilestoneName(lastConceptFulfilled));
+                    enrollmentRequest.setStartingMilestoneName(schedule.getNextMilestoneName(lastMilestoneFulfilled));
                 } else { // Enrollment already exists, but now re-enrolling to
                     // whatever their latest last milestone fulfillment
                     // was, based on OpenMRS
@@ -104,7 +96,7 @@ public class PatientScheduler {
                     enrollmentRequest.setEnrollmentTime(new Time(LocalTime.now()));
                     enrollmentRequest.setReferenceDate(DateUtil.today());
                     enrollmentRequest.setReferenceTime(new Time(LocalTime.now()));
-                    enrollmentRequest.setStartingMilestoneName(schedule.getNextMilestoneName(lastConceptFulfilled));
+                    enrollmentRequest.setStartingMilestoneName(schedule.getNextMilestoneName(lastMilestoneFulfilled));
                 }
             }
 
@@ -115,18 +107,8 @@ public class PatientScheduler {
     public void saveMotechPatient(String externalID, String phoneNum) {
         List<Patient> patientList = null;
 
-        if (externalID.length() == 0 || externalID.equals("") || externalID.trim().length() == 0) {
-            // Don't register empty string IDs
-        } else {
-            patientList = patientDAO.findByExternalid(externalID); // Only one
-            // patient
-            // should be
-            // returned
-            // if ID is
-            // unique,
-            // but it is
-            // returned
-            // as list
+        if (StringUtils.isNotBlank(externalID)) {
+            patientList = patientDAO.findByExternalid(externalID);
             if (patientList.size() > 0) { // Patient already exists, so it is
                 // updated
                 Patient thePatient = patientList.get(0);

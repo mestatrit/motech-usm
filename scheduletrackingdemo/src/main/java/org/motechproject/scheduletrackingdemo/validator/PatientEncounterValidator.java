@@ -31,32 +31,30 @@ public class PatientEncounterValidator extends AbstractPatientValidator<PatientE
             return errors;
         }
 
-        String conceptUuid = formBean.getObservedConcept();
-        validateValidNextConcept(formBean.getMotechId(), conceptUuid, formBean.getObservedDate(), errors);
+        int index = formBean.getObservedConcept();
+        String conceptName = OpenMrsConceptConverter.convertToNameFromIndex(index);
+        validateValidNextConcept(formBean.getMotechId(), conceptName, formBean.getObservedDate(), errors);
 
         return errors;
     }
 
-    private void validateValidNextConcept(String motechId, String conceptUuid, Date fulfilledDate,
+    private void validateValidNextConcept(String motechId, String conceptName, Date fulfilledDate,
             List<FormError> errors) {
-        String previousConcept = OpenMrsConceptConverter.getConceptBefore(conceptUuid);
-        if (!previousConcept.equals(conceptUuid)) {
+        String previousConcept = OpenMrsConceptConverter.getConceptBefore(conceptName);
+
+        if (!previousConcept.equals(conceptName)) {
+            // verify the patient has the concept that occurs before the one
+            // provided in the sequence
             if (!openmrsClient.hasConcept(motechId, previousConcept)) {
                 errors.add(new FormError("observedConcept", "Patient has not fulfilled previous concept: "
                         + previousConcept));
                 return;
             }
+        }
 
-            if (openmrsClient.hasConcept(motechId, conceptUuid)) {
-                errors.add(new FormError("observedConcept", "Patient already has concept: " + conceptUuid));
-                return;
-            }
-
-            DateTime lastFulfilledDate = openmrsClient.lastTimeFulfilledDateTimeObs(motechId, previousConcept);
-            DateTime currentFufilledDate = new DateTime(fulfilledDate);
-            if (currentFufilledDate.isBefore(lastFulfilledDate)) {
-                errors.add(new FormError("observedDate", "Current fufill date is before last fulfill date"));
-            }
+        if (openmrsClient.hasConcept(motechId, conceptName)) {
+            errors.add(new FormError("observedConcept", "Patient already has concept: " + conceptName));
+            return;
         }
     }
 }
