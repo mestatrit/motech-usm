@@ -1,5 +1,6 @@
 package org.motechproject.server.voxeo.web;
 
+import org.apache.log4j.Logger;
 import org.ektorp.UpdateConflictException;
 import org.motechproject.ivr.event.IVREventDelegate;
 import org.motechproject.ivr.model.CallDetailRecord;
@@ -12,8 +13,6 @@ import org.motechproject.server.voxeo.VoxeoIVRService;
 import org.motechproject.server.voxeo.dao.AllPhoneCalls;
 import org.motechproject.server.voxeo.domain.PhoneCall;
 import org.motechproject.server.voxeo.domain.PhoneCallEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -42,7 +41,7 @@ public class IvrController extends MultiActionController {
     @Qualifier("VoxeoIVRService")
     private IVRService voxeoIVRService;
 
-    private Logger logger = LoggerFactory.getLogger((this.getClass()));
+    private static final Logger logger = Logger.getLogger(IvrController.class);
 
     /**
      * Flash is disconnecting incoming call and calling back same number. This is useful in saving call cost where incoming calls are free.
