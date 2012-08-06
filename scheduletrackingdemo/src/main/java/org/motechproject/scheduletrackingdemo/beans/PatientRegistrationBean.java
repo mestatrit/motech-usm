@@ -3,12 +3,15 @@ package org.motechproject.scheduletrackingdemo.beans;
 import java.util.Date;
 
 import org.motechproject.mobileforms.api.domain.FormBean;
+import org.motechproject.scheduletrackingdemo.validator.MinimumLength;
 
 public class PatientRegistrationBean extends FormBean {
 
     private static final long serialVersionUID = 1L;
 
+    @MinimumLength(size = 3)
     private String motechId;
+
     private String firstName;
     private String lastName;
     private String gender;

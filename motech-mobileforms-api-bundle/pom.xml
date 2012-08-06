@@ -56,6 +56,7 @@
                             org.motechproject.mobileforms.api.event.constants,
                             org.motechproject.mobileforms.api.service,
                             org.motechproject.mobileforms.api.validator,
+                            org.motechproject.mobileforms.api.validator.annotations
                         </Export-Package>
                         <Bundle-Activator>
                             org.motechproject.mobileforms.api.osgi.Activator

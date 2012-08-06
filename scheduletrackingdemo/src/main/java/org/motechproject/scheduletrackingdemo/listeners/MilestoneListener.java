@@ -35,8 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MilestoneListener {
 
-    private static Logger logger = LoggerFactory
-            .getLogger(MilestoneListener.class);
+    private static Logger logger = LoggerFactory.getLogger(MilestoneListener.class);
 
     @Autowired
     private IVRService voxeoService;
@@ -83,11 +82,11 @@ public class MilestoneListener {
                 scheduleTrackingService.fulfillCurrentMilestone(mEvent.getExternalId(), mEvent.getScheduleName(),
                         LocalDate.now(), new Time(time.getHourOfDay(), time.getMinuteOfHour()));
             } catch (InvalidEnrollmentException e) {
-
+                logger.error("Tried to fulfill an invalid enrollment");
             } catch (DefaultedMilestoneFulfillmentException e2) {
-
+                logger.error("Tried to fulfill a defaulted milestone");
             } catch (NoMoreMilestonesToFulfillException e3) {
-
+                logger.error("There were no more milestones to fulfill");
             }
         } else if (!mEvent.getWindowName().equals("max")) {
             logger.debug("Sending a message for milestone event");
@@ -102,12 +101,12 @@ public class MilestoneListener {
 
                 if ("true".equals(IVRFormat) && language != null && messageName != null) {
                     String ivrMessageName = messageName.concat("IVR");
-                    this.placeCall(patientList.get(0), language, ivrMessageName, mEvent.getWindowName());
+                    placeCall(patientList.get(0), language, ivrMessageName, mEvent.getWindowName());
                 }
 
                 if ("true".equals(SMSFormat) && language != null && messageName != null) {
                     String smsMessageName = messageName.concat("SMS");
-                    this.sendSMS(patientList.get(0), language, smsMessageName, mEvent.getWindowName());
+                    sendSMS(patientList.get(0), language, smsMessageName, mEvent.getWindowName());
                 }
             }
         }
@@ -119,7 +118,7 @@ public class MilestoneListener {
         // to make matters worse, the mobile client sends the date of the observation in UTC time at midnight
         // depending on the time zone, this could result in the date being interpreted as the day before
         DateTime referenceDate = mEvent.getReferenceDateTime();
-        DateTime dayBeforeAtMidnight = referenceDate.minusDays(1).toDateMidnight().toDateTime();
+        DateTime dayBeforeAtMidnight = referenceDate.toDateMidnight().toDateTime();
         DateTime fulfilled = openmrsClient.lastTimeFulfilledDateTimeObs(mEvent.getExternalId(), milestoneConceptName);
         return (dayBeforeAtMidnight.isBefore(fulfilled) || dayBeforeAtMidnight.isEqual(fulfilled));
     }
@@ -131,8 +130,8 @@ public class MilestoneListener {
         List<Patient> patientList = patientDAO.findByExternalid(mEvent.getExternalId());
 
         if (patientList.size() > 0) {
-            this.placeCall(patientList.get(0), "en", "defaulted-demo-message-ivr", "");
-            this.sendSMS(patientList.get(0), "en", "defaulted-demo-message", "");
+            placeCall(patientList.get(0), "en", "defaulted-demo-message-ivr", "");
+            sendSMS(patientList.get(0), "en", "defaulted-demo-message", "");
         }
     }
 

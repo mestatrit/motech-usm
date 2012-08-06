@@ -4,9 +4,9 @@
             {
                 "name" : "Demo Milestone 1",
                 "scheduleWindows" : {
-                    "earliest" : ["1 minutes"],
-                    "due" : ["3 minutes"],
-                    "late" : ["6 minutes"],
+                    "earliest" : ["2 minutes"],
+                    "due" : ["6 minutes"],
+                    "late" : ["10 minutes"],
                     "max" : ["15 minutes"]
                 },
                 "data" : {
@@ -37,9 +37,9 @@
             {
                 "name" : "Demo Milestone 2",
                 "scheduleWindows" : {
-                    "earliest" : ["1 minutes"],
-                    "due" : ["3 minutes"],
-                    "late" : ["6 minutes"],
+                    "earliest" : ["2 minutes"],
+                    "due" : ["6 minutes"],
+                    "late" : ["10 minutes"],
                     "max" : ["15 minutes"]
                 },
                 "data" : {
@@ -71,9 +71,9 @@
             {
                 "name" : "Demo Milestone 3",
                 "scheduleWindows" : {
-                    "earliest" : ["1 minutes"],
-                    "due" : ["3 minutes"],
-                    "late" : ["6 minutes"],
+                    "earliest" : ["2 minutes"],
+                    "due" : ["6 minutes"],
+                    "late" : ["10 minutes"],
                     "max" : ["15 minutes"]
                 },
                 "data" : {
@@ -105,9 +105,9 @@
             {
                 "name" : "Demo Milestone 4",
                 "scheduleWindows" : {
-                    "earliest" : ["1 minutes"],
-                    "due" : ["3 minutes"],
-                    "late" : ["6 minutes"],
+                    "earliest" : ["2 minutes"],
+                    "due" : ["6 minutes"],
+                    "late" : ["10 minutes"],
                     "max" : ["15 minutes"]
                 },
                 "data" : {

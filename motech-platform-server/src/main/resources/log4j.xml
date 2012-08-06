@@ -19,24 +19,27 @@
 
     <logger name="org.motechproject">
         <level value="WARN" />
+        <appender-ref ref="FILE" />
     </logger>
     
     <logger name="org.motechproject.scheduler">
         <level value="DEBUG" />
+        <appender-ref ref="FILE" />
     </logger>
     
     <logger name="org.motechproject.scheduletrackingdemo">
         <level value="DEBUG" />
+        <appender-ref ref="FILE" />
     </logger>
 
-    <logger name="org.motechproject.server.voxeo">
+    <logger name="org.motechproject.server.voxeo" >
         <level value="DEBUG" />
+        <appender-ref ref="FILE" />
     </logger>
     
     <root>
         <priority value="WARN" />
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
     </root>
 
 </log4j:configuration>

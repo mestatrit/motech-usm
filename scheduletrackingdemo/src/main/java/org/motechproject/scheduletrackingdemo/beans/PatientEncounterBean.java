@@ -1,13 +1,13 @@
 package org.motechproject.scheduletrackingdemo.beans;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 import org.motechproject.mobileforms.api.domain.FormBean;
 
 public class PatientEncounterBean extends FormBean {
 
     private static final long serialVersionUID = 1L;
     private String motechId;
-    private Date observedDate;
+    private DateTime observedDate;
     private Integer observedConcept;
     private String groupId;
     private String locationName;
@@ -20,11 +20,11 @@ public class PatientEncounterBean extends FormBean {
         this.motechId = motechId;
     }
 
-    public Date getObservedDate() {
+    public DateTime getObservedDate() {
         return observedDate;
     }
 
-    public void setObservedDate(Date observedDate) {
+    public void setObservedDate(DateTime observedDate) {
         this.observedDate = observedDate;
     }
 

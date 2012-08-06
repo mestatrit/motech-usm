@@ -1,9 +1,7 @@
 package org.motechproject.scheduletrackingdemo.validator;
 
-import java.util.Date;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.domain.FormBeanGroup;
 import org.motechproject.mobileforms.api.domain.FormError;
@@ -33,13 +31,12 @@ public class PatientEncounterValidator extends AbstractPatientValidator<PatientE
 
         int index = formBean.getObservedConcept();
         String conceptName = OpenMrsConceptConverter.convertToNameFromIndex(index);
-        validateValidNextConcept(formBean.getMotechId(), conceptName, formBean.getObservedDate(), errors);
+        validateValidNextConcept(formBean.getMotechId(), conceptName, errors);
 
         return errors;
     }
 
-    private void validateValidNextConcept(String motechId, String conceptName, Date fulfilledDate,
-            List<FormError> errors) {
+    private void validateValidNextConcept(String motechId, String conceptName, List<FormError> errors) {
         String previousConcept = OpenMrsConceptConverter.getConceptBefore(conceptName);
 
         if (!previousConcept.equals(conceptName)) {

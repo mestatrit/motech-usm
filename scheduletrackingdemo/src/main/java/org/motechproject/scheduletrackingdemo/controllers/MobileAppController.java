@@ -30,6 +30,12 @@ public class MobileAppController {
     public void getMobileApplication(HttpServletResponse response) {
         writeFile(response, "motech-mforms-tiny-0.8.0.jar");
     }
+    
+    @RequestMapping(value = "/mobile-app.zip", method = RequestMethod.GET)
+    public void getArchivedMobileApp(HttpServletResponse response) {
+        response.addHeader("Content-Type", "application/octet-stream");
+        writeFile(response, "mobile-app.zip");
+    }
 
     private void writeFile(HttpServletResponse response, String file) {
         try {

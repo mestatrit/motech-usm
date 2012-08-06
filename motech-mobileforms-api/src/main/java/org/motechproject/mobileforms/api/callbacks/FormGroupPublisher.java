@@ -1,8 +1,10 @@
 package org.motechproject.mobileforms.api.callbacks;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.motechproject.mobileforms.api.domain.FormBean;
 import org.motechproject.mobileforms.api.domain.FormBeanGroup;
 import org.motechproject.mobileforms.api.events.constants.EventDataKeys;
@@ -16,6 +18,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 @Component
 public class FormGroupPublisher {
@@ -30,7 +36,9 @@ public class FormGroupPublisher {
     }
 
     public void publish(FormBeanGroup formBeanGroup) {
-        Gson gson = new GsonBuilder().create();
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(DateTime.class, new DateTimeSerializer());
+        Gson gson = builder.create();
         try {
             for (FormBean bean : formBeanGroup.getFormBeans()) {
                 Map<String, Object> params = new HashMap<String, Object>();
@@ -43,5 +51,14 @@ public class FormGroupPublisher {
             formBeanGroup.markAllFormAsFailed("Server exception, contact your administrator");
             log.error("Encountered exception while validating form group, " + formBeanGroup.toString(), e);
         }
+    }
+    
+    public static class DateTimeSerializer implements JsonSerializer<DateTime> {
+
+        @Override
+        public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.toDate().getTime() + "");
+        }
+        
     }
 }
