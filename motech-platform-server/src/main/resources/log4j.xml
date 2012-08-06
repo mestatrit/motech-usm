@@ -29,6 +29,10 @@
         <level value="DEBUG" />
     </logger>
 
+    <logger name="org.motechproject.server.voxeo">
+        <level value="DEBUG" />
+    </logger>
+    
     <root>
         <priority value="WARN" />
         <appender-ref ref="CONSOLE" />
