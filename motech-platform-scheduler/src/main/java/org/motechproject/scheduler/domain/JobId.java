@@ -5,7 +5,7 @@ import org.motechproject.scheduler.MotechSchedulerService;
 import java.io.Serializable;
 
 public class JobId implements Serializable {
-    public static final String REPEAT_JOB_SUFFIX = "-repeat";
+    //public static final String REPEAT_JOB_SUFFIX = "-repeat";
     private static final long serialVersionUID = 1L;
 
     private String subject;
@@ -32,7 +32,7 @@ public class JobId implements Serializable {
     }
 
     public String repeatingId() {
-        return value() + REPEAT_JOB_SUFFIX;
+        return value();
     }
 
     public boolean isRepeatingJob() {

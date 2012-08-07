@@ -24,6 +24,14 @@
 	<logger name="org.springframework.web.servlet">
 		<level value="DEBUG" />
 	</logger>
+	
+	<logger name="org.quartz">
+		<level value="DEBUG" />
+	</logger>
+	
+	<logger name="org.motechproject.scheduler">
+		<level value="DEBUG" />
+	</logger>
 
 	<root>
 		<priority value="WARN" />

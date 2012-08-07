@@ -137,7 +137,7 @@
         <module>motech-platform-scheduler</module>
         <module>motech-platform-ivr-api</module>
         <module>motech-platform-server-api</module>
-        <module>motech-outbox</module>
+        <!-- <module>motech-outbox</module>
         <module>motech-outbox-api</module>
         <module>motech-appointments</module>
         <module>motech-appointments-api</module>
@@ -145,24 +145,24 @@
         <module>motech-platform-decisiontree</module>
         <module>motech-platform-decisiontree-common</module>
         <module>motech-pillreminder</module>
-        <module>motech-pillreminder-api</module>
+        <module>motech-pillreminder-api</module> -->
         <module>motech-cmslite-api</module>
         <module>motech-scheduletracking-api</module>
         <module>motech-message-campaign</module>
-        <module>motech-mobileforms-api</module>
+        <!-- <module>motech-mobileforms-api</module>
         <module>motech-alerts-api</module>
         <module>motech-ivr-asterisk</module>
-        <module>motech-ivr-kookoo-v2</module>
+        <module>motech-ivr-kookoo-v2</module> -->
         <module>motech-ivr-voxeo</module>
-        <module>motech-ivr-verboice</module>
+        <!-- <module>motech-ivr-verboice</module>
         <module>motech-demo</module>
         <module>motech-mrs-api</module>
         <module>motech-openmrs-api</module>
         <module>motech-openmrs-omod</module>
-        <module>motech-openmrs-ws</module>
+        <module>motech-openmrs-ws</module> -->
         <module>motech-sms-api</module>
         <module>motech-sms-http</module>
-        <module>motech-sms-smpp</module>
+       <!--  <module>motech-sms-smpp</module> -->
         <module>motech-testing-utils</module>
         <module>motech-platform-common</module>
         <module>motech-scheduler</module>
@@ -172,8 +172,8 @@
         <module>motech-platform-server-config</module>
         <module>motech-platform-server-startup</module>
         <module>motech-web-security</module>
-        <module>motech-admin</module>
-        <module>motech-admin-UI</module>
+        <!-- <module>motech-admin</module>
+        <module>motech-admin-UI</module> -->
         <module>campaigndemo</module>
         <!-- Keep this module in last, the module checks if everything is alright after deploy motech on tomcat server -->
         <module>motech-deployment-tests</module>
@@ -231,7 +231,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>2.7.1</version>
@@ -252,7 +252,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
             <!--<plugin>-->
                 <!--<groupId>org.codehaus.mojo</groupId>-->
                 <!--<artifactId>findbugs-maven-plugin</artifactId>-->
@@ -275,7 +275,7 @@
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.9.1</version>
@@ -295,7 +295,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
 

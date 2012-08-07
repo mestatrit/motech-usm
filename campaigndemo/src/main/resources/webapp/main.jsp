@@ -20,17 +20,24 @@
 	<div style="font-size: 16px; font-family: tahoma;">
 
 		<p>This is a demonstration of message campaigns with voice calling
-			and SMS messaging via the Voxeo server.<br> It uses the core platform modules
-			(Server, Server API, and Common) along with Scheduler, Message Campaign,<br>
-			CMSLite, SMS API, SMS HTTP, and Voxeo modules, all of which are
-			running in an OSGi environment.</p>
-		<p>This demo illustrates the enrollment and fulfillment of two
-			different types of message campaigns: cron-based and offset-based.</p>
-		<a href="/motech-platform-server/module/campaigndemo/form/offset">Click
-			here to learn more about and enroll in an offset campaign.</a> <br>
-		<br> <a
+			and SMS messaging via the Voxeo server. This demo illustrates the enrollment and fulfillment of two
+			different types of message campaigns: Periodic Message Campaigns and Offset Message Campaigns.</p>
+			
+		<p>If the patient enrolls into the Periodic Message Campaign, Voxeo will send a non patient-specific message 
+		every two minutes until declared unenrollment. This serves as a model for routine, program-specific health information.</p>
+					
+		 <a
 			href="/motech-platform-server/module/campaigndemo/form/cron">Click
-			here to learn more about and enroll in a cron campaign.</a>
+			here to register a patient into the system and enroll in a Periodic Message Campaign.</a>
+			<br>
+			<br>
+		<p>If the patient enrolls into the Offset Message Campaign, Voxeo will send a pre-defined schedule of messages with a patient-specific 
+		offset that can range from 0 to 72 minutes. The patient receives the messages that remain from the time 
+		of enrollment until declared unenrollment or the end of the schedule. This serves as a model for pregnancy messages.</p>
+			
+			<a href="/motech-platform-server/module/campaigndemo/form/offset">Click
+			here to register a patient into the system and enroll in an Offset Message Campaign.</a> <br>
+		<br>
 
 	</div>
 </body>

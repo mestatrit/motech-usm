@@ -80,7 +80,8 @@ public class UserController extends MultiActionController {
     @RequestMapping(value = "user/remove", method = RequestMethod.POST)
     private ModelAndView remove(String returnPage, HttpServletRequest request) {
 
-        String externalID = request.getParameter("externalId");
+       try{
+    	String externalID = request.getParameter("externalId");
 
         patientDAO.removePatient(externalID);
 
@@ -89,10 +90,18 @@ public class UserController extends MultiActionController {
         Map<String, Object> modelMap = new TreeMap<String, Object>();
         modelMap.put("patients", patientList); // List of patients is for
                                                // display purposes only
+                
+              
+       ModelAndView mv = new ModelAndView(returnPage, modelMap);
+       return mv;
+       }
+       catch(Exception e){
+    	   ModelAndView mv = new ModelAndView(returnPage);
+           return mv;
+       }
+        
 
-        ModelAndView mv = new ModelAndView(returnPage, modelMap);
-
-        return mv;
+        
     }
 
     @RequestMapping(value = "user/addCronUser", method = RequestMethod.POST)

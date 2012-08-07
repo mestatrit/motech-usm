@@ -126,7 +126,16 @@ public class CampaignController extends MultiActionController {
          * message, instead call service.stopFor(campaignRequest, messageKey)
          * with the provided message key as a parameter
          */
-        service.stopAll(campaignRequest);
+        try{
+        service.stopAll(campaignRequest);}
+        catch(Exception e){
+        	if (campaignName.equals("Cron based SMS Program")
+                    || campaignName.equals("Cron based IVR Program")) {
+                return new ModelAndView("cronFormPage");
+            } else {
+                return new ModelAndView("formPage");
+            }
+        }
 
         List<Patient> patientList = patientDAO.findAllPatients();
 
@@ -140,7 +149,6 @@ public class CampaignController extends MultiActionController {
                 || campaignName.equals("Cron based IVR Program")) {
             mv = new ModelAndView("cronFormPage", modelMap);
         } else {
-            patientDAO.removePatient(externalId);
             mv = new ModelAndView("formPage", modelMap);
         }
 
