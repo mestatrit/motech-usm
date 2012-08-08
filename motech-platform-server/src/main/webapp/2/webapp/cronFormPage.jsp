@@ -10,7 +10,7 @@
 <title>Periodic Campaign Demo</title>
 <style>
 * {
-	font-size: 16px;
+	font-size: 15px;
 	font-family: tahoma;
 }
 </style>
@@ -27,7 +27,7 @@
 	
 	<p>You may choose to enroll in a campaign to receive IVR phone calls or SMS messages. Once you 
 	have enrolled, you will begin receiving messages every two minutes until you choose to either unenroll 
-	from the chosen campaign (IVR or SMS) or completely unregister from the system.</p>
+	from the IVR or SMS campaign or completely unregister from the system.</p>
 	
 	<p>The message content for the periodic campaign is non patient-specific and serves as a model for routine, 
 	program-specific health information.</p>
@@ -78,7 +78,7 @@
 			type="hidden" name="campaignName" value="Cron based SMS Program" />
 		<input type="submit" value="Unenroll from the Campaign" />
 	</form>
-		
+		<br>
 	<h4>Unregister a Patient from the system</h4>
 	<form method="post"
 		action="/motech-platform-server/module/campaigndemo/user/removeCronUser">

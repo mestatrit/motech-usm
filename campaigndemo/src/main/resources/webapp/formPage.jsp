@@ -10,7 +10,7 @@
 <title>Offset Campaign Demo</title>
 <style>
 * {
-	font-size: 16px;
+	font-size: 15px;
 	font-family: tahoma;
 }
 </style>
@@ -36,7 +36,7 @@
 		<p>Entering 71 or 72 for an offset will queue you for only the final message. Entering a negative number will offset you further back. 
 		No offset or an invalid offset will start you at the default offset (0). Larger numbers will offset you out of the campaign, and you will 
 		receive no messages. Once you have enrolled, you will continue to receive messages until you choose to unenroll 
-		from the chosen campaign (IVR or SMS), completely unregister from the system, or until the completion of the 
+		from the IVR or SMS campaign, completely unregister from the system, or until the completion of the 
 		Offset Message Campaign schedule after 72 minutes.</p>
 		
 	<h4>Register a Patient into the System</h4>
