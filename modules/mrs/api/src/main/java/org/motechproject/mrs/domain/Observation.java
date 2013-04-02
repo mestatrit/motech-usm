@@ -25,7 +25,7 @@ public interface Observation<T> {
 
     void setValue(T value);
 
-    Set<? extends Observation> getDependantObservations();
+    Set<Observation> getDependantObservations();
 
-    void setDependantObservations(Set<? extends Observation> dependantObservations);
+    void setDependantObservations(Set<Observation> dependantObservations);
 }

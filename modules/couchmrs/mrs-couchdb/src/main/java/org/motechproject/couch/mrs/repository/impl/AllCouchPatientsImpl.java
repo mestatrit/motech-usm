@@ -80,7 +80,6 @@ public class AllCouchPatientsImpl extends MotechBaseRepository<CouchPatientImpl>
 
     @Override
     @View(name = "find_by_name_and_motech_id", map = "function(doc) {if(doc.type === 'Patient') emit([doc.person.preferredName, doc.motechId]);}")
-
     public List<CouchPatientImpl> findByNameAndMotechId(String name, String motechId) {
         List<CouchPatientImpl> patients = queryView("find_by_name_and_motech_id", ComplexKey.of(name, motechId));
         return patients.isEmpty() ? null : patients;
