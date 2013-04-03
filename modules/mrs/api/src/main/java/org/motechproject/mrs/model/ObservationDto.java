@@ -83,7 +83,7 @@ public class ObservationDto implements Observation<Object> {
         return dependantObservations;
     }
 
-    public void setDependantObservations(Set<? extends Observation> dependantObservations) {
+    public void setDependantObservations(Set<Observation> dependantObservations) {
         this.dependantObservations = (Set<Observation>) dependantObservations;
     }
 

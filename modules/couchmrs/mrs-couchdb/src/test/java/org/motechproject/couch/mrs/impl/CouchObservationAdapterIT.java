@@ -63,13 +63,13 @@ public class CouchObservationAdapterIT extends SpringIntegrationTest {
 
     @Test
     public void shouldReturnFullObservationObjectGraph() throws MRSCouchException {
-        CouchObservation observation = new CouchObservation(new DateTime(), "testConcept", "stringValue", "patient1");
+        CouchObservation<String> observation = new CouchObservation<String>(new DateTime(), "testConcept", "stringValue", "patient1");
 
-        CouchObservation observation2 = new CouchObservation(new DateTime(), "testConcep2t", "stringValue2", "patient1");
+        CouchObservation<String> observation2 = new CouchObservation<String>(new DateTime(), "testConcep2t", "stringValue2", "patient1");
 
-        CouchObservation observation3 = new CouchObservation(new DateTime(), "testConcept3", "stringValue3", "patient1");
+        CouchObservation<String> observation3 = new CouchObservation<String>(new DateTime(), "testConcept3", "stringValue3", "patient1");
 
-        CouchObservation observation4 = new CouchObservation(new DateTime(), "testConcept4", "stringValue4", "patient1");
+        CouchObservation<String> observation4 = new CouchObservation<String>(new DateTime(), "testConcept4", "stringValue4", "patient1");
 
         Set<Observation> dependantObservations = new HashSet<Observation>();
 

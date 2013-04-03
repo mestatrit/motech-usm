@@ -34,6 +34,11 @@
         <constructor-arg value="motech-observation-repository" />
     </bean>
 
+    <bean id="couchEncounterDatabaseConnector" factory-bean="couchDbManager"
+        factory-method="getConnector">
+        <constructor-arg value="motech-encounter-repository" />
+    </bean>
+
     <context:annotation-config />
     <context:component-scan base-package="org.motechproject.couch.mrs" />
 

@@ -1,25 +1,25 @@
 package org.motechproject.couch.mrs.impl;
 
 
-import org.motechproject.couch.mrs.model.CouchObservation;
 import org.motechproject.couch.mrs.model.CouchObservationImpl;
 import org.motechproject.couch.mrs.repository.AllCouchObservations;
+import org.motechproject.couch.mrs.util.CouchDAOBroker;
 import org.motechproject.mrs.domain.Observation;
 import org.motechproject.mrs.exception.ObservationNotFoundException;
 import org.motechproject.mrs.services.ObservationAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class CouchObservationAdapter implements ObservationAdapter {
 
     @Autowired
     private AllCouchObservations allCouchObservations;
+
+    @Autowired
+    private CouchDAOBroker daoBroker;
 
     @Override
     public void voidObservation(Observation mrsObservation, String reason, String mrsUserMotechId)
@@ -36,46 +36,7 @@ public class CouchObservationAdapter implements ObservationAdapter {
 
     @Override
     public Observation findObservation(String patientMotechId, String conceptName) {
-        return returnObs(allCouchObservations.findByMotechIdAndConceptName(patientMotechId, conceptName));
-    }
-
-    private Observation returnObs(List<CouchObservationImpl> couchObs) {
-
-        if (couchObs != null && couchObs.size() > 0) {
-            CouchObservationImpl obs = couchObs.get(0);
-            return convertImplToCouchObs(obs);
-        }
-
-        return null;
-    }
-
-    private Observation convertImplToCouchObs(CouchObservationImpl obs) {
-        Set<Observation> dependantObs = new HashSet<Observation>();
-        if (obs.getDependantObservationIds() != null && obs.getDependantObservationIds().size() > 1) {
-            dependantObs = getDependantObsById(obs.getDependantObservationIds());
-        }
-
-        CouchObservation couchObservation = new CouchObservation(obs.getObservationId(), obs.getDate(), obs.getConceptName(), obs.getValue());
-        couchObservation.setDependantObservations(dependantObs);
-
-        return couchObservation;
-    }
-
-    private Set<Observation> getDependantObsById(Set<String> dependantObservationIds) {
-        Set<Observation> dependantObs = new HashSet<Observation>();
-
-        Iterator<String> iterator = dependantObservationIds.iterator();
-
-        while (iterator.hasNext()) {
-            String obsId = iterator.next();
-            Observation obs = getObservationById(obsId);
-            if (obs != null) {
-                dependantObs.add(obs);
-            }
-        }
-
-        return dependantObs;
-
+        return daoBroker.returnObs(allCouchObservations.findByMotechIdAndConceptName(patientMotechId, conceptName));
     }
 
     @Override
@@ -91,7 +52,7 @@ public class CouchObservationAdapter implements ObservationAdapter {
 
         if (obsList != null && obsList.size() > 0) {
             for (CouchObservationImpl obs : obsList) {
-                observations.add(convertImplToCouchObs(obs));
+                observations.add(daoBroker.buildFullObservation(obs));
             }
         }
 
@@ -100,6 +61,6 @@ public class CouchObservationAdapter implements ObservationAdapter {
 
     @Override
     public Observation getObservationById(String observationId) {
-        return returnObs(allCouchObservations.findByObservationId(observationId));
+        return daoBroker.returnObs(allCouchObservations.findByObservationId(observationId));
     }
 }

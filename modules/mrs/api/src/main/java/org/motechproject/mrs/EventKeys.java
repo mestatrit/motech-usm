@@ -26,7 +26,7 @@ public final class EventKeys {
     public static final String FACILITY_STATE_PROVINCE = "FacilityStateProvince";
     public static final String OBSERVATION_VALUE = "ObservationValue";
     public static final String OBSERVATION_CONCEPT_NAME = "ObservationConceptName";
-    public static final String OBSERVATION_DATE = "ObservationName";
+    public static final String OBSERVATION_DATE = "ObservationDate";
     public static final String ENCOUNTER_ID = "EncounterID";
     public static final String ENCOUNTER_TYPE = "EncounterType";
     public static final String ENCOUNTER_DATE = "EncounterDate";

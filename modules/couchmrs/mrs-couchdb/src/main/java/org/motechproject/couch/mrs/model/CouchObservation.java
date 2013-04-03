@@ -86,7 +86,7 @@ public class CouchObservation<T> implements Observation<T> {
     }
 
     @Override
-    public Set<? extends Observation> getDependantObservations() {
+    public Set<Observation> getDependantObservations() {
         return dependantObservations;
     }
 
