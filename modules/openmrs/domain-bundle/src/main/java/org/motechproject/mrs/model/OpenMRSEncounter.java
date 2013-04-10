@@ -19,7 +19,7 @@ public class OpenMRSEncounter implements Encounter {
     private String id;
     private OpenMRSProvider provider;
     private OpenMRSUser creator;
-    private OpenMRSFacility facility;
+    private Facility facility;
     private Date date;
     private Set<OpenMRSObservation> observations;
     private OpenMRSPatient patient;
@@ -33,16 +33,16 @@ public class OpenMRSEncounter implements Encounter {
      *
      * @param provider      Staff who provides information
      * @param creator       Staff who enters the details into the OpenMRS system
-     * @param facility      Location of the encounter
+     * @param facility2      Location of the encounter
      * @param date          Date of the encounter
      * @param patient       Patient involved in the encounter
      * @param observations  Observations collected during the encounter
      * @param encounterType Type of the encounter.
      */
-    private OpenMRSEncounter(OpenMRSProvider provider, OpenMRSUser creator, OpenMRSFacility facility, Date date, OpenMRSPatient patient, Set<OpenMRSObservation> observations, String encounterType) {
+    private OpenMRSEncounter(OpenMRSProvider provider, OpenMRSUser creator, Facility facility2, Date date, OpenMRSPatient patient, Set<OpenMRSObservation> observations, String encounterType) {
         this.creator = creator;
         this.provider = provider;
-        this.facility = facility;
+        this.facility = facility2;
         this.date = date;
         this.patient = patient;
         this.observations = observations;
@@ -57,7 +57,7 @@ public class OpenMRSEncounter implements Encounter {
         return provider;
     }
 
-    public OpenMRSFacility getFacility() {
+    public Facility getFacility() {
         return facility;
     }
 
@@ -96,7 +96,7 @@ public class OpenMRSEncounter implements Encounter {
     public static class MRSEncounterBuilder {
         private OpenMRSProvider provider;
         private OpenMRSUser creator;
-        private OpenMRSFacility facility;
+        private Facility facility;
         private Date date;
         private OpenMRSPatient patient;
         private Set<OpenMRSObservation> observations;
@@ -114,7 +114,7 @@ public class OpenMRSEncounter implements Encounter {
         }
 
         public MRSEncounterBuilder withFacility(Facility facility2) {
-            this.facility = (OpenMRSFacility) facility2;
+            this.facility = facility2;
             return this;
         }
 

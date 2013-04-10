@@ -76,6 +76,8 @@ public final class CouchMRSConverterUtil {
     public static CouchPatientImpl createPatient (Patient patient) {
         List<Attribute> attributeList = new ArrayList<>();
 
+        CouchPerson person = new CouchPerson();
+        
         if (patient.getPerson() != null) {
             for (Attribute attribute : patient.getPerson().getAttributes()){
                 CouchAttribute couchAttribute = new CouchAttribute();
@@ -84,22 +86,20 @@ public final class CouchMRSConverterUtil {
 
                 attributeList.add(couchAttribute);
             }
+            person.setAddress(patient.getPerson().getAddress());
+            person.setFirstName(patient.getPerson().getFirstName());
+            person.setLastName(patient.getPerson().getLastName());
+            person.setAge(patient.getPerson().getAge());
+            person.setBirthDateEstimated(patient.getPerson().getBirthDateEstimated());
+            person.setDateOfBirth(patient.getPerson().getDateOfBirth());
+            person.setDead(patient.getPerson().isDead());
+            person.setDeathDate(patient.getPerson().getDeathDate());
+            person.setGender(patient.getPerson().getGender());
+            person.setMiddleName(patient.getPerson().getMiddleName());
+            person.setPersonId(patient.getPerson().getPersonId());
+            person.setPreferredName(patient.getPerson().getPreferredName());
+            person.setAttributes(attributeList);
         }
-
-        CouchPerson person = new CouchPerson();
-        person.setAddress(patient.getPerson().getAddress());
-        person.setFirstName(patient.getPerson().getFirstName());
-        person.setLastName(patient.getPerson().getLastName());
-        person.setAge(patient.getPerson().getAge());
-        person.setBirthDateEstimated(patient.getPerson().getBirthDateEstimated());
-        person.setDateOfBirth(patient.getPerson().getDateOfBirth());
-        person.setDead(patient.getPerson().isDead());
-        person.setDeathDate(patient.getPerson().getDeathDate());
-        person.setGender(patient.getPerson().getGender());
-        person.setMiddleName(patient.getPerson().getMiddleName());
-        person.setPersonId(patient.getPerson().getPersonId());
-        person.setPreferredName(patient.getPerson().getPreferredName());
-        person.setAttributes(attributeList);
 
         Facility facility = patient.getFacility();
 

@@ -26,8 +26,12 @@ public class CouchFacilityAdapter implements FacilityAdapter {
     @Override
     public Facility saveFacility(Facility facility) {
 
+        CouchFacility couchFacility = new CouchFacility();
+        couchFacility.setName(facility.getName());
+        couchFacility.setFacilityId(facility.getFacilityId());
+
         try {
-            allFacilities.addFacility((CouchFacility) facility);
+            allFacilities.addFacility(couchFacility);
             eventRelay.sendEventMessage(new MotechEvent(EventKeys.CREATED_NEW_FACILITY_SUBJECT, EventHelper.facilityParameters(facility)));
         } catch (MRSCouchException e) {
             return null;

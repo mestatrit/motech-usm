@@ -25,7 +25,7 @@ public class OpenMRSObservation<T> implements Observation<T> {
     private String conceptName;
     private String patientId;
     private T value;
-    private Set<OpenMRSObservation> dependantObservations;
+    private Set<Observation> dependantObservations;
 
     /**
      * Creates an observation object with the given details
@@ -69,16 +69,16 @@ public class OpenMRSObservation<T> implements Observation<T> {
         return value;
     }
 
-    public Set<OpenMRSObservation> getDependantObservations() {
+    public Set<Observation> getDependantObservations() {
         return dependantObservations;
     }
 
     public void addDependantObservation(OpenMRSObservation mrsObservation) {
         if (this.dependantObservations == null) {
-            dependantObservations = new HashSet<OpenMRSObservation>();
+            dependantObservations = new HashSet<Observation>();
         }
         //to remove duplicate observation
-        List<OpenMRSObservation> existingObservationList = Lambda.filter(having(on(OpenMRSObservation.class).getConceptName(), is(equalTo(mrsObservation.getConceptName()))), dependantObservations);
+        List<Observation> existingObservationList = Lambda.filter(having(on(Observation.class).getConceptName(), is(equalTo(mrsObservation.getConceptName()))), dependantObservations);
         if (!existingObservationList.isEmpty()) {
             dependantObservations.remove(existingObservationList.get(0));
         }
@@ -148,8 +148,8 @@ public class OpenMRSObservation<T> implements Observation<T> {
     }
 
     @Override
-    public void setDependantObservations(Set<? extends Observation> dependantObservations) {
-        this.dependantObservations = (Set<OpenMRSObservation>) dependantObservations;
+    public void setDependantObservations(Set<Observation> dependantObservations) {
+        this.dependantObservations = dependantObservations;
     }
 
     @Override

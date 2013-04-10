@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbConnector;
@@ -56,8 +57,10 @@ public class AllCouchObservationsImpl extends MotechBaseRepository<CouchObservat
         if (oldObservations != null && oldObservations.size() > 0) {
             this.update(updateOldObsWithNewObs(oldObservations.get(0), obs));
             eventRelay.sendEventMessage(new MotechEvent(EventKeys.CREATED_UPDATED_OBSERVATION_SUBJECT, EventHelper.observationParameters(obs)));
-
         } else {
+            if (obs.getObservationId() == null || obs.getObservationId().trim().length() == 0) {
+                obs.setObservationId(UUID.randomUUID().toString());
+            }
             this.add(convertObsToImpl(obs));
             eventRelay.sendEventMessage(new MotechEvent(EventKeys.CREATED_NEW_OBSERVATION_SUBJECT, EventHelper.observationParameters(obs)));
         }

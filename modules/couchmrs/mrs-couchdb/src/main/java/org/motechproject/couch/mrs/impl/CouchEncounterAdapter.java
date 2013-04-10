@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.motechproject.couch.mrs.model.CouchEncounterImpl;
 import org.motechproject.couch.mrs.repository.AllCouchEncounters;
@@ -36,6 +37,7 @@ public class CouchEncounterAdapter implements EncounterAdapter {
 
     @Override
     public Encounter createEncounter(Encounter mrsEncounter) {
+        verifyObsIds(mrsEncounter.getObservations());
         allEncounters.createOrUpdateEncounter(CouchMRSConverterUtil.convertEncounterToEncounterImpl(mrsEncounter));
 
         Set<? extends Observation> observations = mrsEncounter.getObservations();
@@ -50,6 +52,18 @@ public class CouchEncounterAdapter implements EncounterAdapter {
 
         eventRelay.sendEventMessage(new MotechEvent(EventKeys.CREATED_NEW_ENCOUNTER_SUBJECT, EventHelper.encounterParameters(mrsEncounter)));
         return mrsEncounter;
+    }
+
+    private void verifyObsIds(Set<? extends Observation> observations) {
+        if (observations != null && observations.size() > 0) {
+            Iterator<? extends Observation> obsIterator = observations.iterator();
+            while (obsIterator.hasNext()) {
+                Observation obs = obsIterator.next();
+                if (obs.getObservationId() == null || obs.getObservationId().trim().length() == 0) {
+                    obs.setObservationId(UUID.randomUUID().toString());
+                }
+            }
+        }
     }
 
     @Override
