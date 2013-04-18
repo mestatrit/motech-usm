@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.motechproject.commons.api.json.MotechJsonReader;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.OpenMRSEncounterActivity;
-import org.motechproject.mapper.adapters.mappings.OpenMRSMapping;
-import org.motechproject.mapper.adapters.mappings.OpenMRSRegistrationActivity;
+import org.motechproject.mapper.adapters.mappings.MRSEncounterActivity;
+import org.motechproject.mapper.adapters.mappings.MRSMapping;
+import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public final class MappingsReader {
         providedAdapters.put(MRSActivity.class, new MRSActivityAdapter());
     }
 
-    public static List<OpenMRSMapping> getAllMappings() {
+    public static List<MRSMapping> getAllMappings() {
         InputStream is = MappingsReader.class.getClassLoader().getResourceAsStream(MAPPING_FILE_NAME);
 
         StringWriter writer = new StringWriter();
@@ -54,9 +54,9 @@ public final class MappingsReader {
         return readJson(writer.toString());
     }
 
-    public static List<OpenMRSMapping> readJson(String json) {
-        Type type = new TypeToken<List<OpenMRSMapping>>() { } .getType();
-        return (List<OpenMRSMapping>) READER.readFromString(json, type, providedAdapters);
+    public static List<MRSMapping> readJson(String json) {
+        Type type = new TypeToken<List<MRSMapping>>() { } .getType();
+        return (List<MRSMapping>) READER.readFromString(json, type, providedAdapters);
     }
 
     private static class MRSActivityAdapter implements JsonDeserializer<MRSActivity> {
@@ -82,7 +82,7 @@ public final class MappingsReader {
             GsonBuilder gsonBuilder = new GsonBuilder();
             Gson gson = gsonBuilder.create();
 
-            OpenMRSRegistrationActivity activity = gson.fromJson(json, OpenMRSRegistrationActivity.class);
+            MRSRegistrationActivity activity = gson.fromJson(json, MRSRegistrationActivity.class);
 
             return activity;
         }
@@ -91,7 +91,7 @@ public final class MappingsReader {
             GsonBuilder gsonBuilder = new GsonBuilder();
             Gson gson = gsonBuilder.create();
 
-            OpenMRSEncounterActivity activity = gson.fromJson(json, OpenMRSEncounterActivity.class);
+            MRSEncounterActivity activity = gson.fromJson(json, MRSEncounterActivity.class);
 
             return activity;
         }

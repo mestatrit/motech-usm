@@ -5,7 +5,7 @@ import java.util.List;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.mapper.adapters.FormAdapter;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.OpenMRSMapping;
+import org.motechproject.mapper.adapters.mappings.MRSMapping;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.repository.MappingsReader;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class AllFormsAdapter implements FormAdapter {
 
     @Override
     public void adaptForm(CommcareForm form) {
-        List<OpenMRSMapping> mappings = MappingsReader.getAllMappings();
+        List<MRSMapping> mappings = MappingsReader.getAllMappings();
         
         String formName = form.getForm().getAttributes().get(FormMappingConstants.FORM_NAME_ATTRIBUTE);
         
@@ -34,7 +34,7 @@ public class AllFormsAdapter implements FormAdapter {
         
         logger.info("Received form: " + formName);
 
-        for (OpenMRSMapping mapping : mappings) {
+        for (MRSMapping mapping : mappings) {
             if (mapping.getXmlns().equals(xmlns)) {
                 for (MRSActivity activity : mapping.getActivities()) {
                     if ("registration".equals(activity.getType())) {

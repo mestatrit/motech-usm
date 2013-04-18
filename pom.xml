@@ -4,10 +4,10 @@
     xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.motechproject</groupId>
-    <artifactId>motech-commcare-openmrs-mapper</artifactId>
+    <artifactId>motech-commcare-mrs-mapper</artifactId>
     <version>0.19-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>MoTeCH CommCare to OpenMRS Mapper</name>
+    <name>MoTeCH CommCare to MRS Mapper</name>
     <url>http://maven.apache.org</url>
     <properties>
         <jdk.version>1.7</jdk.version>

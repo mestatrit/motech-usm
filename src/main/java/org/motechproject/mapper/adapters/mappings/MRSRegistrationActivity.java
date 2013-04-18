@@ -2,7 +2,7 @@ package org.motechproject.mapper.adapters.mappings;
 
 import java.util.Map;
 
-public class OpenMRSRegistrationActivity extends MRSActivity {
+public class MRSRegistrationActivity extends MRSActivity {
 
     private Map<String, String> attributes;
     private Map<String, String> registrationMappings;

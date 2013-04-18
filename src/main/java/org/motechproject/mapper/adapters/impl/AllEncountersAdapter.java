@@ -7,7 +7,7 @@ import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.OpenMRSEncounterActivity;
+import org.motechproject.mapper.adapters.mappings.MRSEncounterActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
@@ -35,7 +35,7 @@ public class AllEncountersAdapter implements ActivityFormAdapter {
 
         FormValueElement rootElement = form.getForm();
 
-        OpenMRSEncounterActivity encounterActivity = (OpenMRSEncounterActivity) activity;
+        MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
 
         Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
         Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();

@@ -3,7 +3,7 @@ package org.motechproject.mapper.adapters.mappings;
 import java.util.List;
 import java.util.Map;
 
-public class OpenMRSEncounterActivity extends MRSActivity {
+public class MRSEncounterActivity extends MRSActivity {
 
     private String encounterType;
     private String facilityName;

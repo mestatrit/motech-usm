@@ -2,7 +2,7 @@ package org.motechproject.mapper.adapters.mappings;
 
 import java.util.List;
 
-public class OpenMRSMapping {
+public class MRSMapping {
 
     private String formName;
     private String xmlns;

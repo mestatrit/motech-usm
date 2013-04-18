@@ -9,7 +9,7 @@ import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.OpenMRSRegistrationActivity;
+import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
@@ -44,7 +44,7 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
 
-        OpenMRSRegistrationActivity registrationActivity = (OpenMRSRegistrationActivity) activity;
+        MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
 
         FormValueElement topFormElement = form.getForm();
 
