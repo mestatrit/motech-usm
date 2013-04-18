@@ -5,8 +5,11 @@ public final class FormMappingConstants {
     //Id schemes
     public static final String ID_SCHEME_TYPE = "type";
     public static final String ID_SCHEME_FIELD = "fieldName";
-    public static final String DEFAULT_ID_SCHEME = "default";
-    public static final String ID_FROM_USER_DATA_SCHEME = "commcareUser";
+    public static final String ID_FROM_FORM_SCHEME = "fromForm";
+    public static final String ID_FROM_USER_DATA_SCHEME = "commcareUserData";
+    public static final String ID_FROM_USER_ID_SCHEME = "commcareUserId";
+    public static final String ID_FROM_USERNAME_SCHEME = "commcareUsername";
+    public static final String ID_FROM_COMMCARE_CASE_SCHEME = "commcareCase";
 
     public static final String FORM_NAME_ATTRIBUTE = "name";
     public static final String FORM_XMLNS_ATTRIBUTE = "xmlns";
@@ -17,7 +20,6 @@ public final class FormMappingConstants {
     public static final String FORM_USERNAME = "username";
     public static final String LIST_TYPE = "list";
     public static final String LIST_DELIMITER = " ";
-    public static final String COMMCARE_ID_SCHEME = "commcare";
     public static final String CASE_ELEMENT = "case";
     public static final String CASE_ID_ATTRIBUTE = "case_id";
     public static final String CONCEPT_ID_ATTRIBUTE = "concept_id";

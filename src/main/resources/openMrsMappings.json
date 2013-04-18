@@ -7,11 +7,11 @@
         "type": "encounter",
         "encounterType": "pregnancyVisit",
         "patientIdScheme": {
-          "type": "commcare",
+          "type": "commcareCase",
           "fieldName": "health_id"
         },
         "facilityScheme": {
-          "type": "commcareUser",
+          "type": "commcareUserData",
           "fieldName": "location"
         },        
         "observationMappings": [
@@ -101,11 +101,11 @@
           {
         "type": "registration",
         "patientIdScheme": {
-          "type": "default",
+          "type": "fromForm",
           "fieldName": "health_id"
         },
         "facilityScheme": {
-          "type": "commcareUser",
+          "type": "commcareUserData",
           "fieldName": "location"
         },       
         "staticMappings": {
@@ -128,7 +128,7 @@
           "fieldName": "health_id"
         },
         "facilityScheme": {
-          "type": "commcareUser",
+          "type": "commcareUserData",
           "fieldName": "location"
         },       
         "observationMappings": [
@@ -151,7 +151,7 @@
     {
       "type": "registration",
       "patientIdScheme": {
-        "type": "default",
+        "type": "fromForm",
         "fieldName": "health_id"
       },
       "staticMappings": {
