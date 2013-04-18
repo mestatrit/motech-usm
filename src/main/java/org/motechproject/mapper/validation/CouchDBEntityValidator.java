@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.mrs.domain.MRSEncounter;
 import org.motechproject.mrs.domain.MRSPatient;
 
@@ -12,7 +13,7 @@ public final class CouchDBEntityValidator {
     public static List<ValidationError> validatePatientRegistration(MRSPatient patient) {
         List<ValidationError> validationErrors = new ArrayList<ValidationError>();
 
-        if (patient.getMotechId() == null || patient.getMotechId().trim().length() == 0) {
+        if (StringUtils.isBlank(patient.getMotechId())) {
             validationErrors.add(new ValidationError("PatientIdError", "The patient's Motech ID cannot be null or empty"));
         }
 
@@ -24,7 +25,7 @@ public final class CouchDBEntityValidator {
 
         if (mrsEncounter.getPatient() == null) {
             validationErrors.add(new ValidationError("PatientDoesNotExist", "The patient cannot be null"));
-        } else if (mrsEncounter.getPatient().getMotechId() == null || mrsEncounter.getPatient().getMotechId().trim().length() == 0) {
+        } else if (StringUtils.isBlank(mrsEncounter.getPatient().getMotechId())) {
             validationErrors.add(new ValidationError("PatientIdError", "The patient's Motech ID cannot be null or empty"));
         }
 

@@ -1,6 +1,8 @@
 package org.motechproject.mapper.listeners;
 
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.commcare.events.constants.EventDataKeys;
@@ -36,7 +38,7 @@ public class FormListener {
 
         CommcareForm form = null;
 
-        if (formId != null && formId.trim().length() > 0) {
+        if (!StringUtils.isBlank(formId)) {
             form = formService.retrieveForm(formId);
         } else {
             logger.info("Form Id was null");

@@ -16,7 +16,6 @@ import org.motechproject.mrs.domain.MRSUser;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
 import org.motechproject.mrs.model.MRSObservationDto;
-import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.model.MRSProviderDto;
 import org.motechproject.mrs.services.MRSEncounterAdapter;
 import org.motechproject.mrs.services.MRSFacilityAdapter;

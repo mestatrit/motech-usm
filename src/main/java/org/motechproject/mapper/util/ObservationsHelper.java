@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.mappings.ObservationMapping;
 import org.motechproject.mapper.constants.FormMappingConstants;
@@ -18,11 +19,11 @@ public final class ObservationsHelper {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
-            if (conceptId != null && conceptId.trim().length() > 0) {
+            if (!StringUtils.isBlank(conceptId)) {
                 List<FormValueElement> elements = form.getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
-                    if (element.getValue() != null && element.getValue().trim().length() > 0) {
+                    if (!StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element));
                     }
                 }
@@ -34,7 +35,7 @@ public final class ObservationsHelper {
                     if (elements != null && elements.size() > 0) {
                         element = elements.get(0);
                     }
-                    if (element != null && element.getValue() != null && element.getValue().trim().length() > 0) {
+                    if (element != null && !StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element));
                     }
                 }
