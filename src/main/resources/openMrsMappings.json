@@ -132,7 +132,7 @@
           "fieldName": "location"
         },
         "providerScheme": {
-          "type": "commcareUserId"
+          "type": "commcareUsername"
         },       
         "observationMappings": [
           {

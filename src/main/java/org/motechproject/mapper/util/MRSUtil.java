@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.joda.time.DateTime;
 import org.motechproject.mapper.constants.FormMappingConstants;
+import org.motechproject.mapper.validation.ValidationError;
+import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSEncounter;
 import org.motechproject.mrs.domain.MRSFacility;
 import org.motechproject.mrs.domain.MRSPatient;
@@ -46,6 +48,9 @@ public class MRSUtil {
 
     @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
+
+    @Autowired
+    private ValidationManager validator;
 
     @Autowired
     private SettingsFacade settings;
@@ -107,6 +112,13 @@ public class MRSUtil {
         mrsEncounter.setEncounterType(encounterType);
         mrsEncounter.setObservations(observations);
         mrsEncounter.setEncounterId(UUID.randomUUID().toString());
+
+        List<ValidationError> validationErrors = validator.validateEncounter(mrsEncounter);
+
+        if (validationErrors.size() != 0) {
+            logger.info("Unable to save encounter due to validation errors");
+            return;
+        }
 
         try {
             mrsEncounterAdapter.createEncounter(mrsEncounter);
