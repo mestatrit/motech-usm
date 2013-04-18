@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.motechproject</groupId>
     <artifactId>motech-commcare-mrs-mapper</artifactId>
-    <version>0.19-SNAPSHOT</version>
+    <version>0.19</version>
     <packaging>bundle</packaging>
     <name>MoTeCH CommCare to MRS Mapper</name>
     <url>http://maven.apache.org</url>
