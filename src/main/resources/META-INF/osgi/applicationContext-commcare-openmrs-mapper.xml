@@ -24,6 +24,8 @@
 
     <osgi:reference id="userAdapterOsgi" cardinality="0..1" interface="org.motechproject.mrs.services.MRSUserAdapter" />
 
+    <osgi:reference id="providerAdapterOsgi" cardinality="0..1" interface="org.motechproject.mrs.services.MRSProviderAdapter" />
+
     <osgi:reference id="observationAdapterOsgi" cardinality="0..1" interface="org.motechproject.mrs.services.MRSObservationAdapter" />
 
     <osgi:reference id="facilityAdapterOsgi" cardinality="0..1" interface="org.motechproject.mrs.services.MRSFacilityAdapter" />

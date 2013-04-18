@@ -23,6 +23,7 @@ public final class FormMappingConstants {
     public static final String CASE_ELEMENT = "case";
     public static final String CASE_ID_ATTRIBUTE = "case_id";
     public static final String CONCEPT_ID_ATTRIBUTE = "concept_id";
+    public static final String USER_ID = "userID";
 
     //MRS Registration constants
     public static final String DOB_FIELD = "dateOfBirth";
@@ -42,6 +43,9 @@ public final class FormMappingConstants {
     //Destination decides which values are required during the mapping process, configuration is in mappingConfiguration.properties
     public static final String DESTINATION_COUCHDB = "couchdb";
     public static final String DESTINATION_OPENMRS = "openmrs";
+
+    public static final String MAPPING_CONFIGURATION_FILE_NAME = "mappingConfiguration.properties";
+    public static final String DESTINATION = "destination";
 
     private FormMappingConstants() {
     }

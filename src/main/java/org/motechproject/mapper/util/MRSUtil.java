@@ -9,6 +9,7 @@ import org.motechproject.mrs.domain.MRSEncounter;
 import org.motechproject.mrs.domain.MRSFacility;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.domain.MRSPerson;
+import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.domain.MRSUser;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
@@ -18,6 +19,7 @@ import org.motechproject.mrs.model.MRSProviderDto;
 import org.motechproject.mrs.services.MRSEncounterAdapter;
 import org.motechproject.mrs.services.MRSFacilityAdapter;
 import org.motechproject.mrs.services.MRSPatientAdapter;
+import org.motechproject.mrs.services.MRSProviderAdapter;
 import org.motechproject.mrs.services.MRSUserAdapter;
 import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
@@ -28,9 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MRSUtil {
 
-    private static final String MAPPING_CONFIGURATION_FILE_NAME = "mappingConfiguration.properties";
-    private static final String DESTINATION = "destination";
-
     private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
 
     @Autowired
@@ -38,6 +37,9 @@ public class MRSUtil {
 
     @Autowired
     private MRSFacilityAdapter mrsFacilityAdapter;
+
+    @Autowired
+    private MRSProviderAdapter mrsProviderAdapter;
 
     @Autowired
     private MRSUserAdapter mrsUserAdapter;
@@ -48,21 +50,24 @@ public class MRSUtil {
     @Autowired
     private SettingsFacade settings;
 
-    public MRSPerson findProvider(String providerName) {
+    public MRSProvider findProvider(String providerId) {
         //CouchDB module does not have a user service yet
-        String destination = settings.getProperties(MAPPING_CONFIGURATION_FILE_NAME).getProperty(DESTINATION);
+        String destination = settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME).getProperty(FormMappingConstants.DESTINATION);
 
         if (FormMappingConstants.DESTINATION_COUCHDB.equals(destination)) {
-            return null;
+            MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
+            return (provider == null) ? null : provider;
         }
 
-        MRSUser provider = mrsUserAdapter.getUserByUserName(providerName);
+        MRSUser provider = mrsUserAdapter.getUserByUserName(providerId);
 
-        if (provider == null) {
-            return null;
+        MRSPerson person = null;
+
+        if (provider != null) {
+            person = provider.getPerson();
         }
 
-        return provider.getPerson();
+        return (person == null) ? null : new MRSProviderDto(person.getPersonId(), person);
     }
 
     public MRSFacility findFacility(String location) {
@@ -80,27 +85,17 @@ public class MRSUtil {
 
         return facilities.get(0);
     }
-    
+
     public MRSPatient getPatientByMotechId(String motechId) {
         return mrsPatientAdapter.getPatientByMotechId(motechId);
     }
 
-    public void addEncounter(MRSPatient patient, Set<MRSObservationDto> observations, String providerName,
+    public void addEncounter(MRSPatient patient, Set<MRSObservationDto> observations, String providerId,
             DateTime encounterDate, String facilityName, String encounterType) {
 
         MRSFacility facility = findFacility(facilityName);
 
-        MRSProviderDto provider = new MRSProviderDto();
-
-        MRSPerson providerPerson = findProvider(providerName);
-
-        if (providerPerson == null) {
-            providerPerson = new MRSPersonDto();
-            providerPerson.setPersonId("UnknownProvider");
-        }
-
-        provider.setPerson(providerPerson);
-        provider.setProviderId(providerPerson.getPersonId());
+        MRSProvider provider = findProvider(providerId);
 
         logger.info("Using provider: " + provider);
 

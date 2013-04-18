@@ -13,6 +13,8 @@ import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.validation.ValidationError;
+import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.domain.MRSFacility;
 import org.motechproject.mrs.domain.MRSPatient;
@@ -40,6 +42,9 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
     @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
+    
+    @Autowired
+    private ValidationManager validator;
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
@@ -168,8 +173,6 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
             }
         }
 
-        MRSFacility facility = null;
-
         String facilityName = populateStringValue(facilityNameField, topFormElement);
 
         if (facilityName == null) {
@@ -183,16 +186,15 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         if (facilityName == null) {
             logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
             facilityName = FormMappingConstants.DEFAULT_FACILITY;
-        } 
+        }
 
-        facility = mrsUtil.findFacility(facilityName);
+        MRSFacility facility = mrsUtil.findFacility(facilityName);
 
         logger.info("Facility name: " + facilityName);
 
         MRSPerson person = null;
 
         List<MRSAttribute> attributes = new ArrayList<MRSAttribute>();
-
 
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
@@ -209,8 +211,7 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
             }
         }
 
-        if (patient == null && facility != null && firstName != null && lastName != null && dateOfBirth != null
-                && motechId != null) {
+        if (patient == null) {
             person = new MRSPersonDto();
             person.setFirstName(firstName);
             person.setLastName(lastName);
@@ -222,35 +223,26 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
             patient = new MRSPatientDto();
             patient.setMotechId(motechId);
             patient.setPerson(person);
+            patient.setFacility(facility);
 
             try {
-                patient = mrsPatientAdapter.savePatient(patient);
+                List<ValidationError> validationErrors = validator.validatePatient(patient);
+                if (validationErrors.size() == 0) {
+                    patient = mrsPatientAdapter.savePatient(patient);
+
+                } else {
+                    logger.info("Could not save patient due to validation errors");
+                }
                 logger.info("New patient saved: " + motechId);
             } catch (MRSException e) {
                 logger.info("Could not save patient: " + e.getMessage());
             }
         } else if (patient != null) {
             person = patient.getPerson();
+            patient.setFacility(facility);
             updatePatient(patient, person, firstName, lastName, dateOfBirth, gender, middleName, preferredName,
                     address, birthDateIsEstimated, age, isDead, deathDate, attributes);
-        } else {
-            logger.info("Unable to save patient due to missing information");
-            if (facility == null) {
-                logger.info("Reason: No facility provided");
-            }
-            if (firstName == null) {
-                logger.info("Reason: No first name provided");
-            }
-            if (lastName == null) {
-                logger.info("Reason: No last name provided");
-            }
-            if (dateOfBirth == null) {
-                logger.info("Reason: No date of birth provided");
-            }
-            if (motechId == null) {
-                logger.info("Reason: No MOTECH id provided");
-            }
-        }
+        } 
     }
 
     private void setPerson(String middleName, String preferredName, String address, Boolean birthDateIsEstimated,
@@ -308,7 +300,12 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
         logger.info("About to update patient");
 
-        mrsPatientAdapter.updatePatient(patient);
+        List<ValidationError> validationErrors = validator.validatePatient(patient);
+        if (validationErrors.size() == 0) {
+            mrsPatientAdapter.updatePatient(patient);
+        } else {
+            logger.info("Could not update patient due to validation errors");
+        }
     }
 
     private Integer populateIntegerValue(String fieldName, FormValueElement topFormElement) {

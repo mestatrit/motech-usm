@@ -124,12 +124,15 @@
         "type": "encounter",
         "encounterType": "ADULTINITIAL",
         "patientIdScheme": {
-          "type": "default",
+          "type": "fromForm",
           "fieldName": "health_id"
         },
         "facilityScheme": {
           "type": "commcareUserData",
           "fieldName": "location"
+        },
+        "providerScheme": {
+          "type": "commcareUserId"
         },       
         "observationMappings": [
           {

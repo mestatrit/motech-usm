@@ -39,8 +39,11 @@ public class AllEncountersAdapter implements ActivityFormAdapter {
 
         Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
         Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
+        Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
+
         Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
 
+        String providerId = idResolver.retrieveId(providerIdScheme, form);
         String motechId = idResolver.retrieveId(patientIdScheme, form);
 
         MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
@@ -56,8 +59,6 @@ public class AllEncountersAdapter implements ActivityFormAdapter {
 
         Set<MRSObservationDto> observations = ObservationsHelper.generateObservations(form.getForm(),
                 encounterActivity.getObservationMappings());
-
-        String providerName = form.getMetadata().get(FormMappingConstants.FORM_USERNAME);
 
         String facilityNameField = null;
 
@@ -83,7 +84,7 @@ public class AllEncountersAdapter implements ActivityFormAdapter {
             facilityName = FormMappingConstants.DEFAULT_FACILITY;
         }
 
-        mrsUtil.addEncounter(patient, observations, providerName, dateReceived, facilityName,
+        mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
                 encounterActivity.getEncounterType());
     }
 }
