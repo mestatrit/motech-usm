@@ -1,12 +1,7 @@
 package org.motechproject.mapper.repository;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
 import org.motechproject.commons.api.json.MotechJsonReader;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
@@ -16,47 +11,59 @@ import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
-public final class MappingsReader {
+public class MappingsReader {
 
-    private static Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private List<String> mappingFiles;
+    private MotechJsonReader reader = new MotechJsonReader();
+    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Map<Type, Object> providedAdapters = new HashMap<>();
+    private List<MRSMapping> mrsMappingList;
 
-    private static final String MAPPING_FILE_NAME = "openMrsMappings.json";
+    public MappingsReader() {
+    }
 
-    private static final MotechJsonReader READER = new MotechJsonReader();
-
-    private static Map<Type, Object> providedAdapters = new HashMap<Type, Object>();
-
-    static {
+    @Autowired
+    public MappingsReader(List<String> mappingFiles) {
+        this.mappingFiles = mappingFiles;
         providedAdapters.put(MRSActivity.class, new MRSActivityAdapter());
+        mrsMappingList = new ArrayList<>();
+        constructMRSMapping();
     }
 
-    public static List<MRSMapping> getAllMappings() {
-        InputStream is = MappingsReader.class.getClassLoader().getResourceAsStream(MAPPING_FILE_NAME);
-
-        StringWriter writer = new StringWriter();
-        try {
-            IOUtils.copy(is, writer, "UTF-8");
-        } catch (IOException e) {
-            logger.error("Error retreiving all mappings: " + e.getMessage());
+    private void constructMRSMapping() {
+        for (String file : mappingFiles) {
+            InputStream is = MappingsReader.class.getClassLoader().getResourceAsStream(file);
+            StringWriter writer = new StringWriter();
+            try {
+                IOUtils.copy(is, writer, "UTF-8");
+            } catch (IOException e) {
+                logger.error("Error retreiving all mappings: " + e.getMessage());
+            }
+            mrsMappingList.addAll(readJson(writer.toString()));
         }
-
-        return readJson(writer.toString());
     }
 
-    public static List<MRSMapping> readJson(String json) {
-        Type type = new TypeToken<List<MRSMapping>>() { } .getType();
-        return (List<MRSMapping>) READER.readFromString(json, type, providedAdapters);
+    private List<MRSMapping> readJson(String json) {
+        Type type = new TypeToken<List<MRSMapping>>() {
+        }.getType();
+        return (List<MRSMapping>) reader.readFromString(json, type, providedAdapters);
+    }
+
+    public List<MRSMapping> getAllMappings() {
+        return mrsMappingList;
     }
 
     private static class MRSActivityAdapter implements JsonDeserializer<MRSActivity> {
@@ -95,8 +102,5 @@ public final class MappingsReader {
 
             return activity;
         }
-    }
-
-    private MappingsReader() {
     }
 }

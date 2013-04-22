@@ -1,7 +1,5 @@
 package org.motechproject.mapper.listeners;
 
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
@@ -16,16 +14,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class FormListener {
 
-    @Autowired
     private CommcareFormService formService;
+    private AllFormsAdapter formsAdapter;
+    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
 
     @Autowired
-    private AllFormsAdapter formsAdapter;
-
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    public FormListener(CommcareFormService formService, AllFormsAdapter formsAdapter) {
+        this.formService = formService;
+        this.formsAdapter = formsAdapter;
+    }
 
     @MotechListener(subjects = EventSubjects.FORM_STUB_EVENT)
     public void handleFormEvent(MotechEvent event) {
@@ -38,14 +40,13 @@ public class FormListener {
 
         CommcareForm form = null;
 
-        if (!StringUtils.isBlank(formId)) {
-            form = formService.retrieveForm(formId);
-        } else {
+        if (StringUtils.isBlank(formId)) {
             logger.info("Form Id was null");
+            return;
         }
+        form = formService.retrieveForm(formId);
 
         FormValueElement rootElement = null;
-
         if (form != null) {
             rootElement = form.getForm();
         }

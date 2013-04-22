@@ -1,206 +1,206 @@
 [
-  {
-    "formName": "Visit",
-    "xmlns": "http://openrosa.org/formdesigner/185A7E63-0ECD-4D9A-8357-6FD770B6F065",
-    "activities": [
-      {
-        "type": "encounter",
-        "encounterType": "pregnancyVisit",
-        "patientIdScheme": {
-          "type": "commcareCase",
-          "fieldName": "health_id"
-        },
-        "facilityScheme": {
-          "type": "commcareUserData",
-          "fieldName": "location"
-        },        
-        "observationMappings": [
-          {
-            "elementName": "condition_improved",
-            "conceptName": "Patient's condition improved since last visit",
-            "values": {
-              "unsure": "UNKNOWN"
-            }
-          },
-          {
-            "conceptId": "5596",
-            "conceptName": "ESTIMATED DATE OF CONFINEMENT"
-          },
-          {
-            "elementName": "visit_hospital",
-            "conceptName": "Visit to health facility since last home visit",
-            "values": {
-              "unsure": "UNKNOWN"
-            }
-          },
-          {
-            "elementName": "emergency_danger_sign",
-            "conceptName": "Reasons for Referral",
-            "type": "list",
-            "values": {
-              "vaginal_bleeding": "ABNORMAL VAGINAL BLEEDING",
-              "convulsions": "CONVULSIONS",
-              "pa": "ABDOMINAL PAIN",
-              "bv": "Blurred Vision",
-              "ph": "Severe Headache",
-              "sw": "OTHER NON-CODED",
-              "as": "Physical trauma",
-              "fm": "NO FETAL MOVEMENTS",
-              "loss_of_consciousness": "OTHER NON-CODED"
-            }
-          },
-          {
-            "elementName": "referral_given",
-            "conceptName": "PATIENT REFERRED",
-            "values": {
-              "yes": "true",
-              "no": "false"
-            }
-          },
-          {
-            "elementName": "referral_type",
-            "conceptName": "REFERRAL PRIORITY",
-            "values": {
-              "emergency": "Emergency (status)",
-              "basic": "Urgent (status)",
-              "convenient": "When Convenient (status)"
-            }
-          },
-          {
-            "elementName": "iron_and_folic",
-            "conceptName": "Patient took Iron/Folate yesterday"
-          },
-          {
-            "elementName": "last_anc_date",
-            "conceptName": "Date of last antenatal visit"
-          },
-          {
-            "elementName": "num_anc",
-            "conceptName": "ANTENATAL VISIT NUMBER"
-          },          
-          {
-            "elementName": "counsel_type",
-            "conceptName": "EDUCATION/COUNSELING ORDERS",
-            "type": "list",
-            "values": {
-              "nutrition": "NUTRITION COUNSELING",
-              "hiv": "Preventative Education/Counseling for HIV/AIDS",
-              "birthplan": "Counseling for expectant mother",
-              "bednet": "BEDNET COUNSELING",
-              "anc_visits": "OTHER NON-CODED"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "formName": "Register Pregnancy",
-    "xmlns": "http://openrosa.org/formdesigner/882FC273-E436-4BA1-B8CC-9CA526FFF8C2",
-    "activities": [
-          {
-        "type": "registration",
-        "patientIdScheme": {
-          "type": "fromForm",
-          "fieldName": "health_id"
-        },
-        "facilityScheme": {
-          "type": "commcareUserData",
-          "fieldName": "location"
-        },       
-        "staticMappings": {
-          "gender": "female"
-        },
-        "registrationMappings": {
-          "dateOfBirth": "dob_calc",
-          "firstName": "first_name",
-          "lastName": "surname"
-        },
-        "attributes" : {
-          "Phone Number" : "mobile_phone_number"
-        }
-      },
-      {
-        "type": "encounter",
-        "encounterType": "ADULTINITIAL",
-        "patientIdScheme": {
-          "type": "fromForm",
-          "fieldName": "health_id"
-        },
-        "facilityScheme": {
-          "type": "commcareUserData",
-          "fieldName": "location"
-        },
-        "providerScheme": {
-          "type": "commcareUsername"
-        },       
-        "observationMappings": [
-          {
-            "elementName": "edd_calc",
-            "conceptName": "ESTIMATED DATE OF CONFINEMENT"
-          },
-          {
-            "elementName": "mobile_phone_number",
-            "conceptName": "contact phone number"
-          }
-        ]
-      }
-    ]
-  },
-{
-  "formName": "Register Child",
-  "xmlns": "http://openrosa.org/formdesigner/E6511C2B-DFC8-4DEA-8200-CC2F2CED00DA",
-  "activities": [
     {
-      "type": "registration",
-      "patientIdScheme": {
-        "type": "fromForm",
-        "fieldName": "health_id"
-      },
-      "staticMappings": {
-        "facility": "Unknown location"
-      },
-      "registrationMappings": {
-        "dateOfBirth": "dob_calc",
-        "firstName": "first_name",
-        "lastName": "surname",
-        "gender": "sex"
-      }
+        "formName": "Visit",
+        "xmlns": "http://openrosa.org/formdesigner/185A7E63-0ECD-4D9A-8357-6FD770B6F065",
+        "activities": [
+            {
+                "type": "encounter",
+                "encounterType": "pregnancyVisit",
+                "patientIdScheme": {
+                    "type": "commcareCase",
+                    "fieldName": "health_id"
+                },
+                "facilityScheme": {
+                    "type": "commcareUserData",
+                    "fieldName": "location"
+                },
+                "observationMappings": [
+                    {
+                        "elementName": "condition_improved",
+                        "conceptName": "Patient's condition improved since last visit",
+                        "values": {
+                            "unsure": "UNKNOWN"
+                        }
+                    },
+                    {
+                        "conceptId": "5596",
+                        "conceptName": "ESTIMATED DATE OF CONFINEMENT"
+                    },
+                    {
+                        "elementName": "visit_hospital",
+                        "conceptName": "Visit to health facility since last home visit",
+                        "values": {
+                            "unsure": "UNKNOWN"
+                        }
+                    },
+                    {
+                        "elementName": "emergency_danger_sign",
+                        "conceptName": "Reasons for Referral",
+                        "type": "list",
+                        "values": {
+                            "vaginal_bleeding": "ABNORMAL VAGINAL BLEEDING",
+                            "convulsions": "CONVULSIONS",
+                            "pa": "ABDOMINAL PAIN",
+                            "bv": "Blurred Vision",
+                            "ph": "Severe Headache",
+                            "sw": "OTHER NON-CODED",
+                            "as": "Physical trauma",
+                            "fm": "NO FETAL MOVEMENTS",
+                            "loss_of_consciousness": "OTHER NON-CODED"
+                        }
+                    },
+                    {
+                        "elementName": "referral_given",
+                        "conceptName": "PATIENT REFERRED",
+                        "values": {
+                            "yes": "true",
+                            "no": "false"
+                        }
+                    },
+                    {
+                        "elementName": "referral_type",
+                        "conceptName": "REFERRAL PRIORITY",
+                        "values": {
+                            "emergency": "Emergency (status)",
+                            "basic": "Urgent (status)",
+                            "convenient": "When Convenient (status)"
+                        }
+                    },
+                    {
+                        "elementName": "iron_and_folic",
+                        "conceptName": "Patient took Iron/Folate yesterday"
+                    },
+                    {
+                        "elementName": "last_anc_date",
+                        "conceptName": "Date of last antenatal visit"
+                    },
+                    {
+                        "elementName": "num_anc",
+                        "conceptName": "ANTENATAL VISIT NUMBER"
+                    },
+                    {
+                        "elementName": "counsel_type",
+                        "conceptName": "EDUCATION/COUNSELING ORDERS",
+                        "type": "list",
+                        "values": {
+                            "nutrition": "NUTRITION COUNSELING",
+                            "hiv": "Preventative Education/Counseling for HIV/AIDS",
+                            "birthplan": "Counseling for expectant mother",
+                            "bednet": "BEDNET COUNSELING",
+                            "anc_visits": "OTHER NON-CODED"
+                        }
+                    }
+                ]
+            }
+        ]
     },
     {
-      "type": "encounter",
-      "encounterType": "PEDSINITIAL",
-      "idScheme": {
-        "type": "default",
-        "fieldName": "health_id"
-      },
-        "facilityScheme": {
-          "type": "commcareUser",
-          "fieldName": "location"
-        },      
-      "observationMappings": [
-        {
-          "elementName": "delivered_in_facility",
-          "conceptName": "DELIVERED AT HEALTH FACILITY",
-          "values": {
-            "yes": "true",
-            "no": "false",
-            "unsure": "false"
-          }
-        },
-        {
-          "elementName": "weight_at_birth",
-          "conceptName": "BIRTH WEIGHT (kg)"
-        },
-        {
-          "elementName": "birth_weight_recorded",
-          "conceptName": "CHILD HEALTH CARD SHOWN",
-          "values": {
-            "unsure": "false"
-          }
-        }
-      ]
+        "formName": "Register Pregnancy",
+        "xmlns": "http://openrosa.org/formdesigner/882FC273-E436-4BA1-B8CC-9CA526FFF8C2",
+        "activities": [
+            {
+                "type": "registration",
+                "patientIdScheme": {
+                    "type": "fromForm",
+                    "fieldName": "health_id"
+                },
+                "facilityScheme": {
+                    "type": "commcareUserData",
+                    "fieldName": "location"
+                },
+                "staticMappings": {
+                    "gender": "female"
+                },
+                "registrationMappings": {
+                    "dateOfBirth": "dob_calc",
+                    "firstName": "first_name",
+                    "lastName": "surname"
+                },
+                "attributes": {
+                    "Phone Number": "mobile_phone_number"
+                }
+            },
+            {
+                "type": "encounter",
+                "encounterType": "ADULTINITIAL",
+                "patientIdScheme": {
+                    "type": "fromForm",
+                    "fieldName": "health_id"
+                },
+                "facilityScheme": {
+                    "type": "commcareUserData",
+                    "fieldName": "location"
+                },
+                "providerScheme": {
+                    "type": "commcareUsername"
+                },
+                "observationMappings": [
+                    {
+                        "elementName": "edd_calc",
+                        "conceptName": "ESTIMATED DATE OF CONFINEMENT"
+                    },
+                    {
+                        "elementName": "mobile_phone_number",
+                        "conceptName": "contact phone number"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "formName": "Register Child",
+        "xmlns": "http://openrosa.org/formdesigner/E6511C2B-DFC8-4DEA-8200-CC2F2CED00DA",
+        "activities": [
+            {
+                "type": "registration",
+                "patientIdScheme": {
+                    "type": "fromForm",
+                    "fieldName": "health_id"
+                },
+                "staticMappings": {
+                    "facility": "Unknown location"
+                },
+                "registrationMappings": {
+                    "dateOfBirth": "dob_calc",
+                    "firstName": "first_name",
+                    "lastName": "surname",
+                    "gender": "sex"
+                }
+            },
+            {
+                "type": "encounter",
+                "encounterType": "PEDSINITIAL",
+                "idScheme": {
+                    "type": "default",
+                    "fieldName": "health_id"
+                },
+                "facilityScheme": {
+                    "type": "commcareUser",
+                    "fieldName": "location"
+                },
+                "observationMappings": [
+                    {
+                        "elementName": "delivered_in_facility",
+                        "conceptName": "DELIVERED AT HEALTH FACILITY",
+                        "values": {
+                            "yes": "true",
+                            "no": "false",
+                            "unsure": "false"
+                        }
+                    },
+                    {
+                        "elementName": "weight_at_birth",
+                        "conceptName": "BIRTH WEIGHT (kg)"
+                    },
+                    {
+                        "elementName": "birth_weight_recorded",
+                        "conceptName": "CHILD HEALTH CARD SHOWN",
+                        "values": {
+                            "unsure": "false"
+                        }
+                    }
+                ]
+            }
+        ]
     }
-  ]
-}
 ]

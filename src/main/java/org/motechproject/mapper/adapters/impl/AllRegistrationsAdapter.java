@@ -1,16 +1,11 @@
 package org.motechproject.mapper.adapters.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.adapters.mappings.MRSActivity;
 import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
-import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.validation.ValidationError;
@@ -29,173 +24,85 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static org.motechproject.mapper.constants.FormMappingConstants.*;
+
 @Component
 public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
     private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
-
     @Autowired
     private MRSUtil mrsUtil;
-
     @Autowired
     private IdentityResolver idResolver;
-
     @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
-    
     @Autowired
     private ValidationManager validator;
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
-
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
 
         FormValueElement topFormElement = form.getForm();
 
-        Map<String, String> mappedAttributes = registrationActivity.getAttributes();
-        Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
+        String gender = getValueFor(GENDER_FIELD, topFormElement, registrationActivity);
+        DateTime dateOfBirth = getDateValueFor(DOB_FIELD, topFormElement, registrationActivity);
+        String firstName = getValueFor(FIRST_NAME_FIELD, topFormElement, registrationActivity);
+        String lastName = getValueFor(LAST_NAME_FIELD, topFormElement, registrationActivity);
+        String middleName = getValueFor(MIDDLE_NAME_FIELD, topFormElement, registrationActivity);
+        String preferredName = getValueFor(PREFERRED_NAME_FIELD, topFormElement, registrationActivity);
+        String address = getValueFor(ADDRESS_FIELD, topFormElement, registrationActivity);
+        Integer age = getIntegerValueFor(AGE_FIELD, topFormElement, registrationActivity);
+        Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, topFormElement, registrationActivity);
+        Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, topFormElement, registrationActivity);
+        DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, topFormElement, registrationActivity);
+        String facilityName = getValueFor(FACILITY_NAME_FIELD, topFormElement, registrationActivity);
+
+        MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName);
+
+        List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, topFormElement);
 
         Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
-        Map<String, String> facilityIdScheme = registrationActivity.getFacilityScheme();
-
-        String motechId = null;
-
-        if (patientIdScheme != null) {
-            motechId = idResolver.retrieveId(patientIdScheme, form);
-        }
-
+        String motechId = idResolver.retrieveId(patientIdScheme, form);
         MRSPatient patient = mrsPatientAdapter.getPatientByMotechId(motechId);
 
+        addOrUpdatePatient(gender, dateOfBirth, firstName, lastName, middleName, preferredName, address, age, birthDateIsEstimated, isDead, deathDate, facility, attributes, motechId, patient);
+    }
+
+    private void addOrUpdatePatient(String gender, DateTime dateOfBirth, String firstName, String lastName, String middleName, String preferredName, String address, Integer age, Boolean birthDateIsEstimated, Boolean dead, DateTime deathDate, MRSFacility facility, List<MRSAttribute> attributes, String motechId, MRSPatient patient) {
+        MRSPerson person;
         if (patient == null) {
             logger.info("Registering new patient by MotechId " + motechId);
+            person = new MRSPersonDto("", firstName, middleName, lastName, preferredName, address, dateOfBirth, birthDateIsEstimated, age, gender, dead, attributes, deathDate);
+            patient = new MRSPatientDto("", facility, person, motechId);
+            try {
+                List<ValidationError> validationErrors = validator.validatePatient(patient);
+                if (validationErrors.size() == 0) {
+                    mrsPatientAdapter.savePatient(patient);
+                } else {
+                    logger.info("Could not save patient due to validation errors");
+                }
+                logger.info("New patient saved: " + motechId);
+            } catch (MRSException e) {
+                logger.info("Could not save patient: " + e.getMessage());
+            }
         } else {
             logger.info("Patient already exists, updating patient " + motechId);
+            person = patient.getPerson();
+            patient.setFacility(facility);
+            updatePatient(patient, person, firstName, lastName, dateOfBirth, gender, middleName, preferredName,
+                    address, birthDateIsEstimated, age, dead, deathDate, attributes);
         }
+    }
 
-        String dobField = registrationMappings.get(FormMappingConstants.DOB_FIELD);
-        String firstNameField = registrationMappings.get(FormMappingConstants.FIRST_NAME_FIELD);
-        String middleNameField = registrationMappings.get(FormMappingConstants.MIDDLE_NAME_FIELD);
-        String lastNameField = registrationMappings.get(FormMappingConstants.LAST_NAME_FIELD);
-        String preferredNameField = registrationMappings.get(FormMappingConstants.PREFERRED_NAME_FIELD);
-        String genderField = registrationMappings.get(FormMappingConstants.GENDER_FIELD);
-        String addressField = registrationMappings.get(FormMappingConstants.ADDRESS_FIELD);
-        String ageField = registrationMappings.get(FormMappingConstants.AGE_FIELD);
-        String birthDateIsEstimatedField = registrationMappings.get(FormMappingConstants.BIRTH_DATE_ESTIMATED_FIELD);
-        String isDeadField = registrationMappings.get(FormMappingConstants.IS_DEAD_FIELD);
-        String deathDateField = registrationMappings.get(FormMappingConstants.DEATH_DATE_FIELD);
-        String facilityNameField = registrationMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
-
-        String gender = populateStringValue(genderField, topFormElement);
-
-        if (gender == null) {
-            gender = registrationActivity.getStaticMappings().get("gender");
-        }
-
-        DateTime dateOfBirth = populateDateValue(dobField, topFormElement);
-
-        if (dateOfBirth == null) {
-            try {
-                dateOfBirth = DateTime.parse(registrationActivity.getStaticMappings().get("dob"));
-            } catch (IllegalArgumentException | NullPointerException e) {
-                logger.info("Unable to parse date: " + e.getMessage());
-            }
-        }
-
-        String firstName = populateStringValue(firstNameField, topFormElement);
-
-        if (firstName == null) {
-            firstName = registrationActivity.getStaticMappings().get("firstName");
-        }
-
-        String lastName = populateStringValue(lastNameField, topFormElement);
-
-        if (lastName == null) {
-            lastName = registrationActivity.getStaticMappings().get("lastName");
-        }
-
-        String middleName = populateStringValue(middleNameField, topFormElement);
-
-        if (middleName == null) {
-            middleName = registrationActivity.getStaticMappings().get("middleName");
-        }
-
-        String preferredName = populateStringValue(preferredNameField, topFormElement);
-
-        if (preferredName == null) {
-            preferredName = registrationActivity.getStaticMappings().get("preferredName");
-        }
-
-        String address = populateStringValue(addressField, topFormElement);
-
-        if (address == null) {
-            address = registrationActivity.getStaticMappings().get("address");
-        }
-
-        Integer age = populateIntegerValue(ageField, topFormElement);
-
-        if (age == null) {
-            try {
-                age = Integer.parseInt(registrationActivity.getStaticMappings().get("age"));
-            } catch (NumberFormatException e) {
-                logger.error("Age was not a valid number");
-            }
-        }
-
-        Boolean birthDateIsEstimated = populateBooleanValue(birthDateIsEstimatedField, topFormElement);
-
-        if (birthDateIsEstimated == null) {
-            try {
-                birthDateIsEstimated = Boolean.parseBoolean(registrationActivity.getStaticMappings().get(
-                        "birthdateIsEstimated"));
-            } catch (Exception e) {
-                logger.error("Error in birthdate: " + e.getMessage());
-            }
-        }
-
-        Boolean isDead = populateBooleanValue(isDeadField, topFormElement);
-
-        if (isDead == null) {
-            try {
-                isDead = Boolean.parseBoolean(registrationActivity.getStaticMappings().get("dead"));
-            } catch (Exception e) {
-                logger.error("Error in is dead value: " + e.getMessage());
-            }
-        }
-
-        DateTime deathDate = populateDateValue(deathDateField, topFormElement);
-
-        if (deathDate == null) {
-            try {
-                deathDate = DateTime.parse(registrationActivity.getStaticMappings().get("deathDate"));
-            } catch (Exception e) {
-                logger.error("Error in death date: " + e.getMessage());
-            }
-        }
-
-        String facilityName = populateStringValue(facilityNameField, topFormElement);
-
-        if (facilityName == null) {
-            facilityName = registrationActivity.getStaticMappings().get("facility");
-        }
-
-        if (facilityName == null) {
-            facilityName = idResolver.retrieveId(facilityIdScheme, form);
-        }
-
-        if (facilityName == null) {
-            logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
-            facilityName = FormMappingConstants.DEFAULT_FACILITY;
-        }
-
-        MRSFacility facility = mrsUtil.findFacility(facilityName);
-
-        logger.info("Facility name: " + facilityName);
-
-        MRSPerson person = null;
-
+    private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, FormValueElement topFormElement) {
         List<MRSAttribute> attributes = new ArrayList<MRSAttribute>();
-
+        Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
                 FormValueElement attributeElement = topFormElement.getElementByName(entry.getValue());
@@ -210,79 +117,27 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
                 }
             }
         }
-
-        if (patient == null) {
-            person = new MRSPersonDto();
-            person.setFirstName(firstName);
-            person.setLastName(lastName);
-            person.setGender(gender);
-            person.setDateOfBirth(dateOfBirth);
-
-            setPerson(middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, person, attributes);
-
-            patient = new MRSPatientDto();
-            patient.setMotechId(motechId);
-            patient.setPerson(person);
-            patient.setFacility(facility);
-
-            try {
-                List<ValidationError> validationErrors = validator.validatePatient(patient);
-                if (validationErrors.size() == 0) {
-                    patient = mrsPatientAdapter.savePatient(patient);
-
-                } else {
-                    logger.info("Could not save patient due to validation errors");
-                }
-                logger.info("New patient saved: " + motechId);
-            } catch (MRSException e) {
-                logger.info("Could not save patient: " + e.getMessage());
-            }
-        } else if (patient != null) {
-            person = patient.getPerson();
-            patient.setFacility(facility);
-            updatePatient(patient, person, firstName, lastName, dateOfBirth, gender, middleName, preferredName,
-                    address, birthDateIsEstimated, age, isDead, deathDate, attributes);
-        } 
+        return attributes;
     }
 
-    private void setPerson(String middleName, String preferredName, String address, Boolean birthDateIsEstimated,
-            Integer age, Boolean isDead, DateTime deathDate, MRSPerson person, List<MRSAttribute> attributes) {
-        if (middleName != null) {
-            person.setMiddleName(middleName);
+    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName) {
+        if (facilityName == null) {
+            facilityName = idResolver.retrieveId(facilityIdScheme, form);
         }
 
-        if (preferredName != null) {
-            person.setPreferredName(preferredName);
+        if (facilityName == null) {
+            logger.warn("No facility name provided, using " + DEFAULT_FACILITY);
+            facilityName = DEFAULT_FACILITY;
         }
 
-        if (address != null) {
-            person.setAddress(address);
-        }
+        MRSFacility facility = mrsUtil.findFacility(facilityName);
 
-        if (birthDateIsEstimated != null) {
-            person.setBirthDateEstimated(birthDateIsEstimated);
-        }
-
-        if (age != null) {
-            person.setAge(age);
-        }
-
-        if (isDead != null) {
-            person.setDead(isDead);
-        }
-
-        if (deathDate != null) {
-            person.setDeathDate(deathDate);
-        }
-
-        if (attributes != null) {
-            person.setAttributes(attributes);
-        }
+        logger.info("Facility name: " + facilityName);
+        return facility;
     }
 
-    private void updatePatient(MRSPatient patient, MRSPerson person, String firstName, String lastName,
-            DateTime dateOfBirth, String gender, String middleName, String preferredName, String address,
-            Boolean birthDateIsEstimated, Integer age, Boolean isDead, DateTime deathDate, List<MRSAttribute> attributes) {
+    private void setPerson(String firstName, String lastName, DateTime dateOfBirth, String gender, String middleName, String preferredName, String address, Boolean birthDateIsEstimated,
+                           Integer age, Boolean isDead, DateTime deathDate, MRSPerson person, List<MRSAttribute> attributes) {
         if (firstName != null) {
             person.setFirstName(firstName);
         }
@@ -295,8 +150,37 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         if (gender != null) {
             person.setGender(gender);
         }
+        if (middleName != null) {
+            person.setMiddleName(middleName);
+        }
+        if (preferredName != null) {
+            person.setPreferredName(preferredName);
+        }
+        if (address != null) {
+            person.setAddress(address);
+        }
+        if (birthDateIsEstimated != null) {
+            person.setBirthDateEstimated(birthDateIsEstimated);
+        }
+        if (age != null) {
+            person.setAge(age);
+        }
+        if (isDead != null) {
+            person.setDead(isDead);
+        }
+        if (deathDate != null) {
+            person.setDeathDate(deathDate);
+        }
+        if (attributes != null) {
+            person.setAttributes(attributes);
+        }
+    }
 
-        setPerson(middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, person, attributes);
+    private void updatePatient(MRSPatient patient, MRSPerson person, String firstName, String lastName,
+                               DateTime dateOfBirth, String gender, String middleName, String preferredName, String address,
+                               Boolean birthDateIsEstimated, Integer age, Boolean isDead, DateTime deathDate, List<MRSAttribute> attributes) {
+
+        setPerson(firstName, lastName, dateOfBirth, gender, middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, person, attributes);
 
         logger.info("About to update patient");
 
@@ -308,56 +192,48 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         }
     }
 
-    private Integer populateIntegerValue(String fieldName, FormValueElement topFormElement) {
-        Integer value = null;
-        if (fieldName != null) {
-            FormValueElement element = topFormElement.getElementByName(fieldName);
-            if (element != null) {
-                try {
-                    value = Integer.valueOf(element.getValue());
-                } catch (NumberFormatException e) {
-                    logger.error("Error parsing age value from registration form: " + e.getMessage());
-                    return null;
-                }
-            }
+    private Integer getIntegerValueFor(String fieldName, FormValueElement topFormElement, MRSRegistrationActivity registrationActivity) {
+        String value = getValueFor(fieldName, topFormElement, registrationActivity);
+        if (value == null)
+            return null;
+
+        Integer integerValue = null;
+        try {
+            integerValue = Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            logger.info(String.format("Error parsing %s value from registration form: %s", fieldName, e.getMessage()));
         }
-        return value;
+        return integerValue;
     }
 
-    private Boolean populateBooleanValue(String fieldName, FormValueElement topFormElement) {
-        if (fieldName != null) {
-            FormValueElement element = topFormElement.getElementByName(fieldName);
-            if (element != null) {
-                return new Boolean(element.getValue());
-            }
-        }
-        return null;
+    private Boolean getBooleanValueFor(String fieldName, FormValueElement topFormElement, MRSRegistrationActivity registrationActivity) {
+        String value = getValueFor(fieldName, topFormElement, registrationActivity);
+        return Boolean.valueOf(value);
     }
 
-    private DateTime populateDateValue(String fieldName, FormValueElement topFormElement) {
-        if (fieldName != null) {
-            FormValueElement element = topFormElement.getElementByName(fieldName);
-            if (element != null) {
-                DateTime date = null;
-                try {
-                    date = DateTime.parse(element.getValue());
-                    return date;
-                } catch (IllegalArgumentException e) {
-                    logger.info("Unable to parse date value: " + e.getMessage());
-                }
-                return null;
-            }
+    private DateTime getDateValueFor(String fieldName, FormValueElement topFormElement, MRSRegistrationActivity registrationActivity) {
+        String value = getValueFor(fieldName, topFormElement, registrationActivity);
+        if (value == null)
+            return null;
+
+        DateTime dateValue = null;
+        try {
+            dateValue = DateTime.parse(value);
+        } catch (IllegalArgumentException e) {
+            logger.info(String.format("Unable to parse %s value: %s", fieldName, e.getMessage()));
         }
-        return null;
+        return dateValue;
     }
 
-    private String populateStringValue(String fieldName, FormValueElement topFormElement) {
+    private String getValueFor(String fieldName, FormValueElement topFormElement, MRSRegistrationActivity registrationActivity) {
+        Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
+        registrationMappings.get(fieldName);
         if (fieldName != null) {
             FormValueElement element = topFormElement.getElementByName(fieldName);
             if (element != null) {
                 return element.getValue();
             }
         }
-        return null;
+        return registrationActivity.getStaticMappings().get(fieldName);
     }
 }

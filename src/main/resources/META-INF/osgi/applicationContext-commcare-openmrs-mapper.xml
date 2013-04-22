@@ -43,4 +43,8 @@
         <property name="moduleName" value="commcare-form-mapper"/>
     </bean>
 
+    <util:list id="mappingFiles">
+        <value>openMrsMappings.json</value>
+    </util:list>
+
 </beans>
