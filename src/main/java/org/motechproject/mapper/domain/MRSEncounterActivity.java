@@ -1,4 +1,4 @@
-package org.motechproject.mapper.adapters.mappings;
+package org.motechproject.mapper.domain;
 
 import java.util.List;
 import java.util.Map;

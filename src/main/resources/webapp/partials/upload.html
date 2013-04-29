@@ -1,0 +1,20 @@
+<div class="box-header">Upload Mapper JSON File</div>
+
+<div>
+    <form enctype="multipart/form-data" class="form-horizontal" modelattribute="uploadRequest"
+          action="../commcare-mrs-mapper/upload" method="POST">
+        <h3 class="control-group"> JSON File</h3>
+
+        <div>
+            <label class="control-label" for="jsonFile">Upload the file</label>
+
+            <div class="controls">
+                <input type="file" id="jsonFile" name="jsonFile" required accept="application/json"/>
+            </div>
+
+        <input type="submit" class="btn btn-primary" value="upload"/>
+        </div>
+
+
+    </form>
+</div>

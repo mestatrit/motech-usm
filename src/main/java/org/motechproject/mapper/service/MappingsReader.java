@@ -1,24 +1,16 @@
-package org.motechproject.mapper.repository;
+package org.motechproject.mapper.service;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.IOUtils;
 import org.motechproject.commons.api.json.MotechJsonReader;
-import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.MRSEncounterActivity;
-import org.motechproject.mapper.adapters.mappings.MRSMapping;
-import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSEncounterActivity;
+import org.motechproject.mapper.domain.MRSMapping;
+import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,44 +18,17 @@ import java.util.Map;
 @Component
 public class MappingsReader {
 
-    private List<String> mappingFiles;
     private MotechJsonReader reader = new MotechJsonReader();
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
     private Map<Type, Object> providedAdapters = new HashMap<>();
-    private List<MRSMapping> mrsMappingList;
 
     public MappingsReader() {
-    }
-
-    @Autowired
-    public MappingsReader(List<String> mappingFiles) {
-        this.mappingFiles = mappingFiles;
         providedAdapters.put(MRSActivity.class, new MRSActivityAdapter());
-        mrsMappingList = new ArrayList<>();
-        constructMRSMapping();
     }
 
-    private void constructMRSMapping() {
-        for (String file : mappingFiles) {
-            InputStream is = MappingsReader.class.getClassLoader().getResourceAsStream(file);
-            StringWriter writer = new StringWriter();
-            try {
-                IOUtils.copy(is, writer, "UTF-8");
-            } catch (IOException e) {
-                logger.error("Error retreiving all mappings: " + e.getMessage());
-            }
-            mrsMappingList.addAll(readJson(writer.toString()));
-        }
-    }
-
-    private List<MRSMapping> readJson(String json) {
+    public List<MRSMapping> readJson(String json) {
         Type type = new TypeToken<List<MRSMapping>>() {
         }.getType();
         return (List<MRSMapping>) reader.readFromString(json, type, providedAdapters);
-    }
-
-    public List<MRSMapping> getAllMappings() {
-        return mrsMappingList;
     }
 
     private static class MRSActivityAdapter implements JsonDeserializer<MRSActivity> {

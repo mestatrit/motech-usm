@@ -1,8 +1,5 @@
 package org.motechproject.mapper.util;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.joda.time.DateTime;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.validation.ValidationError;
@@ -10,68 +7,50 @@ import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSEncounter;
 import org.motechproject.mrs.domain.MRSFacility;
 import org.motechproject.mrs.domain.MRSPatient;
-import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.domain.MRSProvider;
-import org.motechproject.mrs.domain.MRSUser;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
 import org.motechproject.mrs.model.MRSObservationDto;
-import org.motechproject.mrs.model.MRSProviderDto;
 import org.motechproject.mrs.services.MRSEncounterAdapter;
 import org.motechproject.mrs.services.MRSFacilityAdapter;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 import org.motechproject.mrs.services.MRSProviderAdapter;
-import org.motechproject.mrs.services.MRSUserAdapter;
 import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class MRSUtil {
 
     private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
-
     @Autowired
     private MRSEncounterAdapter mrsEncounterAdapter;
-
     @Autowired
     private MRSFacilityAdapter mrsFacilityAdapter;
-
     @Autowired
     private MRSProviderAdapter mrsProviderAdapter;
-
-    @Autowired
-    private MRSUserAdapter mrsUserAdapter;
-
     @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
-
     @Autowired
     private ValidationManager validator;
-
     @Autowired
+    @Qualifier("commcareMapperSettings")
     private SettingsFacade settings;
 
     public MRSProvider findProvider(String providerId) {
         //CouchDB module does not have a user service yet
         String destination = settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME).getProperty(FormMappingConstants.DESTINATION);
 
-        if (FormMappingConstants.DESTINATION_COUCHDB.equals(destination)) {
-            MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
-            return (provider == null) ? null : provider;
-        }
+        MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
+        return (provider == null) ? null : provider;
 
-        MRSUser provider = mrsUserAdapter.getUserByUserName(providerId);
-
-        MRSPerson person = null;
-
-        if (provider != null) {
-            person = provider.getPerson();
-        }
-
-        return (person == null) ? null : new MRSProviderDto(person.getPersonId(), person);
     }
 
     public MRSFacility findFacility(String location) {
@@ -95,7 +74,7 @@ public class MRSUtil {
     }
 
     public void addEncounter(MRSPatient patient, Set<MRSObservationDto> observations, String providerId,
-            DateTime encounterDate, String facilityName, String encounterType) {
+                             DateTime encounterDate, String facilityName, String encounterType) {
 
         MRSFacility facility = findFacility(facilityName);
 

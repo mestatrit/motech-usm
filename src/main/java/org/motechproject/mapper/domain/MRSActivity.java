@@ -1,7 +1,10 @@
-package org.motechproject.mapper.adapters.mappings;
+package org.motechproject.mapper.domain;
+
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import java.util.Map;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class MRSActivity {
 
     private String type;

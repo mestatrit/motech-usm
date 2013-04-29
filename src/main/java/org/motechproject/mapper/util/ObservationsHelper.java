@@ -1,17 +1,12 @@
 package org.motechproject.mapper.util;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.motechproject.commcare.domain.FormValueElement;
-import org.motechproject.mapper.adapters.mappings.ObservationMapping;
 import org.motechproject.mapper.constants.FormMappingConstants;
+import org.motechproject.mapper.domain.ObservationMapping;
 import org.motechproject.mrs.model.MRSObservationDto;
+
+import java.util.*;
 
 public final class ObservationsHelper {
 

@@ -31,12 +31,12 @@ public class FormListenerTest {
     private FormListener formListener;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         formListener = new FormListener(commcareFormService, allFormsAdapter);
     }
 
     @Test
-    public void shouldRetrieveFormAndAdaptItForAValidForm() {
+    public void testShouldRetrieveFormAndAdaptItForAValidForm() {
         String formId = "formId";
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(EventDataKeys.FORM_ID, formId);
@@ -52,7 +52,7 @@ public class FormListenerTest {
     }
 
     @Test
-    public void shouldNotRetrieveFormIfFormIdIsBlank() {
+    public void testShouldNotRetrieveFormIfFormIdIsBlank() {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(EventDataKeys.FORM_ID, "");
         MotechEvent event = new MotechEvent("subject", properties);
@@ -64,7 +64,7 @@ public class FormListenerTest {
     }
 
     @Test
-    public void shouldNotAdaptIfThereIsNoForm() {
+    public void testShouldNotAdaptIfThereIsNoForm() {
         String formId = "formId";
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(EventDataKeys.FORM_ID, formId);

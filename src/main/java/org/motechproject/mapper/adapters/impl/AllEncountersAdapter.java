@@ -1,14 +1,12 @@
 package org.motechproject.mapper.adapters.impl;
 
-import java.util.Map;
-import java.util.Set;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
-import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.MRSEncounterActivity;
 import org.motechproject.mapper.constants.FormMappingConstants;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsHelper;
@@ -18,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class AllEncountersAdapter implements ActivityFormAdapter {

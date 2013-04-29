@@ -1,19 +1,21 @@
 package org.motechproject.mapper.validation;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mrs.domain.MRSEncounter;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.server.config.SettingsFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public final class ValidationManager {
 
     @Autowired
+    @Qualifier("commcareMapperSettings")
     private SettingsFacade settings;
 
     public List<ValidationError> validatePatient(MRSPatient patient) {
@@ -36,6 +38,6 @@ public final class ValidationManager {
         }
 
         return Collections.<ValidationError>emptyList();
-        
+
     }
 }

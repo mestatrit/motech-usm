@@ -1,8 +1,12 @@
-package org.motechproject.mapper.adapters.mappings;
+package org.motechproject.mapper.domain;
+
+import org.ektorp.support.TypeDiscriminator;
+import org.motechproject.commons.couchdb.model.MotechBaseDataObject;
 
 import java.util.List;
 
-public class MRSMapping {
+@TypeDiscriminator("doc.type === 'MRSMapping'")
+public class MRSMapping extends MotechBaseDataObject {
 
     private String formName;
     private String xmlns;

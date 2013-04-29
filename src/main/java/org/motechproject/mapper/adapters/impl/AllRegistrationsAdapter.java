@@ -4,8 +4,8 @@ import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
-import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.MRSRegistrationActivity;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.validation.ValidationError;
@@ -101,7 +101,7 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
     }
 
     private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, FormValueElement topFormElement) {
-        List<MRSAttribute> attributes = new ArrayList<MRSAttribute>();
+        List<MRSAttribute> attributes = new ArrayList<>();
         Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {

@@ -3,9 +3,9 @@ package org.motechproject.mapper.adapters.impl;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.adapters.FormAdapter;
-import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.MRSMapping;
-import org.motechproject.mapper.repository.MappingsReader;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSMapping;
+import org.motechproject.mapper.service.MRSMappingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +20,19 @@ public class AllFormsAdapter implements FormAdapter {
 
     private AllEncountersAdapter encounterAdapter;
     private AllRegistrationsAdapter registrationAdapter;
-    private MappingsReader mappingsReader;
+    private MRSMappingService mrsMappingService;
     private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
 
     @Autowired
-    public AllFormsAdapter(AllEncountersAdapter encounterAdapter, AllRegistrationsAdapter registrationAdapter, MappingsReader mappingsReader) {
+    public AllFormsAdapter(AllEncountersAdapter encounterAdapter, AllRegistrationsAdapter registrationAdapter, MRSMappingService mrsMappingService) {
         this.encounterAdapter = encounterAdapter;
         this.registrationAdapter = registrationAdapter;
-        this.mappingsReader = mappingsReader;
+        this.mrsMappingService = mrsMappingService;
     }
 
     @Override
     public void adaptForm(CommcareForm form) {
-        List<MRSMapping> mappings = mappingsReader.getAllMappings();
+        List<MRSMapping> mappings = mrsMappingService.getAllMappings();
 
         String formName = form.getForm().getAttributes().get(FORM_NAME_ATTRIBUTE);
 

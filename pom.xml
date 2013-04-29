@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.motechproject</groupId>
     <artifactId>motech-commcare-mrs-mapper</artifactId>
-    <version>0.19</version>
+    <version>0.20-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>MoTeCH CommCare to MRS Mapper</name>
     <url>http://maven.apache.org</url>
@@ -15,12 +15,12 @@
     <dependencies>
         <dependency>
             <groupId>org.motechproject</groupId>
-            <artifactId>motech-mrs-api</artifactId>
+            <artifactId>motech-platform-commons-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
-            <artifactId>motech-openmrs-ws</artifactId>
+            <artifactId>motech-mrs-couchdb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -34,6 +34,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <artifactId>motech-platform-commons-couchdb</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-server-config</artifactId>
             <version>${project.version}</version>
@@ -44,9 +49,54 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>motech-platform-osgi-web-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
             <version>1.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <scope>test</scope>
+            <artifactId>spring-test</artifactId>
+            <version>3.1.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>motech-testing-utils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.motechproject</groupId>
+            <artifactId>motech-platform-osgi-extender-fragment</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit</groupId>
+            <artifactId>org.motechproject.org.junit</artifactId>
+            <version>4.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.motechproject</groupId>
+            <artifactId>org.motechproject.osgi.it</artifactId>
+            <version>1.0.2.RELEASE-r013</version>
         </dependency>
     </dependencies>
 
@@ -59,18 +109,26 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>org.motechproject.osgi.web.Activator</Bundle-Activator>
+                        <Blueprint-Enabled>true</Blueprint-Enabled>
+                        <Context-File>META-INF/spring/blueprint.xml</Context-File>
+                        <Context-Path>commcare-mrs-mapper</Context-Path>
+                        <Resource-Path>commcare-mrs-mapper/resources</Resource-Path>
+                        <Bundle-Activator>org.motechproject.osgi.web.WebUIBundleActivator</Bundle-Activator>
                         <Export-Package>
                             org.motechproject.mapper.*
                         </Export-Package>
                         <Import-Package>
-                            *,
-                            org.motechproject.event.listener,
-                            org.springframework.beans.factory.xml,
-                            org.motechproject.event.listener.annotations,
+                            org.motechproject.commcare.service;version=${project.version},
+                            org.motechproject.mrs.services;version=${project.version},
                             org.motechproject.server.config;version=${project.version},
                             org.motechproject.server.config.service;version=${project.version},
-                            org.springframework.context.config
+                            org.motechproject.event.listener;version=${project.version},
+                            org.motechproject.event.listener.annotations;version=${project.version},
+                            org.motechproject.osgi.web;version=${project.version},
+                            org.motechproject.commons.couchdb.service;version=${project.version},
+                            org.motechproject.couch.mrs.model;version=${project.version},
+                            org.motechproject.couch.mrs.repository;version=${project.version},
+                            *
                         </Import-Package>
                         <Private-Package>
                             org.ektorp.impl,
@@ -116,8 +174,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.5.1</version>
                 <configuration>
+                    <verbose>true</verbose>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
+                    <compilerVersion>${jdk.version}</compilerVersion>
                 </configuration>
                 <executions>
                     <execution>

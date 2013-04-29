@@ -5,10 +5,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
-import org.motechproject.mapper.adapters.mappings.MRSActivity;
-import org.motechproject.mapper.adapters.mappings.MRSMapping;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.constants.FormMappingConstants;
-import org.motechproject.mapper.repository.MappingsReader;
+import org.motechproject.mapper.service.MRSMappingService;
+import org.motechproject.mapper.service.MappingsReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,25 +19,25 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AllFormsAdapterTest {
-
-
     @Mock
     private AllEncountersAdapter encounterAdapter;
     @Mock
     private AllRegistrationsAdapter registrationsAdapter;
     @Mock
     private MappingsReader mappingsReader;
+    @Mock
+    private MRSMappingService mrsMappingService;
 
     private AllFormsAdapter formsAdapter;
 
     @Before
-    public void setUp() {
+    public void setup() {
         initMocks(this);
-        formsAdapter = new AllFormsAdapter(encounterAdapter, registrationsAdapter, mappingsReader);
+        formsAdapter = new AllFormsAdapter(encounterAdapter, registrationsAdapter, mrsMappingService);
     }
 
     @Test
-    public void shouldAdaptForRegistrationWhenActivityTypeIsRegistration() {
+    public void testShouldAdaptForRegistrationWhenActivityTypeIsRegistration() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -52,7 +53,7 @@ public class AllFormsAdapterTest {
         activities.add(activity);
         mapping.setActivities(activities);
         mappings.add(mapping);
-        when(mappingsReader.getAllMappings()).thenReturn(mappings);
+        when(mrsMappingService.getAllMappings()).thenReturn(mappings);
 
         formsAdapter.adaptForm(form);
 
@@ -60,7 +61,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void shouldAdaptForEncounterWhenActivityTypeIsEncounter() {
+    public void testShouldAdaptForEncounterWhenActivityTypeIsEncounter() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -76,7 +77,7 @@ public class AllFormsAdapterTest {
         activities.add(activity);
         mapping.setActivities(activities);
         mappings.add(mapping);
-        when(mappingsReader.getAllMappings()).thenReturn(mappings);
+        when(mrsMappingService.getAllMappings()).thenReturn(mappings);
 
         formsAdapter.adaptForm(form);
 
@@ -84,7 +85,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void shouldNotAdaptFormWhenXmlnsDoesNotMatch() {
+    public void testShouldNotAdaptFormWhenXmlnsDoesNotMatch() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -103,7 +104,7 @@ public class AllFormsAdapterTest {
         activities.add(activity2);
         mapping.setActivities(activities);
         mappings.add(mapping);
-        when(mappingsReader.getAllMappings()).thenReturn(mappings);
+        when(mrsMappingService.getAllMappings()).thenReturn(mappings);
 
         formsAdapter.adaptForm(form);
 
@@ -112,7 +113,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void shouldAdaptFormOnlyOnceIfThereAreMultipleMappingsWithSameNamespace() {
+    public void testShouldAdaptFormOnlyOnceIfThereAreMultipleMappingsWithSameNamespace() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "same xmlns");
@@ -132,7 +133,7 @@ public class AllFormsAdapterTest {
         mapping2.setXmlns("same xmlns");
         mapping2.setActivities(activities);
         mappings.add(mapping2);
-        when(mappingsReader.getAllMappings()).thenReturn(mappings);
+        when(mrsMappingService.getAllMappings()).thenReturn(mappings);
 
         formsAdapter.adaptForm(form);
 
