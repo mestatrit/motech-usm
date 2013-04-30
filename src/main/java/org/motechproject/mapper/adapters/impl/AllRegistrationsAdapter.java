@@ -34,7 +34,7 @@ import static org.motechproject.mapper.constants.FormMappingConstants.*;
 @Component
 public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
     @Autowired
     private MRSUtil mrsUtil;
     @Autowired

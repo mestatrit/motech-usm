@@ -17,6 +17,12 @@
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-commons-api</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.springframework.context.support</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
@@ -58,12 +64,6 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
             <version>1.8.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <scope>test</scope>
-            <artifactId>spring-test</artifactId>
-            <version>3.1.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -115,6 +115,8 @@
                         <Resource-Path>commcare-mrs-mapper/resources</Resource-Path>
                         <Bundle-Activator>org.motechproject.osgi.web.WebUIBundleActivator</Bundle-Activator>
                         <Export-Package>
+                            org.motechproject.mapper.adapters,
+                            org.motechproject.mapper.domain,
                             org.motechproject.mapper.*
                         </Export-Package>
                         <Import-Package>
@@ -145,6 +147,24 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                    <execution>
+                        <id>list-dependencies</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>resolve</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>target/dependencies.list</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>

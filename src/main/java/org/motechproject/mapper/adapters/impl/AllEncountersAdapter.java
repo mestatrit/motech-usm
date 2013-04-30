@@ -23,7 +23,7 @@ import java.util.Set;
 @Component
 public class AllEncountersAdapter implements ActivityFormAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     private MRSUtil mrsUtil;

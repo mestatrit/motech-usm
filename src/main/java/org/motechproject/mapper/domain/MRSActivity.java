@@ -1,10 +1,15 @@
 package org.motechproject.mapper.domain;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import java.util.Map;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = MRSEncounterActivity.class, name = "encounterActivity"),
+        @JsonSubTypes.Type(value = MRSRegistrationActivity.class, name = "registrationActivity")
+})
 public class MRSActivity {
 
     private String type;

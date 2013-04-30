@@ -7,9 +7,7 @@ public class MRSEncounterActivity extends MRSActivity {
 
     private String encounterType;
     private String facilityName;
-
     private List<ObservationMapping> observationMappings;
-
     private Map<String, String> encounterMappings;
 
     public List<ObservationMapping> getObservationMappings() {

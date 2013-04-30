@@ -21,7 +21,7 @@ public class FormListener {
 
     private CommcareFormService formService;
     private AllFormsAdapter formsAdapter;
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     public FormListener(CommcareFormService formService, AllFormsAdapter formsAdapter) {

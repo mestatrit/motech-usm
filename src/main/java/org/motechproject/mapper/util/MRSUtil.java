@@ -29,7 +29,7 @@ import java.util.UUID;
 @Component
 public class MRSUtil {
 
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
     @Autowired
     private MRSEncounterAdapter mrsEncounterAdapter;
     @Autowired

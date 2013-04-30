@@ -6,6 +6,7 @@
 
 
     <import resource="classpath*:META-INF/motech/applicationCouchMRS.xml"/>
+    <import resource="classpath*:META-INF/motech/applicationCommcareAPI.xml"/>
 
     <bean id="commcareMapperSettings" class="org.motechproject.server.config.SettingsFacade" >
         <property name="configFiles">

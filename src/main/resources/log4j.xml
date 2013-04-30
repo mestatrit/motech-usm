@@ -38,7 +38,7 @@
         </layout>
     </appender>
 
-    <logger name="commcare-openmrs-mapper">
+    <logger name="commcare-mrs-mapper">
         <level value="DEBUG" />
         <appender-ref ref="FA2" />
     </logger>

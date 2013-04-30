@@ -21,7 +21,7 @@ public class AllFormsAdapter implements FormAdapter {
     private AllEncountersAdapter encounterAdapter;
     private AllRegistrationsAdapter registrationAdapter;
     private MRSMappingService mrsMappingService;
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     public AllFormsAdapter(AllEncountersAdapter encounterAdapter, AllRegistrationsAdapter registrationAdapter, MRSMappingService mrsMappingService) {

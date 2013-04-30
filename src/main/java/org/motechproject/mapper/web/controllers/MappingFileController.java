@@ -23,7 +23,7 @@ public class MappingFileController {
 
     private MappingsReader mappingsReader;
     private MRSMappingService mrsMappingService;
-    private Logger logger = LoggerFactory.getLogger("commcare-openmrs-mapper");
+    private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     public MappingFileController(MappingsReader mappingsReader, MRSMappingService mrsMappingService) {
@@ -35,7 +35,7 @@ public class MappingFileController {
     @ResponseStatus(HttpStatus.OK)
     public String updateMappingFile(@ModelAttribute("uploadRequest") UploadRequest uploadRequest, HttpServletRequest httpServletRequest) throws IOException {
         String mappingJson = new String(uploadRequest.getJsonFile().getBytes());
-        logger.info("Importing JSON Mapper file : ", mappingJson);
+        logger.info("Importing JSON Mapper file : " + mappingJson);
         List<MRSMapping> mrsMappings = mappingsReader.readJson(mappingJson);
         mrsMappingService.addOrUpdate(mrsMappings);
         return "redirect:" + httpServletRequest.getHeader("Referer");

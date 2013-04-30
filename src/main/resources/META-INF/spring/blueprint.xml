@@ -7,7 +7,7 @@
 
     <import resource="classpath*:META-INF/motech/*.xml"/>
 
-    <osgi:reference id="commcareFormServiceOsgi" cardinality="0..1"
+    <osgi:reference id="formService" cardinality="0..1"
                     interface="org.motechproject.commcare.service.CommcareFormService"/>
 
     <osgi:reference id="commcareCaseServiceOsgi" cardinality="0..1"
@@ -42,5 +42,7 @@
 
     <osgi:reference id="platformSettingsService"
                     interface="org.motechproject.server.config.service.PlatformSettingsService"/>
+
+    <osgi:service id="formAdapter" ref="allFormsAdapter" interface="org.motechproject.mapper.adapters.FormAdapter"/>
 
 </beans>
