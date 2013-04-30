@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import static org.motechproject.mapper.constants.FormMappingConstants.*;
 
@@ -78,8 +79,9 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         MRSPerson person;
         if (patient == null) {
             logger.info("Registering new patient by MotechId " + motechId);
-            person = new MRSPersonDto("", firstName, middleName, lastName, preferredName, address, dateOfBirth, birthDateIsEstimated, age, gender, dead, attributes, deathDate);
-            patient = new MRSPatientDto("", facility, person, motechId);
+            String id = UUID.randomUUID().toString();
+            person = new MRSPersonDto(id, firstName, middleName, lastName, preferredName, address, dateOfBirth, birthDateIsEstimated, age, gender, dead, attributes, deathDate);
+            patient = new MRSPatientDto(id, facility, person, motechId);
             try {
                 List<ValidationError> validationErrors = validator.validatePatient(patient);
                 if (validationErrors.size() == 0) {
@@ -105,7 +107,8 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
-                FormValueElement attributeElement = topFormElement.getElementByName(entry.getValue());
+                List<FormValueElement> elements = topFormElement.getAllElementsByName(entry.getValue());
+                FormValueElement attributeElement = elements.size() >= 1 ? elements.get(0) : null;
                 String attributeValue = null;
                 if (attributeElement != null) {
                     attributeValue = attributeElement.getValue();
