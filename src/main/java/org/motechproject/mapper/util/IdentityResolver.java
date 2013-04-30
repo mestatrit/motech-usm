@@ -1,7 +1,5 @@
 package org.motechproject.mapper.util;
 
-import java.util.Map;
-
 import org.motechproject.commcare.domain.CaseInfo;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.CommcareUser;
@@ -12,12 +10,13 @@ import org.motechproject.mapper.constants.FormMappingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class IdentityResolver {
 
     @Autowired
     private CommcareCaseService caseService;
-
     @Autowired
     private CommcareUserService userService;
 
@@ -37,13 +36,16 @@ public class IdentityResolver {
         if (idScheme != null) {
             String idSchemeType = idScheme.get(FormMappingConstants.ID_SCHEME_TYPE);
             String idFieldName = idScheme.get(FormMappingConstants.ID_SCHEME_FIELD);
+            String idAttributeName = idScheme.get(FormMappingConstants.ID_SCHEME_ATTRIBUTE);
 
-            if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
+            if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
+                id = element.getElementByName(idFieldName).getAttributes().get(idAttributeName);
+            } else if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
                 id = element.getElementByName(idFieldName).getValue();
             } else if (FormMappingConstants.ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
                 id = getCaseId(element.getElementByName(FormMappingConstants.CASE_ELEMENT), idFieldName);
             } else if (FormMappingConstants.ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
-                id = getIdFromUser(idFieldName,  form.getMetadata().get(FormMappingConstants.USER_ID));
+                id = getIdFromUser(idFieldName, form.getMetadata().get(FormMappingConstants.USER_ID));
             } else if (FormMappingConstants.ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {
                 id = form.getMetadata().get(FormMappingConstants.USER_ID);
             } else if (FormMappingConstants.ID_FROM_USERNAME_SCHEME.equals(idSchemeType)) {

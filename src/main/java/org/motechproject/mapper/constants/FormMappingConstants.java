@@ -5,6 +5,7 @@ public final class FormMappingConstants {
     //Id schemes
     public static final String ID_SCHEME_TYPE = "type";
     public static final String ID_SCHEME_FIELD = "fieldName";
+    public static final String ID_SCHEME_ATTRIBUTE = "attributeName";
     public static final String ID_FROM_FORM_SCHEME = "fromForm";
     public static final String ID_FROM_USER_DATA_SCHEME = "commcareUserData";
     public static final String ID_FROM_USER_ID_SCHEME = "commcareUserId";
