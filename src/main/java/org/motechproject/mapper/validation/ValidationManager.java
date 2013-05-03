@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public final class ValidationManager {
+public class ValidationManager {
 
     @Autowired
     @Qualifier("commcareMapperSettings")

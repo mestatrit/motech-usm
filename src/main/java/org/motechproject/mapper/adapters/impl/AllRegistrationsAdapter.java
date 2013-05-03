@@ -36,14 +36,18 @@ import static org.motechproject.mapper.constants.FormMappingConstants.*;
 public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
-    @Autowired
     private MRSUtil mrsUtil;
-    @Autowired
     private IdentityResolver idResolver;
-    @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
-    @Autowired
     private ValidationManager validator;
+
+    @Autowired
+    public AllRegistrationsAdapter(MRSUtil mrsUtil, IdentityResolver idResolver, MRSPatientAdapter mrsPatientAdapter, ValidationManager validator) {
+        this.mrsUtil = mrsUtil;
+        this.idResolver = idResolver;
+        this.mrsPatientAdapter = mrsPatientAdapter;
+        this.validator = validator;
+    }
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
@@ -230,9 +234,9 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
 
     private String getValueFor(String fieldName, FormValueElement topFormElement, MRSRegistrationActivity registrationActivity) {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
-        registrationMappings.get(fieldName);
-        if (fieldName != null) {
-            FormValueElement element = topFormElement.getElementByName(fieldName);
+        String fieldValue = registrationMappings.get(fieldName);
+        if (fieldValue != null) {
+            FormValueElement element = topFormElement.getElementByName(fieldValue);
             if (element != null) {
                 return element.getValue();
             }
