@@ -8,9 +8,10 @@ public class FormBuilder {
 
     private CommcareForm form;
 
-    public FormBuilder() {
+    public FormBuilder(String topFormElementName) {
         form = new CommcareForm();
         FormValueElement formValueElement = new FormValueElement();
+        formValueElement.setElementName(topFormElementName);
         HashMultimap<String, FormValueElement> subElements = new HashMultimap<>();
         formValueElement.setSubElements(subElements);
         form.setForm(formValueElement);

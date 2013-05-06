@@ -1,14 +1,25 @@
 package org.motechproject.mapper.adapters;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.domain.MRSActivity;
 
 /**
  * Adapts a particular form by an activity type, such as encounters, registrations, drugs orders, etc.
- *
  */
-public interface ActivityFormAdapter {
+public abstract class ActivityFormAdapter {
 
-    void adaptForm(CommcareForm form, MRSActivity activity);
+    public abstract void adaptForm(CommcareForm form, MRSActivity activity);
 
+    public Multimap<String, FormValueElement> getTopFormElements(MRSActivity activity, String startElement, FormValueElement rootElement) {
+        Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
+        if (activity.getFormMapperProperties().getMultiple()) {
+            rootElementMap.putAll(rootElement.getSubElements());
+        } else {
+            rootElementMap.put(startElement, rootElement);
+        }
+        return rootElementMap;
+    }
 }

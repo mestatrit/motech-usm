@@ -1,5 +1,6 @@
 package org.motechproject.mapper.builder;
 
+import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 
 import java.util.HashMap;
@@ -22,5 +23,10 @@ public class RegistrationActivityBuilder {
 
     public MRSRegistrationActivity getActivity() {
         return activity;
+    }
+
+    public RegistrationActivityBuilder withFormMapperProperties(FormMapperProperties formMapperProperties) {
+        activity.setFormMapperProperties(formMapperProperties);
+        return this;
     }
 }

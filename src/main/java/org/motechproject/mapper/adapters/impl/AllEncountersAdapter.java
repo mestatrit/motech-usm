@@ -1,5 +1,7 @@
 package org.motechproject.mapper.adapters.impl;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
@@ -21,72 +23,85 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class AllEncountersAdapter implements ActivityFormAdapter {
+public class AllEncountersAdapter extends ActivityFormAdapter {
 
     private static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
-
     @Autowired
     private MRSUtil mrsUtil;
-
     @Autowired
     private IdentityResolver idResolver;
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
 
-        FormValueElement rootElement = form.getForm();
+        String startElement = activity.getFormMapperProperties().getStartElement();
+        Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
 
-        MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
-
-        Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
-        Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
-        Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
-
-        Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
-
-        String providerId = idResolver.retrieveId(providerIdScheme, form);
-        String motechId = idResolver.retrieveId(patientIdScheme, form);
-
-        MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
-
-        if (patient == null) {
-            logger.info("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
+        FormValueElement rootElement = form.getForm().getElementByName(startElement);
+        if (rootElement == null) {
+            logger.info("Cannot find the start node in the form: " + startElement);
             return;
+        }
+        if (activity.getFormMapperProperties().getMultiple()) {
+            rootElementMap.putAll(rootElement.getSubElements());
         } else {
-            logger.info("Adding encounter for patient: " + motechId);
+            rootElementMap.put(startElement, rootElement);
         }
 
-        DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
+        for (Map.Entry<String, FormValueElement> topFormElement : rootElementMap.entries()) {
+            FormValueElement element = topFormElement.getValue();
+            MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
 
-        Set<MRSObservationDto> observations = ObservationsHelper.generateObservations(form.getForm(),
-                encounterActivity.getObservationMappings());
+            Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
+            Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
+            Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
 
-        String facilityNameField = null;
+            Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
 
-        if (encounterMappings != null) {
-            facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
-        }
+            String providerId = idResolver.retrieveId(providerIdScheme, form, element);
+            String motechId = idResolver.retrieveId(patientIdScheme, form, element);
 
-        String facilityName = encounterActivity.getFacilityName();
+            MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
 
-        if (facilityNameField != null && facilityName == null) {
-            FormValueElement facilityElement = rootElement.getElementByName(facilityNameField);
-            if (facilityElement != null) {
-                facilityName = facilityElement.getValue();
+            if (patient == null) {
+                logger.info("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
+                return;
+            } else {
+                logger.info("Adding encounter for patient: " + motechId);
             }
-        }
 
-        if (facilityName == null) {
-            facilityName = idResolver.retrieveId(facilityIdScheme, form);
-        }
+            DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
 
-        if (facilityName == null) {
-            logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
-            facilityName = FormMappingConstants.DEFAULT_FACILITY;
-        }
+            Set<MRSObservationDto> observations = ObservationsHelper.generateObservations(form.getForm(),
+                    encounterActivity.getObservationMappings());
 
-        mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
-                encounterActivity.getEncounterType());
+            String facilityNameField = null;
+
+            if (encounterMappings != null) {
+                facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
+            }
+
+            String facilityName = encounterActivity.getFacilityName();
+
+            if (facilityNameField != null && facilityName == null) {
+                FormValueElement facilityElement = element.getElementByName(facilityNameField);
+                if (facilityElement != null) {
+                    facilityName = facilityElement.getValue();
+                }
+            }
+
+            if (facilityName == null) {
+                facilityName = idResolver.retrieveId(facilityIdScheme, form, element);
+            }
+
+            if (facilityName == null) {
+                logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
+                facilityName = FormMappingConstants.DEFAULT_FACILITY;
+            }
+
+            mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
+                    encounterActivity.getEncounterType());
+        }
     }
 }
 

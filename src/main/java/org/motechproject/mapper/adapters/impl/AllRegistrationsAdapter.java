@@ -1,5 +1,6 @@
 package org.motechproject.mapper.adapters.impl;
 
+import com.google.common.collect.Multimap;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
@@ -33,7 +34,7 @@ import java.util.UUID;
 import static org.motechproject.mapper.constants.FormMappingConstants.*;
 
 @Component
-public class AllRegistrationsAdapter implements ActivityFormAdapter {
+public class AllRegistrationsAdapter extends ActivityFormAdapter {
 
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
     private MRSUtil mrsUtil;
@@ -53,30 +54,55 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
     public void adaptForm(CommcareForm form, MRSActivity activity) {
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
 
-        FormValueElement topFormElement = form.getForm();
+        String startElement = activity.getFormMapperProperties().getStartElement();
 
-        String gender = getValueFor(GENDER_FIELD, topFormElement, registrationActivity);
-        DateTime dateOfBirth = getDateValueFor(DOB_FIELD, topFormElement, registrationActivity);
-        String firstName = getValueFor(FIRST_NAME_FIELD, topFormElement, registrationActivity);
-        String lastName = getValueFor(LAST_NAME_FIELD, topFormElement, registrationActivity);
-        String middleName = getValueFor(MIDDLE_NAME_FIELD, topFormElement, registrationActivity);
-        String preferredName = getValueFor(PREFERRED_NAME_FIELD, topFormElement, registrationActivity);
-        String address = getValueFor(ADDRESS_FIELD, topFormElement, registrationActivity);
-        Integer age = getIntegerValueFor(AGE_FIELD, topFormElement, registrationActivity);
-        Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, topFormElement, registrationActivity);
-        Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, topFormElement, registrationActivity);
-        DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, topFormElement, registrationActivity);
-        String facilityName = getValueFor(FACILITY_NAME_FIELD, topFormElement, registrationActivity);
+        FormValueElement rootElement = form.getForm().getElementByName(startElement);
+        if (rootElement == null) {
+            logger.info("Cannot find the start node in the form: " + startElement);
+            return;
+        }
+        Multimap<String, FormValueElement> rootElementMap = getTopFormElements(activity, startElement, rootElement);
 
-        MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName);
+        for (Entry<String, FormValueElement> topFormElement : rootElementMap.entries()) {
 
-        List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, topFormElement);
+            FormValueElement element = topFormElement.getValue();
+            String gender = getValueFor(GENDER_FIELD, element, registrationActivity);
+            DateTime dateOfBirth = getDateValueFor(DOB_FIELD, element, registrationActivity);
+            String firstName = getValueFor(FIRST_NAME_FIELD, element, registrationActivity);
+            String lastName = getValueFor(LAST_NAME_FIELD, element, registrationActivity);
+            String middleName = getValueFor(MIDDLE_NAME_FIELD, element, registrationActivity);
+            String preferredName = getValueFor(PREFERRED_NAME_FIELD, element, registrationActivity);
+            String address = getValueFor(ADDRESS_FIELD, element, registrationActivity);
+            Integer age = getIntegerValueFor(AGE_FIELD, element, registrationActivity);
+            Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, element, registrationActivity);
+            Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, element, registrationActivity);
+            DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, element, registrationActivity);
+            String facilityName = getValueFor(FACILITY_NAME_FIELD, element, registrationActivity);
 
-        Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
-        String motechId = idResolver.retrieveId(patientIdScheme, form);
-        MRSPatient patient = mrsPatientAdapter.getPatientByMotechId(motechId);
+            MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName, element);
 
-        addOrUpdatePatient(gender, dateOfBirth, firstName, lastName, middleName, preferredName, address, age, birthDateIsEstimated, isDead, deathDate, facility, attributes, motechId, patient);
+            List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, element);
+
+            Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
+            String motechId = idResolver.retrieveId(patientIdScheme, form, element);
+            if (motechId == null) {
+                logger.info("MotechId could not be obtained");
+                return;
+            }
+            MRSPatient patient = mrsPatientAdapter.getPatientByMotechId(motechId);
+
+            if (activity.getParentIdScheme() != null) {
+                MRSAttributeDto parentId = new MRSAttributeDto(PARENT_ID, getParentId(form, activity.getParentIdScheme()));
+                attributes.add(parentId);
+            }
+            addOrUpdatePatient(gender, dateOfBirth, firstName, lastName, middleName, preferredName, address, age, birthDateIsEstimated, isDead, deathDate, facility, attributes, motechId, patient);
+        }
+
+    }
+
+    private String getParentId(CommcareForm form, Map<String, String> parentIdScheme) {
+        String elementName = parentIdScheme.get(ID_PARENT_START_ELEMENT);
+        return idResolver.retrieveId(parentIdScheme, form, form.getForm().getElementByName(elementName));
     }
 
     private void addOrUpdatePatient(String gender, DateTime dateOfBirth, String firstName, String lastName, String middleName, String preferredName, String address, Integer age, Boolean birthDateIsEstimated, Boolean dead, DateTime deathDate, MRSFacility facility, List<MRSAttribute> attributes, String motechId, MRSPatient patient) {
@@ -111,7 +137,13 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
-                List<FormValueElement> elements = topFormElement.getAllElementsByName(entry.getValue());
+                List<FormValueElement> elements;
+                List<String> restrictedElements = registrationActivity.getFormMapperProperties().getRestrictedElements();
+                if (restrictedElements == null) {
+                    elements = topFormElement.getAllElementsByName(entry.getValue());
+                } else {
+                    elements = topFormElement.getAllElementsByName(entry.getValue(), restrictedElements);
+                }
                 FormValueElement attributeElement = elements.size() >= 1 ? elements.get(0) : null;
                 String attributeValue = null;
                 if (attributeElement != null) {
@@ -127,9 +159,9 @@ public class AllRegistrationsAdapter implements ActivityFormAdapter {
         return attributes;
     }
 
-    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName) {
+    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName, FormValueElement topFormElement) {
         if (facilityName == null) {
-            facilityName = idResolver.retrieveId(facilityIdScheme, form);
+            facilityName = idResolver.retrieveId(facilityIdScheme, form, topFormElement);
         }
 
         if (facilityName == null) {

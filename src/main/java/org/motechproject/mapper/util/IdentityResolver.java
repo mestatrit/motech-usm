@@ -29,9 +29,8 @@ public class IdentityResolver {
         return caseInfo.getFieldValues().get(openMrsPatientIdentifier);
     }
 
-    public String retrieveId(Map<String, String> idScheme, CommcareForm form) {
+    public String retrieveId(Map<String, String> idScheme, CommcareForm form, FormValueElement topFormElement) {
         String id = null;
-        FormValueElement element = form.getForm();
 
         if (idScheme != null) {
             String idSchemeType = idScheme.get(FormMappingConstants.ID_SCHEME_TYPE);
@@ -39,11 +38,11 @@ public class IdentityResolver {
             String idAttributeName = idScheme.get(FormMappingConstants.ID_SCHEME_ATTRIBUTE);
 
             if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
-                id = element.getElementByName(idFieldName).getAttributes().get(idAttributeName);
+                id = topFormElement.getElementByName(idFieldName).getAttributes().get(idAttributeName);
             } else if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
-                id = element.getElementByName(idFieldName).getValue();
+                id = topFormElement.getElementByName(idFieldName).getValue();
             } else if (FormMappingConstants.ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
-                id = getCaseId(element.getElementByName(FormMappingConstants.CASE_ELEMENT), idFieldName);
+                id = getCaseId(topFormElement.getElementByName(FormMappingConstants.CASE_ELEMENT), idFieldName);
             } else if (FormMappingConstants.ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
                 id = getIdFromUser(idFieldName, form.getMetadata().get(FormMappingConstants.USER_ID));
             } else if (FormMappingConstants.ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {
@@ -58,6 +57,7 @@ public class IdentityResolver {
 
     public String getIdFromUser(String idFieldName, String userId) {
         CommcareUser user = userService.getCommcareUserById(userId);
+        if (user == null) return null;
         return user.getUserData().get(idFieldName);
     }
 }

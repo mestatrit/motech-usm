@@ -6,8 +6,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.builder.FormBuilder;
 import org.motechproject.mapper.builder.RegistrationActivityBuilder;
+import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
@@ -17,7 +19,9 @@ import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.motechproject.mapper.constants.FormMappingConstants.*;
 
@@ -41,8 +45,14 @@ public class AllRegistrationsAdapterTest {
         AllRegistrationsAdapter childRegistrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator);
         String nameFieldInForm = "name";
         String nameValueInForm = "amy";
-        CommcareForm form = new FormBuilder().with(nameFieldInForm, nameValueInForm).getForm();
-        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(FIRST_NAME_FIELD, nameFieldInForm).getActivity();
+        String topElementName = "form";
+        CommcareForm form = new FormBuilder(topElementName).with(nameFieldInForm, nameValueInForm).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topElementName);
+        formMapperProperties.setMultiple(false);
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(FIRST_NAME_FIELD, nameFieldInForm).withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
+
 
         childRegistrationAdapter.adaptForm(form, activity);
 
@@ -56,9 +66,14 @@ public class AllRegistrationsAdapterTest {
     public void testShouldGetDOB() {
         AllRegistrationsAdapter childRegistrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator);
         String dobField = "dob";
+        String topElementName = "form";
         DateTime dobValue = new DateTime().withDate(2011, 8, 14).withTime(0, 0, 0, 0);
-        CommcareForm form = new FormBuilder().with(dobField, "2011-8-14").getForm();
-        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(DOB_FIELD, dobField).getActivity();
+        CommcareForm form = new FormBuilder(topElementName).with(dobField, "2011-8-14").getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topElementName);
+        formMapperProperties.setMultiple(false);
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(DOB_FIELD, dobField).withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
 
         childRegistrationAdapter.adaptForm(form, activity);
 
@@ -72,9 +87,16 @@ public class AllRegistrationsAdapterTest {
     public void testShouldGetBooleanValue() {
         AllRegistrationsAdapter childRegistrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator);
         String isDead = "dead";
+        String topElementName = "form";
+
         Boolean aBoolean = Boolean.FALSE;
-        CommcareForm form = new FormBuilder().with(isDead, "false").getForm();
-        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(IS_DEAD_FIELD, isDead).getActivity();
+        CommcareForm form = new FormBuilder("form").with(isDead, "false").getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topElementName);
+        formMapperProperties.setMultiple(false);
+
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(IS_DEAD_FIELD, isDead).withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
 
         childRegistrationAdapter.adaptForm(form, activity);
 
@@ -103,6 +125,8 @@ public class AllRegistrationsAdapterTest {
         String age = "11";
         String birthDateEstimatedField = "birth_date_estimated_field";
         String birthDateEstimated = "false";
+        String topElementName = "form";
+
         Boolean expectedIsAgeCalculated = Boolean.FALSE;
         String isDeadField = "is_dead_field";
         String isDeadValue = "true";
@@ -110,7 +134,11 @@ public class AllRegistrationsAdapterTest {
         String deathDateField = "is_death_date_field";
         String deathDate = "2011-01-01";
         DateTime expectedDeathDate = new DateTime().withDate(2011, 1, 1).withTime(0, 0, 0, 0);
-        CommcareForm form = new FormBuilder().with(firstNameField, firstName)
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topElementName);
+        formMapperProperties.setMultiple(false);
+
+        CommcareForm form = new FormBuilder("form").with(firstNameField, firstName)
                 .with(middleNameField, middleName).with(lastNameField, lastName)
                 .with(preferredNameField, preferredName).with(genderField, gender)
                 .with(addressField, address).with(ageField, age).with(birthDateEstimatedField, birthDateEstimated)
@@ -125,7 +153,8 @@ public class AllRegistrationsAdapterTest {
                 .withRegistrationMapping(AGE_FIELD, ageField)
                 .withRegistrationMapping(BIRTH_DATE_ESTIMATED_FIELD, birthDateEstimatedField)
                 .withRegistrationMapping(DEATH_DATE_FIELD, deathDateField)
-                .getActivity();
+                .withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
 
         childRegistrationAdapter.adaptForm(form, activity);
 
