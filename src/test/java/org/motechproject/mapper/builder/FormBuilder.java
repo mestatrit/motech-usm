@@ -28,4 +28,9 @@ public class FormBuilder {
     public CommcareForm getForm() {
         return form;
     }
+
+    public FormBuilder with(String child_info, FormValueElement formValueElement) {
+        form.getForm().getSubElements().put(child_info, formValueElement);
+        return this;
+    }
 }

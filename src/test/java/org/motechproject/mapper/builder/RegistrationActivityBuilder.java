@@ -29,4 +29,19 @@ public class RegistrationActivityBuilder {
         activity.setFormMapperProperties(formMapperProperties);
         return this;
     }
+
+    public RegistrationActivityBuilder withAttributes(String storedAs, String formElement) {
+        activity.getAttributes().put(storedAs, formElement);
+        return this;
+    }
+
+    public RegistrationActivityBuilder withParentIdScheme(HashMap<String, String> parentIdScheme) {
+        activity.setParentIdScheme(parentIdScheme);
+        return this;
+    }
+
+    public RegistrationActivityBuilder withPatientIdScheme(HashMap<String, String> patientIdScheme) {
+        activity.setPatientIdScheme(patientIdScheme);
+        return this;
+    }
 }
