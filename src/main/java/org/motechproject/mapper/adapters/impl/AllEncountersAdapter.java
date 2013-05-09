@@ -64,7 +64,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
 
             if (patient == null) {
-                logger.info("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
+                logger.error("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
                 return;
             } else {
                 logger.info("Adding encounter for patient: " + motechId);

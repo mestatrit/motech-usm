@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
+import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.IdentityResolver;
@@ -58,7 +59,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
 
         FormValueElement rootElement = form.getForm().getElementByName(startElement);
         if (rootElement == null) {
-            logger.info("Cannot find the start node in the form: " + startElement);
+            logger.error("Cannot find the start node in the form: " + startElement);
             return;
         }
         Multimap<String, FormValueElement> rootElementMap = getTopFormElements(activity, startElement, rootElement);
@@ -86,7 +87,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
             Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
             String motechId = idResolver.retrieveId(patientIdScheme, form, element);
             if (motechId == null) {
-                logger.info("MotechId could not be obtained");
+                logger.error("MotechId could not be obtained");
                 return;
             }
             MRSPatient patient = mrsPatientAdapter.getPatientByMotechId(motechId);
@@ -117,7 +118,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
                 if (validationErrors.size() == 0) {
                     mrsPatientAdapter.savePatient(patient);
                 } else {
-                    logger.info("Could not save patient due to validation errors");
+                    logger.error("Could not save patient due to validation errors");
                 }
                 logger.info("New patient saved: " + motechId);
             } catch (MRSException e) {
@@ -227,7 +228,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         if (validationErrors.size() == 0) {
             mrsPatientAdapter.updatePatient(patient);
         } else {
-            logger.info("Could not update patient due to validation errors");
+            logger.error("Could not update patient due to validation errors");
         }
     }
 
@@ -240,7 +241,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         try {
             integerValue = Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            logger.info(String.format("Error parsing %s value from registration form: %s", fieldName, e.getMessage()));
+            logger.error(String.format("Error parsing %s value from registration form: %s", fieldName, e.getMessage()));
         }
         return integerValue;
     }
@@ -259,7 +260,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         try {
             dateValue = DateTime.parse(value);
         } catch (IllegalArgumentException e) {
-            logger.info(String.format("Unable to parse %s value: %s", fieldName, e.getMessage()));
+            logger.error(String.format("Unable to parse %s value: %s", fieldName, e.getMessage()));
         }
         return dateValue;
     }
