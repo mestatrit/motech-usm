@@ -1,5 +1,8 @@
 package org.motechproject.mapper.domain;
 
+import org.motechproject.mapper.constants.FormMappingConstants;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class FormMapperProperties {
@@ -7,6 +10,12 @@ public class FormMapperProperties {
     private String startElement;
     private List<String> restrictedElements;
     private Boolean isMultiple;
+
+    public FormMapperProperties() {
+        startElement = FormMappingConstants.ROOT_ELEMENT;
+        restrictedElements = new ArrayList<>();
+        isMultiple = false;
+    }
 
     public String getStartElement() {
         return startElement;

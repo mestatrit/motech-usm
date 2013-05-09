@@ -19,6 +19,10 @@ public class MRSActivity {
     private Map<String, String> providerScheme;
     private FormMapperProperties formMapperProperties;
 
+    public MRSActivity() {
+        formMapperProperties = new FormMapperProperties();
+    }
+
     public Map<String, String> getParentIdScheme() {
         return parentIdScheme;
     }

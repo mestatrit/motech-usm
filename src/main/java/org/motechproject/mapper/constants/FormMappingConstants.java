@@ -49,6 +49,7 @@ public final class FormMappingConstants {
 
     public static final String MAPPING_CONFIGURATION_FILE_NAME = "mappingConfiguration.properties";
     public static final String DESTINATION = "destination";
+    public static final String ROOT_ELEMENT = "form";
 
     private FormMappingConstants() {
     }
