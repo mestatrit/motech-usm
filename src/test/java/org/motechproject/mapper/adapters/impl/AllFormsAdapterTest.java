@@ -37,7 +37,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void testShouldAdaptForRegistrationWhenActivityTypeIsRegistration() {
+    public void shouldAdaptForRegistrationWhenActivityTypeIsRegistration() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -61,7 +61,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void testShouldAdaptForEncounterWhenActivityTypeIsEncounter() {
+    public void shouldAdaptForEncounterWhenActivityTypeIsEncounter() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -85,7 +85,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void testShouldNotAdaptFormWhenXmlnsDoesNotMatch() {
+    public void shouldNotAdaptFormWhenXmlnsDoesNotMatch() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "xmlns");
@@ -113,7 +113,7 @@ public class AllFormsAdapterTest {
     }
 
     @Test
-    public void testShouldAdaptFormOnlyOnceIfThereAreMultipleMappingsWithSameNamespace() {
+    public void shouldAdaptFormOnlyOnceIfThereAreMultipleMappingsWithSameNamespace() {
         CommcareForm form = new CommcareForm();
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(FormMappingConstants.FORM_XMLNS_ATTRIBUTE, "same xmlns");

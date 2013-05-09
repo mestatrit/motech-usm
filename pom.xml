@@ -110,10 +110,9 @@
                 <configuration>
                     <instructions>
                         <Blueprint-Enabled>true</Blueprint-Enabled>
-                        <Context-File>META-INF/spring/blueprint.xml</Context-File>
+                        <Context-File>META-INF/motech/applicationContext-commcare-mrs-mapper-servlet.xml</Context-File>
                         <Context-Path>commcare-mrs-mapper</Context-Path>
                         <Resource-Path>commcare-mrs-mapper/resources</Resource-Path>
-                        <Bundle-Activator>org.motechproject.osgi.web.WebUIBundleActivator</Bundle-Activator>
                         <Export-Package>
                             org.motechproject.mapper.adapters,
                             org.motechproject.mapper.domain,

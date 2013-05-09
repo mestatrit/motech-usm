@@ -39,7 +39,7 @@ public class AllMRSMappingsTest extends SpringIntegrationTest {
     }
 
     @Test
-    public void testShouldSaveDifferentMSRActivityType() {
+    public void shouldSaveDifferentMSRActivityType() {
         MRSMapping mrsMapping = new MRSMapping();
         mrsMapping.setXmlns("xmlns");
         List<MRSActivity> activities = new ArrayList<>();

@@ -268,11 +268,14 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
         String fieldValue = registrationMappings.get(fieldName);
         if (fieldValue != null) {
-            FormValueElement element = topFormElement.getElementByName(fieldValue);
-            if (element != null) {
-                return element.getValue();
+            List<FormValueElement> element = topFormElement.getAllElementsByName(fieldValue, registrationActivity.getFormMapperProperties().getRestrictedElements());
+            if (element.size() > 0) {
+                return element.get(0).getValue();
             }
         }
-        return registrationActivity.getStaticMappings().get(fieldName);
+        if (registrationActivity.getStaticMappings() != null)
+            return registrationActivity.getStaticMappings().get(fieldName);
+        else
+            return null;
     }
 }

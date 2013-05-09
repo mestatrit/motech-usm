@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-               http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 
-    <import resource="classpath*:META-INF/motech/applicationCouchMRS.xml"/>
-    <import resource="classpath*:META-INF/motech/applicationCommcareAPI.xml"/>
+    <context:annotation-config/>
+    <context:component-scan base-package="org.motechproject.mapper">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
 
-    <bean id="commcareMapperSettings" class="org.motechproject.server.config.SettingsFacade" >
+    <bean id="commcareMapperSettings" class="org.motechproject.server.config.SettingsFacade">
         <property name="configFiles">
             <list>
                 <value>classpath:mappingConfiguration.properties</value>
@@ -22,9 +25,4 @@
     <bean id="mapperDbConnector" factory-bean="couchDbManager" factory-method="getConnector">
         <constructor-arg value="commcare-mrs-mapper"/>
     </bean>
-
-    <context:annotation-config/>
-
-    <context:component-scan base-package="org.motechproject.mapper"/>
-
 </beans>

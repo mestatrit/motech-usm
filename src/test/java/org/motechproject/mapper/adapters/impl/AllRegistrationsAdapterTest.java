@@ -13,6 +13,7 @@ import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.validation.ValidationError;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.domain.MRSPatient;
@@ -21,6 +22,7 @@ import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +54,7 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-    public void testShouldGetPreDefinedFields() {
+    public void shouldGetPreDefinedFields() {
         String nameFieldInForm = "name";
         String nameValueInForm = "amy";
         String topElementName = "form";
@@ -73,7 +75,7 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-    public void testShouldGetDOB() {
+    public void shouldGetDOB() {
         String dobField = "dob";
         String topElementName = "form";
         DateTime dobValue = new DateTime().withDate(2011, 8, 14).withTime(0, 0, 0, 0);
@@ -93,7 +95,7 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-    public void testShouldGetBooleanValue() {
+    public void shouldGetBooleanValue() {
         String isDead = "dead";
         String topElementName = "form";
 
@@ -115,7 +117,7 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-    public void testShouldAllRegistrationMappingFields() {
+    public void shouldAllRegistrationMappingFields() {
         String firstNameField = "first_name_field";
         String firstName = "firstName";
         String middleNameField = "middleNameField";
@@ -337,6 +339,29 @@ public class AllRegistrationsAdapterTest {
 
         verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
         verify(mrsPatientAdapter).updatePatient(any(MRSPatient.class));
+    }
+
+    @Test
+    public void shouldNotSaveIfValidationErrorsArePresent() {
+        String topFormElement = "form";
+        FormValueElement formValueElement = new FormValueElement();
+        String child_info = "child_info";
+        formValueElement.setElementName(child_info);
+        CommcareForm form = new FormBuilder(topFormElement).with(child_info, formValueElement).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topFormElement);
+        formMapperProperties.setMultiple(false);
+        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn(null);
+        List<ValidationError> validationErrors = new ArrayList<>();
+        validationErrors.add(new ValidationError("error type", "error message"));
+        when(validator.validatePatient(any(MRSPatientDto.class))).thenReturn(validationErrors);
+
+        registrationAdapter.adaptForm(form, registrationActivity);
+
+        verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
+        verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
+
     }
 
 }
