@@ -12,9 +12,16 @@
                 <input type="file" id="jsonFile" name="jsonFile" required accept="application/json"/>
             </div>
 
-        <input type="submit" class="btn btn-primary" value="upload"/>
+            <input type="submit" class="btn btn-primary" value="upload"/>
         </div>
-
-
     </form>
+</div>
+
+<div id="mappings">
+    Total mappings: {{mappings.length}}
+    <table class="table table-hover">
+        <tr ng-repeat="mapping in mappings">
+            <td>{{mapping.xmlns}}</td>
+        <tr>
+    </table>
 </div>
