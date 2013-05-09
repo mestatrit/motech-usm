@@ -26,4 +26,13 @@ public class MRSMappingService {
     public List<MRSMapping> getAllMappings() {
         return allMRSMappings.getAll();
     }
+
+    public void deleteMapping(String xmlns) {
+        String fieldName = "xmlns";
+        allMRSMappings.removeAll(fieldName, xmlns);
+    }
+
+    public void deleteAllMappings() {
+        allMRSMappings.removeAll();
+    }
 }

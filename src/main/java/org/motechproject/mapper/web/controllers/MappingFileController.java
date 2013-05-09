@@ -43,4 +43,18 @@ public class MappingFileController {
     public List<MRSMapping> getAllMappings() {
         return mrsMappingService.getAllMappings();
     }
+
+    @RequestMapping(value = "/deleteMapping", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String deleteMapping(@RequestParam String xmlns) {
+        mrsMappingService.deleteMapping(xmlns);
+        return "Mapping deleted successfully";
+    }
+
+    @RequestMapping(value = "/deleteAllMappings", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String deleteAllMappings() {
+        mrsMappingService.deleteAllMappings();
+        return "All Mapping deleted successfully";
+    }
 }

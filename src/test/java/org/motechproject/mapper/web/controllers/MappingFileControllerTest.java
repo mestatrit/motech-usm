@@ -7,6 +7,7 @@ import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.model.UploadRequest;
 import org.motechproject.mapper.service.MRSMappingService;
 import org.motechproject.mapper.service.MappingsReader;
+import org.springframework.test.web.server.setup.MockMvcBuilders;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,9 @@ import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.springframework.test.web.server.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.server.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.server.result.MockMvcResultMatchers.status;
 
 public class MappingFileControllerTest {
 
@@ -48,5 +52,16 @@ public class MappingFileControllerTest {
         verify(mappingService).addOrUpdate(mappings);
         assertEquals("redirect:url", redirectUrl);
 
+    }
+
+    @Test
+    public void shouldDeleteMappings() throws Exception {
+        String xmlns = "http://bihar.commcarehq.org/pregnancy/registration";
+        MappingFileController mappingFileController = new MappingFileController(mappingsReader, mappingService);
+        MockMvcBuilders.standaloneSetup(mappingFileController).build().perform(delete("/deleteMapping").param("xmlns", xmlns))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Mapping deleted successfully"));
+
+        verify(mappingService).deleteMapping(xmlns);
     }
 }
