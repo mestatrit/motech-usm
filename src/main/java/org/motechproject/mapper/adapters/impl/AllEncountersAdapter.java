@@ -9,9 +9,11 @@ import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
+import org.motechproject.mapper.domain.ObservationMapping;
+import org.motechproject.mapper.util.CommcareMappingHelper;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
-import org.motechproject.mapper.util.ObservationsHelper;
+import org.motechproject.mapper.util.ObservationsGenerator;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,22 +48,19 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         }
 
         rootElementMap = getTopFormElements(activity, startElement);
+        MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
+        Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
+        Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
+        Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
+        Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
+        List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
-        for (Map.Entry<String, FormValueElement> startFormElement : rootElementMap.entries()) {
-            FormValueElement element = startFormElement.getValue();
-            MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
-
-            Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
-            Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
-            Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
-
-            Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
-
+        for (CommcareMappingHelper mappingHelper : allStartElements(form, activity)) {
+            FormValueElement element = mappingHelper.getStartElement();
             String providerId = idResolver.retrieveId(providerIdScheme, form, element);
             String motechId = idResolver.retrieveId(patientIdScheme, form, element);
 
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
-
             if (patient == null) {
                 logger.error("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
                 return;
@@ -70,8 +70,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
 
-            Set<MRSObservationDto> observations = ObservationsHelper.generateObservations(form.getForm(),
-                    encounterActivity.getObservationMappings(), rootElement, activity.getFormMapperProperties().getRestrictedElements());
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper);
 
             String facilityNameField = null;
 

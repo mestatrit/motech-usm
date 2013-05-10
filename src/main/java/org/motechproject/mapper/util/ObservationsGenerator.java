@@ -8,14 +8,14 @@ import org.motechproject.mrs.model.MRSObservationDto;
 
 import java.util.*;
 
-public final class ObservationsHelper {
+public final class ObservationsGenerator {
 
-    public static Set<MRSObservationDto> generateObservations(FormValueElement startElement, List<ObservationMapping> observationMappings, FormValueElement rootElement, List<String> restrictedElements) {
+    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareMappingHelper mappingHelper) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
-                List<FormValueElement> elements = startElement.getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
+                List<FormValueElement> elements = mappingHelper.getStartElement().getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
                     if (!StringUtils.isBlank(element.getValue())) {
@@ -25,7 +25,7 @@ public final class ObservationsHelper {
             } else {
                 String elementName = obs.getElementName();
                 if (elementName != null) {
-                    FormValueElement element = SearchStrategyChooser.getFor(rootElement, elementName, restrictedElements).search(startElement);
+                    FormValueElement element = mappingHelper.search(elementName);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element));
                     }

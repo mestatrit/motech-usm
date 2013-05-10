@@ -8,45 +8,48 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SearchStrategyChooserTest {
 
     @Test
     public void shouldSearchAllElementsInsideStartNode() {
-        FormValueElement formValueElement = mock(FormValueElement.class);
+        FormValueElement startElement = mock(FormValueElement.class);
         FormValueElement rootElement = mock(FormValueElement.class);
         List<String> restrictedElements = new ArrayList<>();
         String searchElement = "fieldName";
 
-        SearchStrategy strategy = SearchStrategyChooser.getFor(rootElement, searchElement, restrictedElements);
-        strategy.search(formValueElement);
+        SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
+        strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(formValueElement).getElementByName(searchElement, restrictedElements);
+        verify(startElement).getElementByName(searchElement, restrictedElements);
     }
 
     @Test
     public void shouldSearchAllElementsFromRootNode() {
-        FormValueElement formValueElement = mock(FormValueElement.class);
+        FormValueElement startElement = mock(FormValueElement.class);
         FormValueElement rootElement = mock(FormValueElement.class);
+        when(rootElement.getElementName()).thenReturn("fieldName");
         List<String> restrictedElements = new ArrayList<>();
         String searchElement = "/fieldName";
+        String actualSearchString = "//";
 
-        SearchStrategy strategy = SearchStrategyChooser.getFor(rootElement, searchElement, restrictedElements);
-        strategy.search(formValueElement);
+        SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
+        strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(formValueElement).getElementByPathFromRoot(searchElement, restrictedElements, rootElement);
+        verify(rootElement).getElementByPath(actualSearchString, restrictedElements);
     }
 
     @Test
     public void shouldSearchAllElementsFromCurrentNode() {
-        FormValueElement formValueElement = mock(FormValueElement.class);
+        FormValueElement startElement = mock(FormValueElement.class);
         FormValueElement rootElement = mock(FormValueElement.class);
         List<String> restrictedElements = new ArrayList<>();
         String searchElement = "//fieldName";
 
-        SearchStrategy strategy = SearchStrategyChooser.getFor(rootElement, searchElement, restrictedElements);
-        strategy.search(formValueElement);
+        SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
+        strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(formValueElement).getElementByPathFromCurrentElement(searchElement, restrictedElements);
+        verify(startElement).getElementByPath(searchElement, restrictedElements);
     }
 }
