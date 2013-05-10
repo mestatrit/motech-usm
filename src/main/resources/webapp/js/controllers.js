@@ -38,7 +38,7 @@ function uploadController($scope, $http) {
             success(function (data, status) {
                 $scope.status = status;
                 $scope.message = data;
-                $scope.mappings = {};
+                $scope.mappings = [];
             }).
             error(function (data, status) {
                 $scope.error = data || "Request failed";

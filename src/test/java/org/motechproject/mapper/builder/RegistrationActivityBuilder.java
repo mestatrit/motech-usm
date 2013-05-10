@@ -35,11 +35,6 @@ public class RegistrationActivityBuilder {
         return this;
     }
 
-    public RegistrationActivityBuilder withParentIdScheme(HashMap<String, String> parentIdScheme) {
-        activity.setParentIdScheme(parentIdScheme);
-        return this;
-    }
-
     public RegistrationActivityBuilder withPatientIdScheme(HashMap<String, String> patientIdScheme) {
         activity.setPatientIdScheme(patientIdScheme);
         return this;

@@ -10,12 +10,12 @@ import java.util.*;
 
 public final class ObservationsHelper {
 
-    public static Set<MRSObservationDto> generateObservations(FormValueElement form, List<ObservationMapping> observationMappings) {
+    public static Set<MRSObservationDto> generateObservations(FormValueElement startElement, List<ObservationMapping> observationMappings, FormValueElement rootElement, List<String> restrictedElements) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
-                List<FormValueElement> elements = form.getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
+                List<FormValueElement> elements = startElement.getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
                     if (!StringUtils.isBlank(element.getValue())) {
@@ -25,11 +25,7 @@ public final class ObservationsHelper {
             } else {
                 String elementName = obs.getElementName();
                 if (elementName != null) {
-                    List<FormValueElement> elements = form.getAllElementsByName(elementName);
-                    FormValueElement element = null;
-                    if (elements != null && elements.size() > 0) {
-                        element = elements.get(0);
-                    }
+                    FormValueElement element = SearchStrategyChooser.getFor(rootElement, elementName, restrictedElements).search(startElement);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element));
                     }
@@ -39,33 +35,33 @@ public final class ObservationsHelper {
         return observations;
     }
 
-    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormValueElement form) {
+    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormValueElement element) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
 
         if (FormMappingConstants.LIST_TYPE.equals(obs.getType())) {
-            observations.addAll(adaptList(obs, form));
+            observations.addAll(adaptList(obs, element));
         } else {
             Map<String, String> valueMappings = obs.getValues();
             String mappedValue = null;
             if (valueMappings != null) {
-                mappedValue = valueMappings.get(form.getValue());
+                mappedValue = valueMappings.get(element.getValue());
             }
             String conceptName = obs.getConceptName();
             MRSObservationDto observation;
             if (mappedValue != null) {
                 observation = new MRSObservationDto(new Date(), conceptName, mappedValue);
             } else {
-                observation = new MRSObservationDto(new Date(), conceptName, form.getValue());
+                observation = new MRSObservationDto(new Date(), conceptName, element.getValue());
             }
             observations.add(observation);
         }
         return observations;
     }
 
-    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormValueElement form) {
+    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormValueElement element) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
 
-        String[] values = form.getValue().split(FormMappingConstants.LIST_DELIMITER);
+        String[] values = element.getValue().split(FormMappingConstants.LIST_DELIMITER);
         Map<String, String> valueMappings = obs.getValues();
         String conceptName = obs.getConceptName();
 

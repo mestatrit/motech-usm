@@ -34,22 +34,20 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
 
-        String startElement = activity.getFormMapperProperties().getStartElement();
+        String startElementName = activity.getFormMapperProperties().getStartElement();
         Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
 
-        FormValueElement rootElement = form.getForm().getElementByName(startElement);
-        if (rootElement == null) {
-            logger.info("Cannot find the start node in the form: " + startElement);
+        FormValueElement rootElement = form.getForm();
+        FormValueElement startElement = rootElement.getElementByName(startElementName);
+        if (startElement == null) {
+            logger.info("Cannot find the start node in the form: " + startElementName);
             return;
         }
-        if (activity.getFormMapperProperties().getMultiple()) {
-            rootElementMap.putAll(rootElement.getSubElements());
-        } else {
-            rootElementMap.put(startElement, rootElement);
-        }
 
-        for (Map.Entry<String, FormValueElement> topFormElement : rootElementMap.entries()) {
-            FormValueElement element = topFormElement.getValue();
+        rootElementMap = getTopFormElements(activity, startElement);
+
+        for (Map.Entry<String, FormValueElement> startFormElement : rootElementMap.entries()) {
+            FormValueElement element = startFormElement.getValue();
             MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
 
             Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
@@ -73,7 +71,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
 
             Set<MRSObservationDto> observations = ObservationsHelper.generateObservations(form.getForm(),
-                    encounterActivity.getObservationMappings());
+                    encounterActivity.getObservationMappings(), rootElement, activity.getFormMapperProperties().getRestrictedElements());
 
             String facilityNameField = null;
 

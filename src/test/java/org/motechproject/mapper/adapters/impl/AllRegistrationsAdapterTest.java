@@ -23,8 +23,6 @@ import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -64,7 +62,6 @@ public class AllRegistrationsAdapterTest {
         formMapperProperties.setMultiple(false);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(FIRST_NAME_FIELD, nameFieldInForm).withFormMapperProperties(formMapperProperties).getActivity();
         when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
-
 
         registrationAdapter.adaptForm(form, activity);
 
@@ -276,45 +273,6 @@ public class AllRegistrationsAdapterTest {
         assertEquals(1, attributes.size());
         assertEquals(description, attributes.get(0).getName());
         assertEquals(value, attributes.get(0).getValue());
-    }
-
-    @Test
-    public void shouldSaveParentIdSchemeIfParentSchemeIsTheir() {
-        FormMapperProperties formMapperProperties = new FormMapperProperties();
-        String startElement = "form";
-        formMapperProperties.setStartElement(startElement);
-        formMapperProperties.setMultiple(false);
-        FormValueElement elementWithCaseId = new FormValueElement();
-        String elementForParentScheme = "child_info";
-        elementWithCaseId.setElementName(elementForParentScheme);
-        HashMap<String, String> attributes = new HashMap<>();
-        String caseId = "some random case id";
-        String attributeForParentScheme = "case_id";
-        attributes.put(attributeForParentScheme, caseId);
-        elementWithCaseId.setAttributes(attributes);
-        CommcareForm form = new FormBuilder(startElement).with(elementForParentScheme, elementWithCaseId).getForm();
-        HashMap<String, String> parentIdScheme = new HashMap<>();
-        parentIdScheme.put(ID_PARENT_START_ELEMENT, elementForParentScheme);
-        parentIdScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
-        parentIdScheme.put(ID_SCHEME_FIELD, elementForParentScheme);
-        parentIdScheme.put(ID_SCHEME_ATTRIBUTE, attributeForParentScheme);
-        HashMap<String, String> patientIdScheme = new HashMap<>();
-        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withParentIdScheme(parentIdScheme).withPatientIdScheme(patientIdScheme).getActivity();
-        when(idResolver.retrieveId(patientIdScheme, form, form.getForm())).thenReturn("motech-id");
-        Collection<FormValueElement> entries = form.getForm().getSubElements().get(elementForParentScheme);
-        FormValueElement formValueElement = entries.iterator().next();
-
-        when(idResolver.retrieveId(parentIdScheme, form, formValueElement)).thenReturn(caseId);
-
-        registrationAdapter.adaptForm(form, activity);
-
-        ArgumentCaptor<MRSPatientDto> patientCaptor = ArgumentCaptor.forClass(MRSPatientDto.class);
-        verify(mrsPatientAdapter).savePatient(patientCaptor.capture());
-        List<MRSAttribute> actualAttributes = patientCaptor.getValue().getPerson().getAttributes();
-        assertEquals(1, attributes.size());
-        assertEquals(PARENT_ID, actualAttributes.get(0).getName());
-        assertEquals(caseId, actualAttributes.get(0).getValue());
-
     }
 
     @Test

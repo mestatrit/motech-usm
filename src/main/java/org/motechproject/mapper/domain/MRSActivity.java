@@ -14,21 +14,12 @@ public class MRSActivity {
 
     private String type;
     private Map<String, String> patientIdScheme;
-    private Map<String, String> parentIdScheme;
     private Map<String, String> facilityScheme;
     private Map<String, String> providerScheme;
     private FormMapperProperties formMapperProperties;
 
     public MRSActivity() {
         formMapperProperties = new FormMapperProperties();
-    }
-
-    public Map<String, String> getParentIdScheme() {
-        return parentIdScheme;
-    }
-
-    public void setParentIdScheme(Map<String, String> parentIdScheme) {
-        this.parentIdScheme = parentIdScheme;
     }
 
     public FormMapperProperties getFormMapperProperties() {

@@ -13,12 +13,12 @@ public abstract class ActivityFormAdapter {
 
     public abstract void adaptForm(CommcareForm form, MRSActivity activity);
 
-    public Multimap<String, FormValueElement> getTopFormElements(MRSActivity activity, String startElement, FormValueElement rootElement) {
+    public Multimap<String, FormValueElement> getTopFormElements(MRSActivity activity, FormValueElement rootElement) {
         Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
         if (activity.getFormMapperProperties().getMultiple()) {
             rootElementMap.putAll(rootElement.getSubElements());
         } else {
-            rootElementMap.put(startElement, rootElement);
+            rootElementMap.put(rootElement.getElementName(), rootElement);
         }
         return rootElementMap;
     }
