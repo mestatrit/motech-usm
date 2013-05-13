@@ -31,13 +31,13 @@ public class SearchStrategyChooserTest {
         FormValueElement rootElement = mock(FormValueElement.class);
         when(rootElement.getElementName()).thenReturn("fieldName");
         List<String> restrictedElements = new ArrayList<>();
-        String searchElement = "/fieldName";
-        String actualSearchString = "//";
+        String searchElement = "/fieldName/anotherField";
+        String actualSearchString = "//anotherField";
 
         SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
         strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(rootElement).getElementByPath(actualSearchString, restrictedElements);
+        verify(rootElement).getNode(actualSearchString, restrictedElements);
     }
 
     @Test
@@ -50,6 +50,6 @@ public class SearchStrategyChooserTest {
         SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
         strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(startElement).getElementByPath(searchElement, restrictedElements);
+        verify(startElement).getNode(searchElement, restrictedElements);
     }
 }

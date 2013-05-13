@@ -1,6 +1,7 @@
 package org.motechproject.mapper.util;
 
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class CommcareMappingHelper {
 
     }
 
-    public FormValueElement search(String lookupPath) {
+    public FormNode search(String lookupPath) {
         return SearchStrategyChooser.getFor(lookupPath).search(startElement, rootElement, restrictedElements);
     }
 

@@ -2,6 +2,7 @@ package org.motechproject.mapper.adapters.impl;
 
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.domain.MRSActivity;
@@ -20,8 +21,6 @@ import org.motechproject.mrs.model.MRSAttributeDto;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +51,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
-        for (CommcareMappingHelper mappingHelpers : allStartElements(form, activity)) {
+        for (CommcareMappingHelper mappingHelpers : getAllMappingHelpers(form, activity)) {
 
             String gender = getValueFor(GENDER_FIELD, registrationActivity, mappingHelpers);
             DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, mappingHelpers);
@@ -117,7 +116,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
 
-                FormValueElement attributeElement = mappingHelper.search(entry.getValue());
+                FormNode attributeElement = mappingHelper.search(entry.getValue());
 
                 String attributeValue = null;
                 if (attributeElement != null) {
@@ -194,12 +193,10 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
                                Boolean birthDateIsEstimated, Integer age, Boolean isDead, DateTime deathDate, List<MRSAttribute> attributes) {
 
         setPerson(firstName, lastName, dateOfBirth, gender, middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, person, attributes);
-
-        logger.info("About to update patient");
-
         List<ValidationError> validationErrors = validator.validatePatient(patient);
         if (validationErrors.size() == 0) {
             mrsPatientAdapter.updatePatient(patient);
+            logger.info("Patient Updated");
         } else {
             logger.error("Could not update patient due to validation errors");
         }
@@ -240,9 +237,10 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
 
     private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
+        if (registrationMappings == null) return null;
         String fieldValue = registrationMappings.get(fieldName);
         if (fieldValue != null) {
-            FormValueElement searchElement = mappingHelper.search(fieldValue);
+            FormNode searchElement = mappingHelper.search(fieldValue);
             if (searchElement != null) {
                 return searchElement.getValue();
             }

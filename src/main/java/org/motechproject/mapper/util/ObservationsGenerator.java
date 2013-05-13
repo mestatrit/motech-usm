@@ -1,6 +1,7 @@
 package org.motechproject.mapper.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.ObservationMapping;
@@ -12,6 +13,7 @@ public final class ObservationsGenerator {
 
     public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareMappingHelper mappingHelper) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
+        if(observationMappings == null) return observations;
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
@@ -25,7 +27,7 @@ public final class ObservationsGenerator {
             } else {
                 String elementName = obs.getElementName();
                 if (elementName != null) {
-                    FormValueElement element = mappingHelper.search(elementName);
+                    FormNode element = mappingHelper.search(elementName);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element));
                     }
@@ -35,7 +37,7 @@ public final class ObservationsGenerator {
         return observations;
     }
 
-    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormValueElement element) {
+    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormNode element) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
 
         if (FormMappingConstants.LIST_TYPE.equals(obs.getType())) {
@@ -58,7 +60,7 @@ public final class ObservationsGenerator {
         return observations;
     }
 
-    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormValueElement element) {
+    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormNode element) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
 
         String[] values = element.getValue().split(FormMappingConstants.LIST_DELIMITER);

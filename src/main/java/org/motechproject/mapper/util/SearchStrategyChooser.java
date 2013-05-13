@@ -1,5 +1,6 @@
 package org.motechproject.mapper.util;
 
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 
 import java.util.List;
@@ -10,21 +11,21 @@ public class SearchStrategyChooser {
         if (elementPath.startsWith("//")) {
             return new SearchStrategy() {
                 @Override
-                public FormValueElement search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
-                    return startElement.getElementByPath(elementPath, restrictedElements);
+                public FormNode search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
+                    return startElement.getNode(elementPath, restrictedElements);
                 }
             };
         } else if (elementPath.startsWith("/")) {
             return new SearchStrategy() {
                 @Override
-                public FormValueElement search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
-                    return rootElement.getElementByPath(elementPath.replace("/" + rootElement.getElementName(), "//"), restrictedElements);
+                public FormNode search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
+                    return rootElement.getNode(elementPath.replace("/" + rootElement.getElementName(), "/"), restrictedElements);
                 }
             };
         } else {
             return new SearchStrategy() {
                 @Override
-                public FormValueElement search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
+                public FormNode search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
                     return startElement.getElementByName(elementPath, restrictedElements);
                 }
             };

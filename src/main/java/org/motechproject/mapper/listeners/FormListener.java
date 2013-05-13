@@ -47,10 +47,11 @@ public class FormListener {
         form = formService.retrieveForm(formId);
 
         FormValueElement rootElement = null;
-        if (form != null) {
-            rootElement = form.getForm();
+        if (form == null) {
+            logger.error("Could not fetch the form");
+            return;
         }
-
+        rootElement = form.getForm();
         if (rootElement != null) {
             formsAdapter.adaptForm(form);
         } else {

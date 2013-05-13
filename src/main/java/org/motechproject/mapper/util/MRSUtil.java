@@ -11,10 +11,7 @@ import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
 import org.motechproject.mrs.model.MRSObservationDto;
-import org.motechproject.mrs.services.MRSEncounterAdapter;
-import org.motechproject.mrs.services.MRSFacilityAdapter;
-import org.motechproject.mrs.services.MRSPatientAdapter;
-import org.motechproject.mrs.services.MRSProviderAdapter;
+import org.motechproject.mrs.services.*;
 import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +42,14 @@ public class MRSUtil {
     private SettingsFacade settings;
 
     public MRSProvider findProvider(String providerId) {
-        //CouchDB module does not have a user service yet
         String destination = settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME).getProperty(FormMappingConstants.DESTINATION);
 
-        MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
-        return (provider == null) ? null : provider;
+        if (FormMappingConstants.DESTINATION_COUCHDB.equals(destination)) {
+            MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
+            return (provider == null) ? null : provider;
+        }
+        return null;
+
 
     }
 
@@ -100,7 +100,7 @@ public class MRSUtil {
 
         try {
             mrsEncounterAdapter.createEncounter(mrsEncounter);
-            logger.info("Encounter saved");
+            logger.info("Encounter saved : " + mrsEncounter.getEncounterId());
         } catch (MRSException e) {
             logger.warn("Could not save encounter");
         }

@@ -52,6 +52,55 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
+    public void shouldGetTopElementForMultipleStartNodes() {
+        FormValueElement element1 = new FormValueElement();
+        FormValueElement element2 = new FormValueElement();
+        String startElement = "child_info";
+        CommcareForm form = new FormBuilder(startElement).with(startElement, element1).with(startElement, element2).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setMultiple(true);
+        formMapperProperties.setStartElement(startElement);
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
+
+        registrationAdapter.adaptForm(form, activity);
+
+        verify(mrsPatientAdapter, times(2)).savePatient(any(MRSPatientDto.class));
+    }
+
+    @Test
+    public void shouldGetTopElementForSingleStartNode() {
+        FormValueElement element1 = new FormValueElement();
+        String startElement = "form";
+        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setMultiple(false);
+        formMapperProperties.setStartElement(startElement);
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
+
+        registrationAdapter.adaptForm(form, activity);
+
+        verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
+    }
+
+    @Test
+    public void shouldHandleIfStartElementIsNull() {
+        FormValueElement element1 = new FormValueElement();
+        String startElement = "form";
+        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setMultiple(false);
+        formMapperProperties.setStartElement("invalid_start_node");
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
+
+        registrationAdapter.adaptForm(form, activity);
+
+        verify(mrsPatientAdapter, times(0)).savePatient(any(MRSPatientDto.class));
+    }
+
+    @Test
     public void shouldGetPreDefinedFields() {
         String nameFieldInForm = "name";
         String nameValueInForm = "amy";
@@ -319,6 +368,28 @@ public class AllRegistrationsAdapterTest {
 
         verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
         verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
+
+    }
+
+    @Test
+    public void shouldHandleNullActivityFields() {
+        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().getActivity();
+        registrationActivity.setRegistrationMappings(null);
+        registrationActivity.setAttributes(null);
+        registrationActivity.setStaticMappings(null);
+        registrationActivity.setFacilityScheme(null);
+        registrationActivity.setPatientIdScheme(null);
+        registrationActivity.setProviderScheme(null);
+        registrationActivity.setType(null);
+        FormValueElement element1 = new FormValueElement();
+        String startElement = "form";
+        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        when(idResolver.retrieveId(anyMap(), eq(form), any(FormValueElement.class))).thenReturn("motech-id");
+
+        registrationAdapter.adaptForm(form, registrationActivity);
+
+        verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
+
 
     }
 

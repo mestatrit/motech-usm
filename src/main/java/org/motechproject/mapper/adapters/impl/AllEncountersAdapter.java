@@ -1,7 +1,5 @@
 package org.motechproject.mapper.adapters.impl;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
@@ -29,16 +27,19 @@ import java.util.Set;
 public class AllEncountersAdapter extends ActivityFormAdapter {
 
     private static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
-    @Autowired
     private MRSUtil mrsUtil;
-    @Autowired
     private IdentityResolver idResolver;
+
+    @Autowired
+    public AllEncountersAdapter(MRSUtil mrsUtil, IdentityResolver idResolver) {
+        this.mrsUtil = mrsUtil;
+        this.idResolver = idResolver;
+    }
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
 
         String startElementName = activity.getFormMapperProperties().getStartElement();
-        Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
 
         FormValueElement rootElement = form.getForm();
         FormValueElement startElement = rootElement.getElementByName(startElementName);
@@ -47,7 +48,6 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             return;
         }
 
-        rootElementMap = getTopFormElements(activity, startElement);
         MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
         Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
         Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
@@ -55,7 +55,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
-        for (CommcareMappingHelper mappingHelper : allStartElements(form, activity)) {
+        for (CommcareMappingHelper mappingHelper : getAllMappingHelpers(form, activity)) {
             FormValueElement element = mappingHelper.getStartElement();
             String providerId = idResolver.retrieveId(providerIdScheme, form, element);
             String motechId = idResolver.retrieveId(patientIdScheme, form, element);
@@ -72,33 +72,40 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
             Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper);
 
-            String facilityNameField = null;
-
-            if (encounterMappings != null) {
-                facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
-            }
-
-            String facilityName = encounterActivity.getFacilityName();
-
-            if (facilityNameField != null && facilityName == null) {
-                FormValueElement facilityElement = element.getElementByName(facilityNameField);
-                if (facilityElement != null) {
-                    facilityName = facilityElement.getValue();
-                }
-            }
-
-            if (facilityName == null) {
-                facilityName = idResolver.retrieveId(facilityIdScheme, form, element);
-            }
-
-            if (facilityName == null) {
-                logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
-                facilityName = FormMappingConstants.DEFAULT_FACILITY;
-            }
+            String facilityName = getFacility(form, encounterActivity, element);
 
             mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
                     encounterActivity.getEncounterType());
         }
+    }
+
+    private String getFacility(CommcareForm form, MRSEncounterActivity encounterActivity, FormValueElement element) {
+        String facilityNameField = null;
+
+        Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
+        if (encounterMappings != null) {
+            facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
+        }
+
+        String facilityName = encounterActivity.getFacilityName();
+
+        if (facilityNameField != null && facilityName == null) {
+            FormValueElement facilityElement = element.getElementByName(facilityNameField);
+            if (facilityElement != null) {
+                facilityName = facilityElement.getValue();
+            }
+        }
+
+        if (facilityName == null) {
+
+            facilityName = idResolver.retrieveId(encounterActivity.getFacilityScheme(), form, element);
+        }
+
+        if (facilityName == null) {
+            logger.warn("No facility name provided, using " + FormMappingConstants.DEFAULT_FACILITY);
+            facilityName = FormMappingConstants.DEFAULT_FACILITY;
+        }
+        return facilityName;
     }
 }
 

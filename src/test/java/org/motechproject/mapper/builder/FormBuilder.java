@@ -4,6 +4,9 @@ import com.google.common.collect.HashMultimap;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class FormBuilder {
 
     private CommcareForm form;
@@ -14,6 +17,8 @@ public class FormBuilder {
         formValueElement.setElementName(topFormElementName);
         HashMultimap<String, FormValueElement> subElements = new HashMultimap<>();
         formValueElement.setSubElements(subElements);
+        Map<String, String> meta = new HashMap<>();
+        form.setMetadata(meta);
         form.setForm(formValueElement);
     }
 
@@ -29,8 +34,13 @@ public class FormBuilder {
         return form;
     }
 
-    public FormBuilder with(String child_info, FormValueElement formValueElement) {
-        form.getForm().getSubElements().put(child_info, formValueElement);
+    public FormBuilder with(String elementName, FormValueElement formValueElement) {
+        form.getForm().getSubElements().put(elementName, formValueElement);
+        return this;
+    }
+
+    public FormBuilder withMeta(String key, String value) {
+        form.getMetadata().put(key, value);
         return this;
     }
 }
