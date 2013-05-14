@@ -26,6 +26,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -52,7 +53,6 @@ public class AllEncountersAdapterTest {
 
     @Test
     public void shouldAddObservations() {
-
         String elementName = "field";
         String observationValue = "value";
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
@@ -73,12 +73,10 @@ public class AllEncountersAdapterTest {
         MRSObservationDto actualObservation = observations.get(0).iterator().next();
         assertEquals(conceptName, actualObservation.getConceptName());
         assertEquals(observationValue, actualObservation.getValue());
-
     }
 
     @Test
-    public void shouldCheckIfObservetionsAreNull() {
-
+    public void shouldCheckIfObservationMappingsAreNull() {
         String elementName = "field";
         String observationValue = "value";
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
@@ -95,5 +93,20 @@ public class AllEncountersAdapterTest {
         List<Set<MRSObservationDto>> observations = observationCaptor.getAllValues();
         int actualObservation = observations.get(0).size();
         assertEquals(0, actualObservation);
+    }
+
+    @Test
+    public void shouldNotAddEncountersIfPatientDoesNotExists() {
+        CommcareForm form = new FormBuilder("form").getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setMultiple(false);
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(null);
+
+        encountersAdapter.adaptForm(form, activity);
+
+        verify(mrsUtil,times(0)).addEncounter(any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
     }
 }

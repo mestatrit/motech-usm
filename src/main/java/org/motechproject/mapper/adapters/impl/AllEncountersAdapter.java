@@ -39,20 +39,9 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
 
-        String startElementName = activity.getFormMapperProperties().getStartElement();
-
-        FormValueElement rootElement = form.getForm();
-        FormValueElement startElement = rootElement.getElementByName(startElementName);
-        if (startElement == null) {
-            logger.info("Cannot find the start node in the form: " + startElementName);
-            return;
-        }
-
         MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
         Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
-        Map<String, String> facilityIdScheme = encounterActivity.getFacilityScheme();
         Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
-        Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
         for (CommcareMappingHelper mappingHelper : getAllMappingHelpers(form, activity)) {
@@ -67,13 +56,9 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             } else {
                 logger.info("Adding encounter for patient: " + motechId);
             }
-
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
-
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper);
-
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper, patient);
             String facilityName = getFacility(form, encounterActivity, element);
-
             mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
                     encounterActivity.getEncounterType());
         }
@@ -81,23 +66,18 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
     private String getFacility(CommcareForm form, MRSEncounterActivity encounterActivity, FormValueElement element) {
         String facilityNameField = null;
-
+        String facilityName = encounterActivity.getFacilityName();
         Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
         if (encounterMappings != null) {
             facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
         }
-
-        String facilityName = encounterActivity.getFacilityName();
-
         if (facilityNameField != null && facilityName == null) {
             FormValueElement facilityElement = element.getElementByName(facilityNameField);
             if (facilityElement != null) {
                 facilityName = facilityElement.getValue();
             }
         }
-
         if (facilityName == null) {
-
             facilityName = idResolver.retrieveId(encounterActivity.getFacilityScheme(), form, element);
         }
 

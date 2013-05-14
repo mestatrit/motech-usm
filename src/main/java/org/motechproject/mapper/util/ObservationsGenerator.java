@@ -5,15 +5,16 @@ import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.ObservationMapping;
+import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
 
 import java.util.*;
 
 public final class ObservationsGenerator {
 
-    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareMappingHelper mappingHelper) {
+    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareMappingHelper mappingHelper, MRSPatient patient) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
-        if(observationMappings == null) return observations;
+        if (observationMappings == null) return observations;
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
@@ -21,7 +22,7 @@ public final class ObservationsGenerator {
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
                     if (!StringUtils.isBlank(element.getValue())) {
-                        observations.addAll(addObservations(obs, element));
+                        observations.addAll(addObservations(obs, element, patient));
                     }
                 }
             } else {
@@ -29,7 +30,7 @@ public final class ObservationsGenerator {
                 if (elementName != null) {
                     FormNode element = mappingHelper.search(elementName);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
-                        observations.addAll(addObservations(obs, element));
+                        observations.addAll(addObservations(obs, element, patient));
                     }
                 }
             }
@@ -37,11 +38,11 @@ public final class ObservationsGenerator {
         return observations;
     }
 
-    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormNode element) {
-        Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
+    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormNode element, MRSPatient patient) {
+        Set<MRSObservationDto> observations = new HashSet<>();
 
         if (FormMappingConstants.LIST_TYPE.equals(obs.getType())) {
-            observations.addAll(adaptList(obs, element));
+            observations.addAll(adaptList(obs, element, patient));
         } else {
             Map<String, String> valueMappings = obs.getValues();
             String mappedValue = null;
@@ -51,17 +52,17 @@ public final class ObservationsGenerator {
             String conceptName = obs.getConceptName();
             MRSObservationDto observation;
             if (mappedValue != null) {
-                observation = new MRSObservationDto(new Date(), conceptName, mappedValue);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), mappedValue);
             } else {
-                observation = new MRSObservationDto(new Date(), conceptName, element.getValue());
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), element.getValue());
             }
             observations.add(observation);
         }
         return observations;
     }
 
-    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormNode element) {
-        Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
+    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormNode element, MRSPatient patient) {
+        Set<MRSObservationDto> observations = new HashSet<>();
 
         String[] values = element.getValue().split(FormMappingConstants.LIST_DELIMITER);
         Map<String, String> valueMappings = obs.getValues();
@@ -75,9 +76,9 @@ public final class ObservationsGenerator {
             }
             MRSObservationDto observation;
             if (mappedValue != null) {
-                observation = new MRSObservationDto(new Date(), conceptName, mappedValue);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), mappedValue);
             } else {
-                observation = new MRSObservationDto(new Date(), conceptName, value);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), value);
             }
             observations.add(observation);
         }

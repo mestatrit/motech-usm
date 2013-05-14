@@ -132,9 +132,9 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return attributes;
     }
 
-    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName, FormValueElement topFormElement) {
+    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName, FormValueElement startElement) {
         if (facilityName == null) {
-            facilityName = idResolver.retrieveId(facilityIdScheme, form, topFormElement);
+            facilityName = idResolver.retrieveId(facilityIdScheme, form, startElement);
         }
 
         if (facilityName == null) {

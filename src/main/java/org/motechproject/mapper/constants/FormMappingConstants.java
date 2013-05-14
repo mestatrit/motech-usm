@@ -7,7 +7,6 @@ public final class FormMappingConstants {
     public static final String ID_SCHEME_FIELD = "fieldName";
     public static final String ID_SCHEME_ATTRIBUTE = "attributeName";
     public static final String ID_FROM_FORM_SCHEME = "fromForm";
-    public static final String ID_PARENT_START_ELEMENT = "startElement";
     public static final String ID_FROM_USER_DATA_SCHEME = "commcareUserData";
     public static final String ID_FROM_USER_ID_SCHEME = "commcareUserId";
     public static final String ID_FROM_USERNAME_SCHEME = "commcareUsername";
@@ -41,7 +40,6 @@ public final class FormMappingConstants {
     public static final String DEATH_DATE_FIELD = "deathDate";
     public static final String FACILITY_NAME_FIELD = "facility";
     public static final String DEFAULT_FACILITY = "Unknown Location";
-    public static final String PARENT_ID = "parentId";
 
     //Destination decides which values are required during the mapping process, configuration is in mappingConfiguration.properties
     public static final String DESTINATION_COUCHDB = "couchdb";

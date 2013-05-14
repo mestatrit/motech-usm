@@ -6,49 +6,51 @@ import org.motechproject.commcare.domain.CommcareUser;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.commcare.service.CommcareCaseService;
 import org.motechproject.commcare.service.CommcareUserService;
-import org.motechproject.mapper.constants.FormMappingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+import static org.motechproject.mapper.constants.FormMappingConstants.*;
+
 @Component
 public class IdentityResolver {
 
-    @Autowired
     private CommcareCaseService caseService;
-    @Autowired
     private CommcareUserService userService;
 
+    @Autowired
+    public IdentityResolver(CommcareCaseService caseService, CommcareUserService userService) {
+        this.caseService = caseService;
+        this.userService = userService;
+    }
+
     public String getCaseId(FormValueElement formValueElement, String openMrsPatientIdentifier) {
-
-        String caseId = formValueElement.getAttributes().get(FormMappingConstants.CASE_ID_ATTRIBUTE);
-
+        String caseId = formValueElement.getAttributes().get(CASE_ID_ATTRIBUTE);
         CaseInfo caseInfo = caseService.getCaseByCaseId(caseId);
-
         return caseInfo.getFieldValues().get(openMrsPatientIdentifier);
     }
 
-    public String retrieveId(Map<String, String> idScheme, CommcareForm form, FormValueElement topFormElement) {
+    public String retrieveId(Map<String, String> idScheme, CommcareForm form, FormValueElement startElement) {
         String id = null;
 
         if (idScheme != null) {
-            String idSchemeType = idScheme.get(FormMappingConstants.ID_SCHEME_TYPE);
-            String idFieldName = idScheme.get(FormMappingConstants.ID_SCHEME_FIELD);
-            String idAttributeName = idScheme.get(FormMappingConstants.ID_SCHEME_ATTRIBUTE);
+            String idSchemeType = idScheme.get(ID_SCHEME_TYPE);
+            String idFieldName = idScheme.get(ID_SCHEME_FIELD);
+            String idAttributeName = idScheme.get(ID_SCHEME_ATTRIBUTE);
 
-            if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
-                id = topFormElement.getElementByName(idFieldName).getAttributes().get(idAttributeName);
-            } else if (FormMappingConstants.ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
-                id = topFormElement.getElementByName(idFieldName).getValue();
-            } else if (FormMappingConstants.ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
-                id = getCaseId(topFormElement.getElementByName(FormMappingConstants.CASE_ELEMENT), idFieldName);
-            } else if (FormMappingConstants.ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
-                id = getIdFromUser(idFieldName, form.getMetadata().get(FormMappingConstants.USER_ID));
-            } else if (FormMappingConstants.ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {
-                id = form.getMetadata().get(FormMappingConstants.USER_ID);
-            } else if (FormMappingConstants.ID_FROM_USERNAME_SCHEME.equals(idSchemeType)) {
-                id = form.getMetadata().get(FormMappingConstants.FORM_USERNAME);
+            if (ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
+                id = startElement.getElementByName(idFieldName).getAttributes().get(idAttributeName);
+            } else if (ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
+                id = startElement.getElementByName(idFieldName).getValue();
+            } else if (ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
+                id = getCaseId(startElement.getElementByName(CASE_ELEMENT), idFieldName);
+            } else if (ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
+                id = getIdFromUser(idFieldName, form.getMetadata().get(USER_ID));
+            } else if (ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {
+                id = form.getMetadata().get(USER_ID);
+            } else if (ID_FROM_USERNAME_SCHEME.equals(idSchemeType)) {
+                id = form.getMetadata().get(FORM_USERNAME);
             }
         }
 
@@ -57,7 +59,6 @@ public class IdentityResolver {
 
     public String getIdFromUser(String idFieldName, String userId) {
         CommcareUser user = userService.getCommcareUserById(userId);
-        if (user == null) return null;
-        return user.getUserData().get(idFieldName);
+        return user == null ? null : user.getUserData().get(idFieldName);
     }
 }

@@ -11,7 +11,10 @@ import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
 import org.motechproject.mrs.model.MRSObservationDto;
-import org.motechproject.mrs.services.*;
+import org.motechproject.mrs.services.MRSEncounterAdapter;
+import org.motechproject.mrs.services.MRSFacilityAdapter;
+import org.motechproject.mrs.services.MRSPatientAdapter;
+import org.motechproject.mrs.services.MRSProviderAdapter;
 import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,19 +30,23 @@ import java.util.UUID;
 public class MRSUtil {
 
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
-    @Autowired
     private MRSEncounterAdapter mrsEncounterAdapter;
-    @Autowired
     private MRSFacilityAdapter mrsFacilityAdapter;
-    @Autowired
     private MRSProviderAdapter mrsProviderAdapter;
-    @Autowired
     private MRSPatientAdapter mrsPatientAdapter;
-    @Autowired
     private ValidationManager validator;
-    @Autowired
-    @Qualifier("commcareMapperSettings")
     private SettingsFacade settings;
+
+    @Autowired
+    public MRSUtil(MRSEncounterAdapter mrsEncounterAdapter, MRSFacilityAdapter mrsFacilityAdapter, MRSProviderAdapter mrsProviderAdapter,
+                   MRSPatientAdapter mrsPatientAdapter, ValidationManager validator, @Qualifier("commcareMapperSettings") SettingsFacade settings) {
+        this.mrsEncounterAdapter = mrsEncounterAdapter;
+        this.mrsFacilityAdapter = mrsFacilityAdapter;
+        this.mrsProviderAdapter = mrsProviderAdapter;
+        this.mrsPatientAdapter = mrsPatientAdapter;
+        this.validator = validator;
+        this.settings = settings;
+    }
 
     public MRSProvider findProvider(String providerId) {
         String destination = settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME).getProperty(FormMappingConstants.DESTINATION);

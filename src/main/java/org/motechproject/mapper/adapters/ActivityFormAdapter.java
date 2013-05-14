@@ -26,7 +26,7 @@ public abstract class ActivityFormAdapter {
 
     private Multimap<String, FormValueElement> getTopFormElements(MRSActivity activity, FormValueElement rootElement) {
         Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
-        if (activity.getFormMapperProperties().getMultiple()) {
+        if (activity.getFormMapperProperties().isMultiple()) {
             rootElementMap.putAll(rootElement.getSubElements());
         } else {
             rootElementMap.put(rootElement.getElementName(), rootElement);
@@ -41,7 +41,7 @@ public abstract class ActivityFormAdapter {
         FormValueElement rootElement = form.getForm();
         FormValueElement startElement = (FormValueElement) SearchStrategyChooser.getFor(formMapperProperties.getStartElement()).search(rootElement, rootElement, formMapperProperties.getRestrictedElements());
         if (startElement == null) {
-            logger.error("Cannot find the start node in the form: " + startElementName);
+            logger.warn("Cannot find the start node in the form: " + startElementName);
             return mappingHelpers;
         }
 

@@ -1,5 +1,6 @@
 package org.motechproject.mapper.domain;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.motechproject.mapper.constants.FormMappingConstants;
 
 import java.util.ArrayList;
@@ -33,7 +34,8 @@ public class FormMapperProperties {
         this.restrictedElements = restrictedElements;
     }
 
-    public Boolean getMultiple() {
+    @JsonProperty("multiple")
+    public Boolean isMultiple() {
         return isMultiple;
     }
 

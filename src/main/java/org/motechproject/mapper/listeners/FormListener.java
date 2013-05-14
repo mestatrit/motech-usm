@@ -54,6 +54,7 @@ public class FormListener {
         rootElement = form.getForm();
         if (rootElement != null) {
             formsAdapter.adaptForm(form);
+            logger.info("Mapping complete for form :" + formId);
         } else {
             logger.info("Unable to adapt form");
         }
