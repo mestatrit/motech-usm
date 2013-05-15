@@ -86,7 +86,6 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     private void addOrUpdatePatient(String gender, DateTime dateOfBirth, String firstName, String lastName, String middleName, String preferredName, String address, Integer age, Boolean birthDateIsEstimated, Boolean dead, DateTime deathDate, MRSFacility facility, List<MRSAttribute> attributes, String motechId, MRSPatient patient) {
         MRSPerson person;
         if (patient == null) {
-            logger.info("Registering new patient by MotechId " + motechId);
             String id = UUID.randomUUID().toString();
             person = new MRSPersonDto(id, firstName, middleName, lastName, preferredName, address, dateOfBirth, birthDateIsEstimated, age, gender, dead, attributes, deathDate);
             patient = new MRSPatientDto(id, facility, person, motechId);
@@ -94,15 +93,14 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
                 List<ValidationError> validationErrors = validator.validatePatient(patient);
                 if (validationErrors.size() == 0) {
                     mrsPatientAdapter.savePatient(patient);
+                    logger.info(String.format("Registered new patient by MotechId(%s) and PatientId(%s)", motechId, id));
                 } else {
                     logger.error("Could not save patient due to validation errors");
                 }
-                logger.info("New patient saved: " + motechId);
             } catch (MRSException e) {
                 logger.info("Could not save patient: " + e.getMessage());
             }
         } else {
-            logger.info("Patient already exists, updating patient " + motechId);
             person = patient.getPerson();
             patient.setFacility(facility);
             updatePatient(patient, person, firstName, lastName, dateOfBirth, gender, middleName, preferredName,
@@ -196,7 +194,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         List<ValidationError> validationErrors = validator.validatePatient(patient);
         if (validationErrors.size() == 0) {
             mrsPatientAdapter.updatePatient(patient);
-            logger.info("Patient Updated");
+            logger.info("Patient already exists, updated patient: " + patient.getMotechId());
         } else {
             logger.error("Could not update patient due to validation errors");
         }

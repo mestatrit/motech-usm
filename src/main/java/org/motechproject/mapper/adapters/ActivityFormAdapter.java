@@ -41,7 +41,7 @@ public abstract class ActivityFormAdapter {
         FormValueElement rootElement = form.getForm();
         FormValueElement startElement = (FormValueElement) SearchStrategyChooser.getFor(formMapperProperties.getStartElement()).search(rootElement, rootElement, formMapperProperties.getRestrictedElements());
         if (startElement == null) {
-            logger.warn("Cannot find the start node in the form: " + startElementName);
+            logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementName, form.getId()));
             return mappingHelpers;
         }
 

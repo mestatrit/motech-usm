@@ -11,6 +11,8 @@ import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSEncounterDto;
 import org.motechproject.mrs.model.MRSObservationDto;
+import org.motechproject.mrs.model.MRSPersonDto;
+import org.motechproject.mrs.model.MRSProviderDto;
 import org.motechproject.mrs.services.MRSEncounterAdapter;
 import org.motechproject.mrs.services.MRSFacilityAdapter;
 import org.motechproject.mrs.services.MRSPatientAdapter;
@@ -48,16 +50,23 @@ public class MRSUtil {
         this.settings = settings;
     }
 
-    public MRSProvider findProvider(String providerId) {
+    public MRSProvider findProviderOrCreate(String providerId) {
+        if (providerId == null) return null;
         String destination = settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME).getProperty(FormMappingConstants.DESTINATION);
-
         if (FormMappingConstants.DESTINATION_COUCHDB.equals(destination)) {
             MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
-            return (provider == null) ? null : provider;
+            if (provider == null) {
+                MRSPersonDto person = new MRSPersonDto();
+                person.setPersonId(providerId);
+                MRSProviderDto newProvider = new MRSProviderDto(providerId, person);
+                mrsProviderAdapter.saveProvider(newProvider);
+                logger.info("New Provider saved: " + newProvider.getProviderId());
+                return newProvider;
+            } else {
+                return provider;
+            }
         }
         return null;
-
-
     }
 
     public MRSFacility findFacility(String location) {
@@ -84,11 +93,7 @@ public class MRSUtil {
                              DateTime encounterDate, String facilityName, String encounterType) {
 
         MRSFacility facility = findFacility(facilityName);
-
-        MRSProvider provider = findProvider(providerId);
-
-        logger.info("Using provider: " + provider);
-
+        MRSProvider provider = findProviderOrCreate(providerId);
         MRSEncounter mrsEncounter = new MRSEncounterDto();
         mrsEncounter.setFacility(facility);
         mrsEncounter.setDate(encounterDate);
@@ -97,17 +102,14 @@ public class MRSUtil {
         mrsEncounter.setEncounterType(encounterType);
         mrsEncounter.setObservations(observations);
         mrsEncounter.setEncounterId(UUID.randomUUID().toString());
-
         List<ValidationError> validationErrors = validator.validateEncounter(mrsEncounter);
-
         if (validationErrors.size() != 0) {
             logger.info("Unable to save encounter due to validation errors");
             return;
         }
-
         try {
             mrsEncounterAdapter.createEncounter(mrsEncounter);
-            logger.info("Encounter saved : " + mrsEncounter.getEncounterId());
+            logger.info(String.format("Encounter(%s) saved by %s", mrsEncounter.getEncounterId(), providerId));
         } catch (MRSException e) {
             logger.warn("Could not save encounter");
         }

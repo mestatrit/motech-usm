@@ -12,12 +12,12 @@
     </context:component-scan>
 
     <bean id="commcareMapperSettings" class="org.motechproject.server.config.SettingsFacade">
+        <property name="moduleName" value="commcare-form-mapper"/>
         <property name="configFiles">
             <list>
                 <value>classpath:mappingConfiguration.properties</value>
             </list>
         </property>
-        <property name="moduleName" value="commcare-form-mapper"/>
     </bean>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>

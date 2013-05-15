@@ -51,10 +51,10 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
             if (patient == null) {
-                logger.error("Patient " + motechId + " does not exist, failed to handle form " + form.getId());
+                logger.error(String.format("Patient(%s) does not exist, failed to handle form", form.getId()));
                 return;
             } else {
-                logger.info("Adding encounter for patient: " + motechId);
+                logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
             Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper, patient);

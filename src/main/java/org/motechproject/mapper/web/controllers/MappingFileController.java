@@ -32,7 +32,7 @@ public class MappingFileController {
     @ResponseStatus(HttpStatus.OK)
     public String updateMappingFile(@ModelAttribute("uploadRequest") UploadRequest uploadRequest, HttpServletRequest httpServletRequest) throws IOException {
         String mappingJson = new String(uploadRequest.getJsonFile().getBytes());
-        logger.info("Importing JSON Mapper file : " + mappingJson);
+        logger.info("Importing JSON Mapper file");
         List<MRSMapping> mrsMappings = mappingsReader.readJson(mappingJson);
         mrsMappingService.addOrUpdate(mrsMappings);
         return "redirect:" + httpServletRequest.getHeader("Referer");

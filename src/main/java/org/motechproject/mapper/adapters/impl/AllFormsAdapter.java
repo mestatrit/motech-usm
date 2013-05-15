@@ -38,7 +38,7 @@ public class AllFormsAdapter implements FormAdapter {
 
         String xmlns = form.getForm().getAttributes().get(FORM_XMLNS_ATTRIBUTE);
 
-        logger.info("Received form: " + formName);
+        logger.info("Received form of type: " + formName);
 
         for (MRSMapping mapping : mappings) {
             if (mapping.getXmlns().equals(xmlns)) {
@@ -54,10 +54,10 @@ public class AllFormsAdapter implements FormAdapter {
 
     private ActivityFormAdapter getAdapter(String activityType, String formName) {
         if (REGISTRATION_ACTIVITY.equals(activityType)) {
-            logger.info("Adapting registration form: " + formName);
+            logger.info("Adapting registration activity for: " + formName);
             return registrationAdapter;
         } else if (ENCOUNTER_ACTIVITY.equals(activityType)) {
-            logger.info("Adapting encounter form: " + formName);
+            logger.info("Adapting encounter activity for: " + formName);
             return encounterAdapter;
         }
         return null;
