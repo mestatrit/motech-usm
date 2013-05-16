@@ -72,7 +72,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
         }
         if (facilityNameField != null && facilityName == null) {
-            FormValueElement facilityElement = element.getElementByName(facilityNameField);
+            FormValueElement facilityElement = element.getElement(facilityNameField);
             if (facilityElement != null) {
                 facilityName = facilityElement.getValue();
             }

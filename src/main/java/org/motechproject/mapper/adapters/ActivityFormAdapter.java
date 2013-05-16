@@ -24,13 +24,14 @@ public abstract class ActivityFormAdapter {
 
     public abstract void adaptForm(CommcareForm form, MRSActivity activity);
 
-    private Multimap<String, FormValueElement> getTopFormElements(MRSActivity activity, FormValueElement rootElement) {
+    private Multimap<String, FormValueElement> getTopFormElements(FormValueElement rootElement) {
         Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
-        if (activity.getFormMapperProperties().isMultiple()) {
-            rootElementMap.putAll(rootElement.getSubElements());
-        } else {
+        List<FormValueElement> childElements = rootElement.getChildElements(rootElement.getElementName());
+        rootElementMap.putAll(rootElement.getElementName(), childElements);
+        if (rootElementMap.size() == 0) {
             rootElementMap.put(rootElement.getElementName(), rootElement);
         }
+
         return rootElementMap;
     }
 
@@ -44,8 +45,7 @@ public abstract class ActivityFormAdapter {
             logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementName, form.getId()));
             return mappingHelpers;
         }
-
-        for (Map.Entry<String, FormValueElement> topFormElements : getTopFormElements(activity, startElement).entries()) {
+        for (Map.Entry<String, FormValueElement> topFormElements : getTopFormElements(startElement).entries()) {
             mappingHelpers.add(new CommcareMappingHelper(form, topFormElements.getValue(), formMapperProperties.getRestrictedElements()));
 
         }

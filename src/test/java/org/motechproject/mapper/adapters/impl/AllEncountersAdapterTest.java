@@ -57,7 +57,6 @@ public class AllEncountersAdapterTest {
         String observationValue = "value";
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
-        formMapperProperties.setMultiple(false);
         formMapperProperties.setStartElement("form");
         ObservationMapping observationMappings = new ObservationMapping();
         String conceptName = "name to be stored";
@@ -81,7 +80,6 @@ public class AllEncountersAdapterTest {
         String observationValue = "value";
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
-        formMapperProperties.setMultiple(false);
         formMapperProperties.setStartElement("form");
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
         activity.setObservationMappings(null);
@@ -99,7 +97,6 @@ public class AllEncountersAdapterTest {
     public void shouldNotAddEncountersIfPatientDoesNotExists() {
         CommcareForm form = new FormBuilder("form").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
-        formMapperProperties.setMultiple(false);
         formMapperProperties.setStartElement("form");
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
         activity.setObservationMappings(null);

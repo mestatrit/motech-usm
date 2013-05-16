@@ -38,7 +38,7 @@ public class AllFormsAdapter implements FormAdapter {
 
         String xmlns = form.getForm().getAttributes().get(FORM_XMLNS_ATTRIBUTE);
 
-        logger.info("Received form of type: " + formName);
+        logger.info(String.format("Received form of type(%s) and xmlns(%s) ", formName, xmlns));
 
         for (MRSMapping mapping : mappings) {
             if (mapping.getXmlns().equals(xmlns)) {

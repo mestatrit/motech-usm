@@ -40,11 +40,11 @@ public class IdentityResolver {
             String idAttributeName = idScheme.get(ID_SCHEME_ATTRIBUTE);
 
             if (ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
-                id = startElement.getElementByName(idFieldName).getAttributes().get(idAttributeName);
+                id = startElement.getElement(idFieldName).getAttributes().get(idAttributeName);
             } else if (ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
-                id = startElement.getElementByName(idFieldName).getValue();
+                id = startElement.getElement(idFieldName).getValue();
             } else if (ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
-                id = getCaseId(startElement.getElementByName(CASE_ELEMENT), idFieldName);
+                id = getCaseId(startElement.getElement(CASE_ELEMENT), idFieldName);
             } else if (ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
                 id = getIdFromUser(idFieldName, form.getMetadata().get(USER_ID));
             } else if (ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {

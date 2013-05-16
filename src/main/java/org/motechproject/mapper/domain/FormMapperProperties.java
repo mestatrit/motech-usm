@@ -1,6 +1,5 @@
 package org.motechproject.mapper.domain;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.motechproject.mapper.constants.FormMappingConstants;
 
 import java.util.ArrayList;
@@ -10,12 +9,10 @@ public class FormMapperProperties {
 
     private String startElement;
     private List<String> restrictedElements;
-    private Boolean isMultiple;
 
     public FormMapperProperties() {
         startElement = FormMappingConstants.ROOT_ELEMENT;
         restrictedElements = new ArrayList<>();
-        isMultiple = false;
     }
 
     public String getStartElement() {
@@ -32,14 +29,5 @@ public class FormMapperProperties {
 
     public void setRestrictedElements(List<String> restrictedElements) {
         this.restrictedElements = restrictedElements;
-    }
-
-    @JsonProperty("multiple")
-    public Boolean isMultiple() {
-        return isMultiple;
-    }
-
-    public void setMultiple(Boolean multiple) {
-        isMultiple = multiple;
     }
 }
