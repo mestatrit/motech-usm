@@ -57,7 +57,7 @@ public class MRSUtil {
             MRSProvider provider = mrsProviderAdapter.getProviderByProviderId(providerId);
             if (provider == null) {
                 MRSPersonDto person = new MRSPersonDto();
-                person.setPersonId(providerId);
+                person.setPersonId(UUID.randomUUID().toString());
                 MRSProviderDto newProvider = new MRSProviderDto(providerId, person);
                 mrsProviderAdapter.saveProvider(newProvider);
                 logger.info("New Provider saved: " + newProvider.getProviderId());

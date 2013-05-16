@@ -23,6 +23,7 @@ import org.motechproject.server.config.SettingsFacade;
 import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -83,7 +84,7 @@ public class MRSUtilTest {
         verify(mrsProviderAdapter).saveProvider(providerCaptor.capture());
         MRSProvider actualProvider = providerCaptor.getValue();
         assertEquals(providerId, actualProvider.getProviderId());
-        assertEquals(providerId, actualProvider.getPerson().getPersonId());
+        assertFalse(actualProvider.getPerson().getPersonId().equals(providerId));
     }
 
     @Test
