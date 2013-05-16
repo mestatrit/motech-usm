@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 public class ObservationsGeneratorTest {
 
     @Test
-    public void shouldAddPatientsId() {
-        String patientId = "patient Id";
+    public void shouldAddPatientId() {
+        String patientId = "motech Id";
         MRSPatientDto patient = new MRSPatientDto();
-        patient.setPatientId(patientId);
+        patient.setMotechId(patientId);
         List<ObservationMapping> observationMappings = new ArrayList<>();
         ObservationMapping observationMapping = new ObservationMapping();
         String conceptName = "Age of Patient";
@@ -50,9 +50,9 @@ public class ObservationsGeneratorTest {
 
     @Test
     public void shouldAddMultipleObservationsForListType() {
-        String patientId = "patient Id";
+        String patientId = "motech Id";
         MRSPatientDto patient = new MRSPatientDto();
-        patient.setPatientId(patientId);
+        patient.setMotechId(patientId);
         List<ObservationMapping> observationMappings = new ArrayList<>();
         ObservationMapping observationMapping = new ObservationMapping();
         String conceptName = "Child Names";

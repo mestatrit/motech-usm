@@ -52,9 +52,9 @@ public final class ObservationsGenerator {
             String conceptName = obs.getConceptName();
             MRSObservationDto observation;
             if (mappedValue != null) {
-                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), mappedValue);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), mappedValue);
             } else {
-                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), element.getValue());
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), element.getValue());
             }
             observations.add(observation);
         }
@@ -76,9 +76,9 @@ public final class ObservationsGenerator {
             }
             MRSObservationDto observation;
             if (mappedValue != null) {
-                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), mappedValue);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), mappedValue);
             } else {
-                observation = new MRSObservationDto(new Date(), conceptName, patient.getPatientId(), value);
+                observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), value);
             }
             observations.add(observation);
         }
