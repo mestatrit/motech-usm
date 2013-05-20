@@ -3,6 +3,7 @@ package org.motechproject.mapper.listeners;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.motechproject.commcare.domain.CommcareForm;
@@ -13,12 +14,12 @@ import org.motechproject.event.MotechEvent;
 import org.motechproject.mapper.adapters.impl.AllFormsAdapter;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,7 +46,7 @@ public class FormListenerTest {
         commcareForm.setForm(new FormValueElement());
         when(commcareFormService.retrieveForm(formId)).thenReturn(commcareForm);
 
-        formListener.handleFormEvent(event);
+        formListener.handleFormStubEvent(event);
 
         verify(commcareFormService).retrieveForm(formId);
         verify(allFormsAdapter).adaptForm(commcareForm);
@@ -57,7 +58,7 @@ public class FormListenerTest {
         properties.put(EventDataKeys.FORM_ID, "");
         MotechEvent event = new MotechEvent("subject", properties);
 
-        formListener.handleFormEvent(event);
+        formListener.handleFormStubEvent(event);
 
         verify(commcareFormService, never()).retrieveForm(anyString());
         verify(allFormsAdapter, never()).adaptForm(any(CommcareForm.class));
@@ -72,9 +73,49 @@ public class FormListenerTest {
         CommcareForm commcareForm = new CommcareForm();
         when(commcareFormService.retrieveForm(formId)).thenReturn(commcareForm);
 
-        formListener.handleFormEvent(event);
+        formListener.handleFormStubEvent(event);
 
         verify(commcareFormService).retrieveForm(formId);
         verify(allFormsAdapter, never()).adaptForm(any(CommcareForm.class));
+    }
+
+    @Test
+    public void shouldAdaptForFullFormEvent() {
+        String elementName = "form";
+        MotechEvent motechEvent = new MotechEvent();
+        HashMap<String, String> attributes = new HashMap<>();
+        motechEvent.getParameters().put(EventDataKeys.ELEMENT_NAME, elementName);
+        motechEvent.getParameters().put(EventDataKeys.ATTRIBUTES, attributes);
+        Map<String, Map<String, Object>> subElements = new HashMap<>();
+        Map<String, Object> metaElement = new HashMap<>();
+        metaElement.put(EventDataKeys.ELEMENT_NAME, "meta");
+        HashMap<String, Map<String, Object>> metaSubElements = new HashMap<>();
+        HashMap<String, Object> metaElement1 = new HashMap<>();
+        String meta1 = "meta1";
+        metaElement1.put(EventDataKeys.ELEMENT_NAME, meta1);
+        String metaValue1 = "metaValue1";
+        metaElement1.put(EventDataKeys.VALUE, metaValue1);
+        metaSubElements.put(meta1, metaElement1);
+        HashMap<String, Object> metaElement2 = new HashMap<>();
+        String meta2 = "meta2";
+        metaElement2.put(EventDataKeys.ELEMENT_NAME, meta2);
+        String metaValue2 = "metaValue2";
+        metaElement2.put(EventDataKeys.VALUE, metaValue2);
+        metaSubElements.put(meta2, metaElement2);
+        metaElement.put(EventDataKeys.SUB_ELEMENTS, metaSubElements);
+        subElements.put("meta", metaElement);
+        motechEvent.getParameters().put(EventDataKeys.SUB_ELEMENTS, subElements);
+
+        formListener.handleFullFormEvent(motechEvent);
+
+        ArgumentCaptor<CommcareForm> formCaptor = ArgumentCaptor.forClass(CommcareForm.class);
+        verify(allFormsAdapter).adaptForm(formCaptor.capture());
+        CommcareForm actualForm = formCaptor.getValue();
+        FormValueElement rootElement = actualForm.getForm();
+        assertEquals(elementName, rootElement.getElementName());
+        assertEquals(attributes, rootElement.getAttributes());
+        assertEquals(2, actualForm.getMetadata().size());
+        assertEquals(metaValue1, actualForm.getMetadata().get(meta1));
+        assertEquals(metaValue2, actualForm.getMetadata().get(meta2));
     }
 }
