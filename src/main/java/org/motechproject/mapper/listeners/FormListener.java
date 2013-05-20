@@ -23,45 +23,12 @@ import java.util.Map;
 public class FormListener {
 
     public static final String DEFAULT_ROOT_ELEMENT = "form";
-    private CommcareFormService formService;
     private AllFormsAdapter formsAdapter;
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
-    public FormListener(CommcareFormService formService, AllFormsAdapter formsAdapter) {
-        this.formService = formService;
+    public FormListener(AllFormsAdapter formsAdapter) {
         this.formsAdapter = formsAdapter;
-    }
-
-    @MotechListener(subjects = EventSubjects.FORM_STUB_EVENT)
-    public void handleFormStubEvent(MotechEvent event) {
-
-        Map<String, Object> parameters = event.getParameters();
-
-        String formId = (String) parameters.get(EventDataKeys.FORM_ID);
-
-        logger.info("Received form: " + formId);
-
-        CommcareForm form = null;
-
-        if (StringUtils.isBlank(formId)) {
-            logger.info("Form Id was null");
-            return;
-        }
-        form = formService.retrieveForm(formId);
-
-        FormValueElement rootElement = null;
-        if (form == null) {
-            logger.error("Could not fetch the form");
-            return;
-        }
-        rootElement = form.getForm();
-        if (rootElement != null) {
-            formsAdapter.adaptForm(form);
-            logger.info("Mapping complete for form :" + formId);
-        } else {
-            logger.info("Unable to adapt form");
-        }
     }
 
     @MotechListener(subjects = EventSubjects.FORMS_EVENT)

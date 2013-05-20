@@ -18,7 +18,6 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 
@@ -33,50 +32,7 @@ public class FormListenerTest {
 
     @Before
     public void setup() throws Exception {
-        formListener = new FormListener(commcareFormService, allFormsAdapter);
-    }
-
-    @Test
-    public void shouldRetrieveFormAndAdaptItForAValidForm() {
-        String formId = "formId";
-        HashMap<String, Object> properties = new HashMap<>();
-        properties.put(EventDataKeys.FORM_ID, formId);
-        MotechEvent event = new MotechEvent("subject", properties);
-        CommcareForm commcareForm = new CommcareForm();
-        commcareForm.setForm(new FormValueElement());
-        when(commcareFormService.retrieveForm(formId)).thenReturn(commcareForm);
-
-        formListener.handleFormStubEvent(event);
-
-        verify(commcareFormService).retrieveForm(formId);
-        verify(allFormsAdapter).adaptForm(commcareForm);
-    }
-
-    @Test
-    public void shouldNotRetrieveFormIfFormIdIsBlank() {
-        HashMap<String, Object> properties = new HashMap<>();
-        properties.put(EventDataKeys.FORM_ID, "");
-        MotechEvent event = new MotechEvent("subject", properties);
-
-        formListener.handleFormStubEvent(event);
-
-        verify(commcareFormService, never()).retrieveForm(anyString());
-        verify(allFormsAdapter, never()).adaptForm(any(CommcareForm.class));
-    }
-
-    @Test
-    public void shouldNotAdaptIfThereIsNoForm() {
-        String formId = "formId";
-        HashMap<String, Object> properties = new HashMap<>();
-        properties.put(EventDataKeys.FORM_ID, formId);
-        MotechEvent event = new MotechEvent("subject", properties);
-        CommcareForm commcareForm = new CommcareForm();
-        when(commcareFormService.retrieveForm(formId)).thenReturn(commcareForm);
-
-        formListener.handleFormStubEvent(event);
-
-        verify(commcareFormService).retrieveForm(formId);
-        verify(allFormsAdapter, never()).adaptForm(any(CommcareForm.class));
+        formListener = new FormListener(allFormsAdapter);
     }
 
     @Test
