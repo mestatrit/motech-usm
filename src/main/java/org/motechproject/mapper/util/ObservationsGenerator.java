@@ -12,13 +12,13 @@ import java.util.*;
 
 public final class ObservationsGenerator {
 
-    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareMappingHelper mappingHelper, MRSPatient patient) {
+    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, FormTraversalProperty formTraversalProperty, MRSPatient patient) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         if (observationMappings == null) return observations;
         for (ObservationMapping obs : observationMappings) {
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
-                List<FormValueElement> elements = mappingHelper.getStartElement().getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
+                List<FormValueElement> elements = formTraversalProperty.getStartElement().getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
                     if (!StringUtils.isBlank(element.getValue())) {
@@ -28,7 +28,7 @@ public final class ObservationsGenerator {
             } else {
                 String elementName = obs.getElementName();
                 if (elementName != null) {
-                    FormNode element = mappingHelper.search(elementName);
+                    FormNode element = formTraversalProperty.search(elementName);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
                         observations.addAll(addObservations(obs, element, patient));
                     }

@@ -7,7 +7,7 @@ import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.util.CommcareMappingHelper;
+import org.motechproject.mapper.util.FormTraversalProperty;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.validation.ValidationError;
@@ -51,27 +51,27 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
-        for (CommcareMappingHelper mappingHelpers : getAllMappingHelpers(form, activity)) {
+        for (FormTraversalProperty formTraversalProperty : getAllFormTraversalProperty(form, activity)) {
 
-            String gender = getValueFor(GENDER_FIELD, registrationActivity, mappingHelpers);
-            DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, mappingHelpers);
-            String firstName = getValueFor(FIRST_NAME_FIELD, registrationActivity, mappingHelpers);
-            String lastName = getValueFor(LAST_NAME_FIELD, registrationActivity, mappingHelpers);
-            String middleName = getValueFor(MIDDLE_NAME_FIELD, registrationActivity, mappingHelpers);
-            String preferredName = getValueFor(PREFERRED_NAME_FIELD, registrationActivity, mappingHelpers);
-            String address = getValueFor(ADDRESS_FIELD, registrationActivity, mappingHelpers);
-            Integer age = getIntegerValueFor(AGE_FIELD, registrationActivity, mappingHelpers);
-            Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, registrationActivity, mappingHelpers);
-            Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, registrationActivity, mappingHelpers);
-            DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, registrationActivity, mappingHelpers);
-            String facilityName = getValueFor(FACILITY_NAME_FIELD, registrationActivity, mappingHelpers);
+            String gender = getValueFor(GENDER_FIELD, registrationActivity, formTraversalProperty);
+            DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, formTraversalProperty);
+            String firstName = getValueFor(FIRST_NAME_FIELD, registrationActivity, formTraversalProperty);
+            String lastName = getValueFor(LAST_NAME_FIELD, registrationActivity, formTraversalProperty);
+            String middleName = getValueFor(MIDDLE_NAME_FIELD, registrationActivity, formTraversalProperty);
+            String preferredName = getValueFor(PREFERRED_NAME_FIELD, registrationActivity, formTraversalProperty);
+            String address = getValueFor(ADDRESS_FIELD, registrationActivity, formTraversalProperty);
+            Integer age = getIntegerValueFor(AGE_FIELD, registrationActivity, formTraversalProperty);
+            Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, registrationActivity, formTraversalProperty);
+            Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, registrationActivity, formTraversalProperty);
+            DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, registrationActivity, formTraversalProperty);
+            String facilityName = getValueFor(FACILITY_NAME_FIELD, registrationActivity, formTraversalProperty);
 
-            MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName, mappingHelpers.getStartElement());
+            MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName, formTraversalProperty.getStartElement());
 
-            List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, mappingHelpers);
+            List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, formTraversalProperty);
 
             Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
-            String motechId = idResolver.retrieveId(patientIdScheme, form, mappingHelpers.getStartElement());
+            String motechId = idResolver.retrieveId(patientIdScheme, form, formTraversalProperty.getStartElement());
             if (motechId == null) {
                 logger.error("MotechId could not be obtained");
                 return;
@@ -108,13 +108,13 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         }
     }
 
-    private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
+    private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
         List<MRSAttribute> attributes = new ArrayList<>();
         Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
 
-                FormNode attributeElement = mappingHelper.search(entry.getValue());
+                FormNode attributeElement = formTraversalProperty.search(entry.getValue());
 
                 String attributeValue = null;
                 if (attributeElement != null) {
@@ -200,8 +200,8 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         }
     }
 
-    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
-        String value = getValueFor(fieldName, registrationActivity, mappingHelper);
+    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
+        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
         if (value == null)
             return null;
 
@@ -214,13 +214,13 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return integerValue;
     }
 
-    private Boolean getBooleanValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
-        String value = getValueFor(fieldName, registrationActivity, mappingHelper);
+    private Boolean getBooleanValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
+        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
         return Boolean.valueOf(value);
     }
 
-    private DateTime getDateValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
-        String value = getValueFor(fieldName, registrationActivity, mappingHelper);
+    private DateTime getDateValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
+        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
         if (value == null)
             return null;
 
@@ -233,12 +233,12 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return dateValue;
     }
 
-    private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareMappingHelper mappingHelper) {
+    private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
         if (registrationMappings == null) return null;
         String fieldValue = registrationMappings.get(fieldName);
         if (fieldValue != null) {
-            FormNode searchElement = mappingHelper.search(fieldValue);
+            FormNode searchElement = formTraversalProperty.search(fieldValue);
             if (searchElement != null) {
                 return searchElement.getValue();
             }

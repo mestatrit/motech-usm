@@ -37,9 +37,9 @@ public class ObservationsGeneratorTest {
         String value = "21";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareMappingHelper mapperHelper = new CommcareMappingHelper(form, form.getForm(), new ArrayList<String>());
+        FormTraversalProperty formTraversalProperty = new FormTraversalProperty(form, form.getForm(), new ArrayList<String>());
 
-        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mapperHelper, patient);
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, formTraversalProperty, patient);
 
         assertEquals(1, observations.size());
         MRSObservationDto actualObservation = observations.iterator().next();
@@ -66,9 +66,9 @@ public class ObservationsGeneratorTest {
         String value = "raj taj";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareMappingHelper mapperHelper = new CommcareMappingHelper(form, form.getForm(), new ArrayList<String>());
+        FormTraversalProperty formTraversalProperty = new FormTraversalProperty(form, form.getForm(), new ArrayList<String>());
 
-        Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, mapperHelper, patient);
+        Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, formTraversalProperty, patient);
 
         assertEquals(2, observationSet.size());
         Iterator<MRSObservationDto> observations = observationSet.iterator();

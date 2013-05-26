@@ -8,7 +8,7 @@ import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.CommcareMappingHelper;
+import org.motechproject.mapper.util.FormTraversalProperty;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsGenerator;
@@ -44,8 +44,8 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
-        for (CommcareMappingHelper mappingHelper : getAllMappingHelpers(form, activity)) {
-            FormValueElement element = mappingHelper.getStartElement();
+        for (FormTraversalProperty formTraversalProperty : getAllFormTraversalProperty(form, activity)) {
+            FormValueElement element = formTraversalProperty.getStartElement();
             String providerId = idResolver.retrieveId(providerIdScheme, form, element);
             String motechId = idResolver.retrieveId(patientIdScheme, form, element);
 
@@ -57,7 +57,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
                 logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, mappingHelper, patient);
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, formTraversalProperty, patient);
             String facilityName = getFacility(form, encounterActivity, element);
             mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
                     encounterActivity.getEncounterType());

@@ -6,13 +6,13 @@ import org.motechproject.commcare.domain.FormValueElement;
 
 import java.util.List;
 
-public class CommcareMappingHelper {
+public class FormTraversalProperty {
 
     private FormValueElement rootElement;
     private FormValueElement startElement;
     private List<String> restrictedElements;
 
-    public CommcareMappingHelper(CommcareForm form, FormValueElement startElement, List<String> restrictedElements) {
+    public FormTraversalProperty(CommcareForm form, FormValueElement startElement, List<String> restrictedElements) {
         this.startElement = startElement;
         this.restrictedElements = restrictedElements;
         rootElement = form.getForm();
