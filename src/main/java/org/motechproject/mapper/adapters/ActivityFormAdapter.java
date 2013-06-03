@@ -6,7 +6,7 @@ import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSActivity;
-import org.motechproject.mapper.util.FormTraversalProperty;
+import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
 import org.motechproject.mapper.util.SearchStrategyChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,20 +35,21 @@ public abstract class ActivityFormAdapter {
         return rootElementMap;
     }
 
-    protected List<FormTraversalProperty> getAllFormTraversalProperty(CommcareForm form, MRSActivity activity) {
-        List<FormTraversalProperty> formTraversalProperties = new ArrayList<>();
+    protected List<CommcareFormBeneficiarySegment> getAllBeneficiarySegments(CommcareForm form, MRSActivity activity) {
+        List<CommcareFormBeneficiarySegment> beneficiarySegments = new ArrayList<>();
         FormMapperProperties formMapperProperties = activity.getFormMapperProperties();
-        String startElementName = formMapperProperties.getStartElement();
+        String startElementPath = formMapperProperties.getStartElement();
+
         FormValueElement rootElement = form.getForm();
-        FormValueElement startElement = (FormValueElement) SearchStrategyChooser.getFor(formMapperProperties.getStartElement()).search(rootElement, rootElement, formMapperProperties.getRestrictedElements());
+        FormValueElement startElement = (FormValueElement) SearchStrategyChooser.getFor(startElementPath).search(rootElement, rootElement, formMapperProperties.getRestrictedElements());
         if (startElement == null) {
-            logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementName, form.getId()));
-            return formTraversalProperties;
+            logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementPath, form.getId()));
+            return beneficiarySegments;
         }
         for (Map.Entry<String, FormValueElement> topFormElements : getTopFormElements(startElement).entries()) {
-            formTraversalProperties.add(new FormTraversalProperty(form, topFormElements.getValue(), formMapperProperties.getRestrictedElements()));
+            beneficiarySegments.add(new CommcareFormBeneficiarySegment(form, topFormElements.getValue(), formMapperProperties.getRestrictedElements()));
 
         }
-        return formTraversalProperties;
+        return beneficiarySegments;
     }
 }

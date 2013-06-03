@@ -19,7 +19,7 @@ public class FormListenerBundleIT extends BaseOsgiIT {
         ServiceReference serviceReference = bundleContext.getServiceReference(FormAdapter.class.getName());
         FormAdapter formAdapter = (FormAdapter) bundleContext.getService(serviceReference);
 
-        //formAdapter.adaptForm(commcareForm);
+        formAdapter.adaptForm(commcareForm);
     }
 
     @Override

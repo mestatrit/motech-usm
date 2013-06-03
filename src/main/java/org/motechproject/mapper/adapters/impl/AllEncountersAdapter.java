@@ -2,13 +2,13 @@ package org.motechproject.mapper.adapters.impl;
 
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
-import org.motechproject.commcare.domain.FormValueElement;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.FormTraversalProperty;
+import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsGenerator;
@@ -44,10 +44,9 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
-        for (FormTraversalProperty formTraversalProperty : getAllFormTraversalProperty(form, activity)) {
-            FormValueElement element = formTraversalProperty.getStartElement();
-            String providerId = idResolver.retrieveId(providerIdScheme, form, element);
-            String motechId = idResolver.retrieveId(patientIdScheme, form, element);
+        for (CommcareFormBeneficiarySegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
+            String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
+            String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
 
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
             if (patient == null) {
@@ -57,14 +56,14 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
                 logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, formTraversalProperty, patient);
-            String facilityName = getFacility(form, encounterActivity, element);
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
+            String facilityName = getFacility(encounterActivity, beneficiarySegment);
             mrsUtil.addEncounter(patient, observations, providerId, dateReceived, facilityName,
                     encounterActivity.getEncounterType());
         }
     }
 
-    private String getFacility(CommcareForm form, MRSEncounterActivity encounterActivity, FormValueElement element) {
+    private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
         String facilityNameField = null;
         String facilityName = encounterActivity.getFacilityName();
         Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();
@@ -72,13 +71,13 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             facilityNameField = encounterMappings.get(FormMappingConstants.FACILITY_NAME_FIELD);
         }
         if (facilityNameField != null && facilityName == null) {
-            FormValueElement facilityElement = element.getElement(facilityNameField);
+            FormNode facilityElement = beneficiarySegment.search(facilityNameField);
             if (facilityElement != null) {
                 facilityName = facilityElement.getValue();
             }
         }
         if (facilityName == null) {
-            facilityName = idResolver.retrieveId(encounterActivity.getFacilityScheme(), form, element);
+            facilityName = idResolver.retrieveId(encounterActivity.getFacilityScheme(), beneficiarySegment);
         }
 
         if (facilityName == null) {

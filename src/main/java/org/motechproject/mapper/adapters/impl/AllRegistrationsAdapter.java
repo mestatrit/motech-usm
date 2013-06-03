@@ -3,11 +3,10 @@ package org.motechproject.mapper.adapters.impl;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormNode;
-import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.util.FormTraversalProperty;
+import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.validation.ValidationError;
@@ -51,27 +50,27 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
-        for (FormTraversalProperty formTraversalProperty : getAllFormTraversalProperty(form, activity)) {
+        for (CommcareFormBeneficiarySegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
 
-            String gender = getValueFor(GENDER_FIELD, registrationActivity, formTraversalProperty);
-            DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, formTraversalProperty);
-            String firstName = getValueFor(FIRST_NAME_FIELD, registrationActivity, formTraversalProperty);
-            String lastName = getValueFor(LAST_NAME_FIELD, registrationActivity, formTraversalProperty);
-            String middleName = getValueFor(MIDDLE_NAME_FIELD, registrationActivity, formTraversalProperty);
-            String preferredName = getValueFor(PREFERRED_NAME_FIELD, registrationActivity, formTraversalProperty);
-            String address = getValueFor(ADDRESS_FIELD, registrationActivity, formTraversalProperty);
-            Integer age = getIntegerValueFor(AGE_FIELD, registrationActivity, formTraversalProperty);
-            Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, registrationActivity, formTraversalProperty);
-            Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, registrationActivity, formTraversalProperty);
-            DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, registrationActivity, formTraversalProperty);
-            String facilityName = getValueFor(FACILITY_NAME_FIELD, registrationActivity, formTraversalProperty);
+            String gender = getValueFor(GENDER_FIELD, registrationActivity, beneficiarySegment);
+            DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, beneficiarySegment);
+            String firstName = getValueFor(FIRST_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String lastName = getValueFor(LAST_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String middleName = getValueFor(MIDDLE_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String preferredName = getValueFor(PREFERRED_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String address = getValueFor(ADDRESS_FIELD, registrationActivity, beneficiarySegment);
+            Integer age = getIntegerValueFor(AGE_FIELD, registrationActivity, beneficiarySegment);
+            Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, registrationActivity, beneficiarySegment);
+            Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, registrationActivity, beneficiarySegment);
+            DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, registrationActivity, beneficiarySegment);
+            String facilityName = getValueFor(FACILITY_NAME_FIELD, registrationActivity, beneficiarySegment);
 
-            MRSFacility facility = getMRSFacility(form, registrationActivity.getFacilityScheme(), facilityName, formTraversalProperty.getStartElement());
+            MRSFacility facility = getMRSFacility(registrationActivity.getFacilityScheme(), facilityName, beneficiarySegment);
 
-            List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, formTraversalProperty);
+            List<MRSAttribute> attributes = getMRSAttributes(registrationActivity, beneficiarySegment);
 
             Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
-            String motechId = idResolver.retrieveId(patientIdScheme, form, formTraversalProperty.getStartElement());
+            String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
             if (motechId == null) {
                 logger.error("MotechId could not be obtained");
                 return;
@@ -108,13 +107,13 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         }
     }
 
-    private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
+    private List<MRSAttribute> getMRSAttributes(MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
         List<MRSAttribute> attributes = new ArrayList<>();
         Map<String, String> mappedAttributes = registrationActivity.getAttributes();
         if (mappedAttributes != null) {
             for (Entry<String, String> entry : mappedAttributes.entrySet()) {
 
-                FormNode attributeElement = formTraversalProperty.search(entry.getValue());
+                FormNode attributeElement = beneficiarySegment.search(entry.getValue());
 
                 String attributeValue = null;
                 if (attributeElement != null) {
@@ -130,9 +129,9 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return attributes;
     }
 
-    private MRSFacility getMRSFacility(CommcareForm form, Map<String, String> facilityIdScheme, String facilityName, FormValueElement startElement) {
+    private MRSFacility getMRSFacility(Map<String, String> facilityIdScheme, String facilityName, CommcareFormBeneficiarySegment beneficiarySegment) {
         if (facilityName == null) {
-            facilityName = idResolver.retrieveId(facilityIdScheme, form, startElement);
+            facilityName = idResolver.retrieveId(facilityIdScheme, beneficiarySegment);
         }
 
         if (facilityName == null) {
@@ -200,8 +199,8 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         }
     }
 
-    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
-        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
+    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
         if (value == null)
             return null;
 
@@ -214,13 +213,13 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return integerValue;
     }
 
-    private Boolean getBooleanValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
-        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
+    private Boolean getBooleanValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
         return Boolean.valueOf(value);
     }
 
-    private DateTime getDateValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
-        String value = getValueFor(fieldName, registrationActivity, formTraversalProperty);
+    private DateTime getDateValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
         if (value == null)
             return null;
 
@@ -233,12 +232,12 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         return dateValue;
     }
 
-    private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, FormTraversalProperty formTraversalProperty) {
+    private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
         if (registrationMappings == null) return null;
         String fieldValue = registrationMappings.get(fieldName);
         if (fieldValue != null) {
-            FormNode searchElement = formTraversalProperty.search(fieldValue);
+            FormNode searchElement = beneficiarySegment.search(fieldValue);
             if (searchElement != null) {
                 return searchElement.getValue();
             }

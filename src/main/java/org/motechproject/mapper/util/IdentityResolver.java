@@ -1,7 +1,6 @@
 package org.motechproject.mapper.util;
 
 import org.motechproject.commcare.domain.CaseInfo;
-import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.CommcareUser;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.commcare.service.CommcareCaseService;
@@ -31,7 +30,7 @@ public class IdentityResolver {
         return caseInfo.getFieldValues().get(openMrsPatientIdentifier);
     }
 
-    public String retrieveId(Map<String, String> idScheme, CommcareForm form, FormValueElement startElement) {
+    public String retrieveId(Map<String, String> idScheme, CommcareFormBeneficiarySegment beneficiarySegment) {
         String id = null;
 
         if (idScheme != null) {
@@ -40,20 +39,19 @@ public class IdentityResolver {
             String idAttributeName = idScheme.get(ID_SCHEME_ATTRIBUTE);
 
             if (ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
-                id = startElement.getElement(idFieldName).getAttributes().get(idAttributeName);
+                id = ((FormValueElement) beneficiarySegment.search(idFieldName)).getAttributes().get(idAttributeName);
             } else if (ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
-                id = startElement.getElement(idFieldName).getValue();
+                id = beneficiarySegment.search(idFieldName).getValue();
             } else if (ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {
-                id = getCaseId(startElement.getElement(CASE_ELEMENT), idFieldName);
+                id = getCaseId((FormValueElement) beneficiarySegment.search(CASE_ELEMENT), idFieldName);
             } else if (ID_FROM_USER_DATA_SCHEME.equals(idSchemeType)) {
-                id = getIdFromUser(idFieldName, form.getMetadata().get(USER_ID));
+                id = getIdFromUser(idFieldName, beneficiarySegment.getMetadata(USER_ID));
             } else if (ID_FROM_USER_ID_SCHEME.equals(idSchemeType)) {
-                id = form.getMetadata().get(USER_ID);
+                id = beneficiarySegment.getMetadata(USER_ID);
             } else if (ID_FROM_USERNAME_SCHEME.equals(idSchemeType)) {
-                id = form.getMetadata().get(FORM_USERNAME);
+                id = beneficiarySegment.getMetadata(FORM_USERNAME);
             }
         }
-
         return id;
     }
 

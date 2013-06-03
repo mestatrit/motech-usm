@@ -1,5 +1,7 @@
 package org.motechproject.mapper.listeners;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,10 +43,10 @@ public class FormListenerTest {
         HashMap<String, String> attributes = new HashMap<>();
         motechEvent.getParameters().put(EventDataKeys.ELEMENT_NAME, elementName);
         motechEvent.getParameters().put(EventDataKeys.ATTRIBUTES, attributes);
-        Map<String, Map<String, Object>> subElements = new HashMap<>();
+        Multimap<String, Map<String, Object>> subElements = new LinkedHashMultimap<>();
         Map<String, Object> metaElement = new HashMap<>();
         metaElement.put(EventDataKeys.ELEMENT_NAME, "meta");
-        HashMap<String, Map<String, Object>> metaSubElements = new HashMap<>();
+        Multimap<String, Map<String, Object>> metaSubElements = new LinkedHashMultimap<>();
         HashMap<String, Object> metaElement1 = new HashMap<>();
         String meta1 = "meta1";
         metaElement1.put(EventDataKeys.ELEMENT_NAME, meta1);

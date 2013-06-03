@@ -12,7 +12,7 @@ public class SearchStrategyChooser {
             return new SearchStrategy() {
                 @Override
                 public FormNode search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
-                    return startElement.search(elementPath, restrictedElements);
+                    return startElement.searchFirst(elementPath);
                 }
             };
         }
@@ -21,7 +21,7 @@ public class SearchStrategyChooser {
             return new SearchStrategy() {
                 @Override
                 public FormNode search(FormValueElement startElement, FormValueElement rootElement, List<String> restrictedElements) {
-                    return rootElement.search(elementPath.replace("/" + rootElement.getElementName(), "/"), restrictedElements);
+                    return rootElement.searchFirst(elementPath.replace("/" + rootElement.getElementName(), "/"));
                 }
             };
         }

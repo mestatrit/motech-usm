@@ -37,7 +37,7 @@ public class SearchStrategyChooserTest {
         SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
         strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(rootElement).search(actualSearchString, restrictedElements);
+        verify(rootElement).searchFirst(actualSearchString);
     }
 
     @Test
@@ -50,6 +50,6 @@ public class SearchStrategyChooserTest {
         SearchStrategy strategy = SearchStrategyChooser.getFor(searchElement);
         strategy.search(startElement, rootElement, restrictedElements);
 
-        verify(startElement).search(searchElement, restrictedElements);
+        verify(startElement).searchFirst(searchElement);
     }
 }
