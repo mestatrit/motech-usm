@@ -13,6 +13,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -29,9 +30,11 @@ public class MappingFileControllerTest {
     @Mock
     private MRSMappingService mappingService;
 
+    private MappingFileController mappingFileController;
     @Before
     public void setUp() {
         initMocks(this);
+        mappingFileController = new MappingFileController(mappingsReader, mappingService);
     }
 
     @Test
@@ -45,7 +48,6 @@ public class MappingFileControllerTest {
         when(request.getHeader("Referer")).thenReturn("url");
         List<MRSMapping> mappings = new ArrayList<>();
         when(mappingsReader.readJson(new String(contentAsByte))).thenReturn(mappings);
-        MappingFileController mappingFileController = new MappingFileController(mappingsReader, mappingService);
 
         String redirectUrl = mappingFileController.updateMappingFile(uploadRequest, request);
 
@@ -57,11 +59,34 @@ public class MappingFileControllerTest {
     @Test
     public void shouldDeleteMappings() throws Exception {
         String xmlns = "http://bihar.commcarehq.org/pregnancy/registration";
-        MappingFileController mappingFileController = new MappingFileController(mappingsReader, mappingService);
         MockMvcBuilders.standaloneSetup(mappingFileController).build().perform(delete("/deleteMapping").param("xmlns", xmlns))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Mapping deleted successfully"));
 
         verify(mappingService).deleteMapping(xmlns);
+    }
+
+    @Test
+    public void shouldSortTheListWhileReturingAllMappings() {
+        MRSMapping mrsMapping1 = new MRSMapping();
+        mrsMapping1.setXmlns("xmlns2");
+        MRSMapping mrsMapping2 = new MRSMapping();
+        mrsMapping2.setXmlns("xmlns1");
+        MRSMapping mrsMapping3 = new MRSMapping();
+        mrsMapping3.setXmlns("xmlns3");
+        MRSMapping mrsMapping4 = new MRSMapping();
+        MRSMapping mrsMapping5 = new MRSMapping();
+        mrsMapping5.setXmlns("xmlns2");
+
+        List<MRSMapping> mappings = Arrays.asList(mrsMapping1, mrsMapping2, mrsMapping3, null, mrsMapping4, mrsMapping5);
+        when(mappingService.getAllMappings()).thenReturn(mappings);
+
+        List<MRSMapping> actualList = mappingFileController.getAllMappings();
+        assertEquals(null, actualList.get(0));
+        assertEquals(mrsMapping4, actualList.get(1));
+        assertEquals(mrsMapping2, actualList.get(2));
+        assertEquals(mrsMapping1, actualList.get(3));
+        assertEquals(mrsMapping5, actualList.get(4));
+        assertEquals(mrsMapping3, actualList.get(5));
     }
 }

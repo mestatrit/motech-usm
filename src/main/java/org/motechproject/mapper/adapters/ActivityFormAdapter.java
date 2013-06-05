@@ -1,19 +1,17 @@
 package org.motechproject.mapper.adapters;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
-import org.motechproject.mapper.util.SearchStrategyChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Adapts a particular form by an activity type, such as encounters, registrations, drugs orders, etc.
@@ -21,19 +19,13 @@ import java.util.Map;
 public abstract class ActivityFormAdapter {
 
     protected Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
+    private AllElementSearchStrategies allElementSearchStrategies;
+
+    public ActivityFormAdapter(AllElementSearchStrategies allElementSearchStrategies) {
+        this.allElementSearchStrategies = allElementSearchStrategies;
+    }
 
     public abstract void adaptForm(CommcareForm form, MRSActivity activity);
-
-    private Multimap<String, FormValueElement> getTopFormElements(FormValueElement rootElement) {
-        Multimap<String, FormValueElement> rootElementMap = new LinkedHashMultimap<>();
-        List<FormValueElement> childElements = rootElement.getChildElements(rootElement.getElementName());
-        rootElementMap.putAll(rootElement.getElementName(), childElements);
-        if (rootElementMap.size() == 0) {
-            rootElementMap.put(rootElement.getElementName(), rootElement);
-        }
-
-        return rootElementMap;
-    }
 
     protected List<CommcareFormBeneficiarySegment> getAllBeneficiarySegments(CommcareForm form, MRSActivity activity) {
         List<CommcareFormBeneficiarySegment> beneficiarySegments = new ArrayList<>();
@@ -41,15 +33,17 @@ public abstract class ActivityFormAdapter {
         String startElementPath = formMapperProperties.getStartElement();
 
         FormValueElement rootElement = form.getForm();
-        FormValueElement startElement = (FormValueElement) SearchStrategyChooser.getFor(startElementPath).search(rootElement, rootElement, formMapperProperties.getRestrictedElements());
-        if (startElement == null) {
+        List<FormNode> startElements = allElementSearchStrategies.search(startElementPath, rootElement, rootElement, null);
+
+        if (startElements.size() == 0) {
             logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementPath, form.getId()));
             return beneficiarySegments;
         }
-        for (Map.Entry<String, FormValueElement> topFormElements : getTopFormElements(startElement).entries()) {
-            beneficiarySegments.add(new CommcareFormBeneficiarySegment(form, topFormElements.getValue(), formMapperProperties.getRestrictedElements()));
 
+        for(FormNode startElement : startElements) {
+            beneficiarySegments.add(new CommcareFormBeneficiarySegment(form, (FormValueElement) startElement, formMapperProperties.getRestrictedElements(), allElementSearchStrategies));
         }
+
         return beneficiarySegments;
     }
 }

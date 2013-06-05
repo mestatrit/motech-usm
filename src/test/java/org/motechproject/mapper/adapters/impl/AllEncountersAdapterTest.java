@@ -13,22 +13,20 @@ import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.IdentityResolver;
-import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.util.*;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AllEncountersAdapterTest {
@@ -48,28 +46,35 @@ public class AllEncountersAdapterTest {
     @Before
     public void setUp() {
         initMocks(this);
-        encountersAdapter = new AllEncountersAdapter(mrsUtil, idResolver);
+        encountersAdapter = new AllEncountersAdapter(mrsUtil, idResolver,new AllElementSearchStrategies());
     }
 
     @Test
     public void shouldAddObservations() {
         String elementName = "field";
         String observationValue = "value";
+        String patientId = "motech Id";
+        MRSPatientDto patient = new MRSPatientDto();
+        patient.setMotechId(patientId);
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
-        ObservationMapping observationMappings = new ObservationMapping();
+        ObservationMapping observationMapping = new ObservationMapping();
         String conceptName = "name to be stored";
-        observationMappings.setConceptName(conceptName);
-        observationMappings.setElementName(elementName);
-        MRSEncounterActivity activity = new EncounterActivityBuilder().withFormMapperProperties(formMapperProperties).withObservationMappings(observationMappings).getActivity();
+        observationMapping.setConceptName(conceptName);
+        observationMapping.setElementName(elementName);
+
+        List<ObservationMapping> observationMappings = new ArrayList<>();
+        observationMappings.add(observationMapping);
+        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
+
+        MRSEncounterActivity activity = new EncounterActivityBuilder().withFormMapperProperties(formMapperProperties).withObservationMappings(observationMapping).getActivity();
         when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
 
         encountersAdapter.adaptForm(form, activity);
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
 
-        verify(mrsUtil).addEncounter(any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
-        List<Set<MRSObservationDto>> observations = observationCaptor.getAllValues();
-        MRSObservationDto actualObservation = observations.get(0).iterator().next();
+        MRSObservationDto actualObservation = observations.iterator().next();
         assertEquals(conceptName, actualObservation.getConceptName());
         assertEquals(observationValue, actualObservation.getValue());
     }

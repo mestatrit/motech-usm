@@ -37,12 +37,13 @@ public class ObservationsGeneratorTest {
         String value = "21";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>());
+        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(),
+                new ArrayList<String>(), new AllElementSearchStrategies());
 
         Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
 
-        assertEquals(1, observations.size());
         MRSObservationDto actualObservation = observations.iterator().next();
+        assertEquals(1, observations.size());
         assertEquals(conceptName, actualObservation.getConceptName());
         assertEquals(value, actualObservation.getValue());
         assertEquals(patientId, actualObservation.getPatientId());
@@ -66,7 +67,7 @@ public class ObservationsGeneratorTest {
         String value = "raj taj";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>());
+        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
         Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
 
@@ -82,4 +83,9 @@ public class ObservationsGeneratorTest {
         assertTrue(value.contains(observation2.getValue().toString()));
         assertEquals(patientId, observation2.getPatientId());
     }
+
+   @Test
+   public void shouldIgnoreNullObservationMappings() {
+
+   }
 }

@@ -6,9 +6,7 @@ import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
-import org.motechproject.mapper.util.IdentityResolver;
-import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.util.*;
 import org.motechproject.mapper.validation.ValidationError;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSAttribute;
@@ -40,7 +38,8 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     private ValidationManager validator;
 
     @Autowired
-    public AllRegistrationsAdapter(MRSUtil mrsUtil, IdentityResolver idResolver, MRSPatientAdapter mrsPatientAdapter, ValidationManager validator) {
+    public AllRegistrationsAdapter(MRSUtil mrsUtil, IdentityResolver idResolver, MRSPatientAdapter mrsPatientAdapter, ValidationManager validator, AllElementSearchStrategies allElementSearchStrategies) {
+        super(allElementSearchStrategies);
         this.mrsUtil = mrsUtil;
         this.idResolver = idResolver;
         this.mrsPatientAdapter = mrsPatientAdapter;
@@ -52,18 +51,18 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         MRSRegistrationActivity registrationActivity = (MRSRegistrationActivity) activity;
         for (CommcareFormBeneficiarySegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
 
-            String gender = getValueFor(GENDER_FIELD, registrationActivity, beneficiarySegment);
+            String gender = getStringValueFor(GENDER_FIELD, registrationActivity, beneficiarySegment);
             DateTime dateOfBirth = getDateValueFor(DOB_FIELD, registrationActivity, beneficiarySegment);
-            String firstName = getValueFor(FIRST_NAME_FIELD, registrationActivity, beneficiarySegment);
-            String lastName = getValueFor(LAST_NAME_FIELD, registrationActivity, beneficiarySegment);
-            String middleName = getValueFor(MIDDLE_NAME_FIELD, registrationActivity, beneficiarySegment);
-            String preferredName = getValueFor(PREFERRED_NAME_FIELD, registrationActivity, beneficiarySegment);
-            String address = getValueFor(ADDRESS_FIELD, registrationActivity, beneficiarySegment);
+            String firstName = getStringValueFor(FIRST_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String lastName = getStringValueFor(LAST_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String middleName = getStringValueFor(MIDDLE_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String preferredName = getStringValueFor(PREFERRED_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String address = getStringValueFor(ADDRESS_FIELD, registrationActivity, beneficiarySegment);
             Integer age = getIntegerValueFor(AGE_FIELD, registrationActivity, beneficiarySegment);
             Boolean birthDateIsEstimated = getBooleanValueFor(BIRTH_DATE_ESTIMATED_FIELD, registrationActivity, beneficiarySegment);
             Boolean isDead = getBooleanValueFor(IS_DEAD_FIELD, registrationActivity, beneficiarySegment);
             DateTime deathDate = getDateValueFor(DEATH_DATE_FIELD, registrationActivity, beneficiarySegment);
-            String facilityName = getValueFor(FACILITY_NAME_FIELD, registrationActivity, beneficiarySegment);
+            String facilityName = getStringValueFor(FACILITY_NAME_FIELD, registrationActivity, beneficiarySegment);
 
             MRSFacility facility = getMRSFacility(registrationActivity.getFacilityScheme(), facilityName, beneficiarySegment);
 
@@ -86,6 +85,12 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         MRSPerson person;
         if (patient == null) {
             String id = UUID.randomUUID().toString();
+            if(dead == null) {
+                dead = false;
+            }
+            if(birthDateIsEstimated == null) {
+                birthDateIsEstimated = false;
+            }
             person = new MRSPersonDto(id, firstName, middleName, lastName, preferredName, address, dateOfBirth, birthDateIsEstimated, age, gender, dead, attributes, deathDate);
             patient = new MRSPatientDto(id, facility, person, motechId);
             try {
@@ -199,52 +204,38 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         }
     }
 
-    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
-        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
-        if (value == null)
-            return null;
+    private String getStringValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+        return getValueFor(fieldName, registrationActivity, beneficiarySegment, String.class);
+    }
 
-        Integer integerValue = null;
-        try {
-            integerValue = Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            logger.error(String.format("Error parsing %s value from registration form: %s", fieldName, e.getMessage()));
-        }
-        return integerValue;
+    private Integer getIntegerValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+        return getValueFor(fieldName, registrationActivity, beneficiarySegment, Integer.class);
     }
 
     private Boolean getBooleanValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
-        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
-        return Boolean.valueOf(value);
+        return getValueFor(fieldName, registrationActivity, beneficiarySegment, Boolean.class);
     }
 
     private DateTime getDateValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
-        String value = getValueFor(fieldName, registrationActivity, beneficiarySegment);
-        if (value == null)
-            return null;
-
-        DateTime dateValue = null;
-        try {
-            dateValue = DateTime.parse(value);
-        } catch (IllegalArgumentException e) {
-            logger.error(String.format("Unable to parse %s value: %s", fieldName, e.getMessage()));
-        }
-        return dateValue;
+        return getValueFor(fieldName, registrationActivity, beneficiarySegment, DateTime.class);
     }
 
-    private String getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+    private <T> T getValueFor(String fieldName, MRSRegistrationActivity registrationActivity, CommcareFormBeneficiarySegment beneficiarySegment, Class<T> convertTo) {
         Map<String, String> registrationMappings = registrationActivity.getRegistrationMappings();
         if (registrationMappings == null) return null;
         String fieldValue = registrationMappings.get(fieldName);
         if (fieldValue != null) {
-            FormNode searchElement = beneficiarySegment.search(fieldValue);
-            if (searchElement != null) {
-                return searchElement.getValue();
-            }
+            return ExpressionUtil.resolve(fieldValue, beneficiarySegment, convertTo);
         }
-        if (registrationActivity.getStaticMappings() != null)
-            return registrationActivity.getStaticMappings().get(fieldName);
-        else
-            return null;
+        return getDefaultValue(fieldName, convertTo, registrationActivity);
+    }
+
+    private <T> T getDefaultValue(String fieldName, Class<T> convertTo, MRSRegistrationActivity registrationActivity) {
+        Map<String, String> staticMappings = registrationActivity.getStaticMappings();
+
+        if(staticMappings != null) {
+            return (T) staticMappings.get(fieldName);
+        }
+        return null;
     }
 }

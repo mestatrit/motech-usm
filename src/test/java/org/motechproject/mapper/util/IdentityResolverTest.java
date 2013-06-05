@@ -32,18 +32,25 @@ public class IdentityResolverTest {
         String fieldName = "case";
         String attributeName = "case_id";
         String expectedId = "attribute_value";
+
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
+
         FormValueElement element = new FormValueElement();
+        element.setElementName("case");
+
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(attributeName, expectedId);
+
         element.setAttributes(attributes);
+
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+
         HashMap<String, String> idScheme = new HashMap<>();
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
         idScheme.put(ID_SCHEME_FIELD, fieldName);
         idScheme.put(ID_SCHEME_ATTRIBUTE, attributeName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }
@@ -55,23 +62,26 @@ public class IdentityResolverTest {
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
         FormValueElement element = new FormValueElement();
         element.setValue(expectedId);
+        element.setElementName("case");
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         HashMap<String, String> idScheme = new HashMap<>();
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
         idScheme.put(ID_SCHEME_FIELD, fieldName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }
 
     @Test
     public void shouldGetNameFromFormWithIdSchemeAttribute() {
-        String fieldName = "fromform";
-        String attributeName = "name";
-        String expectedId = "Migrate Out";
+        String fieldName = "case";
+        String attributeName = "case_id";
+        String expectedId = "value";
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
         FormValueElement element = new FormValueElement();
+        element.setValue(expectedId);
+        element.setElementName("case");
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(attributeName, expectedId);
         element.setAttributes(attributes);
@@ -81,7 +91,7 @@ public class IdentityResolverTest {
         idScheme.put(ID_SCHEME_FIELD, fieldName);
         idScheme.put(ID_SCHEME_ATTRIBUTE, attributeName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }

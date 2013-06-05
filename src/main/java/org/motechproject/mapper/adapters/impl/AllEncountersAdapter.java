@@ -8,10 +8,7 @@ import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
-import org.motechproject.mapper.util.IdentityResolver;
-import org.motechproject.mapper.util.MRSUtil;
-import org.motechproject.mapper.util.ObservationsGenerator;
+import org.motechproject.mapper.util.*;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.slf4j.Logger;
@@ -31,7 +28,8 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
     private IdentityResolver idResolver;
 
     @Autowired
-    public AllEncountersAdapter(MRSUtil mrsUtil, IdentityResolver idResolver) {
+    public AllEncountersAdapter(MRSUtil mrsUtil, IdentityResolver idResolver, AllElementSearchStrategies allElementSearchStrategies) {
+        super(allElementSearchStrategies);
         this.mrsUtil = mrsUtil;
         this.idResolver = idResolver;
     }

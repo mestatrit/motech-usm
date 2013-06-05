@@ -14,8 +14,13 @@ public final class ObservationsGenerator {
 
     public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareFormBeneficiarySegment beneficiarySegment, MRSPatient patient) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
-        if (observationMappings == null) return observations;
+        if (observationMappings == null) {
+            return observations;
+        }
         for (ObservationMapping obs : observationMappings) {
+            if(obs == null) {
+                continue;
+            }
             String conceptId = obs.getConceptId();
             if (!StringUtils.isBlank(conceptId)) {
                 List<FormValueElement> elements = beneficiarySegment.getElementsByAttribute(FormMappingConstants.CONCEPT_ID_ATTRIBUTE, conceptId);

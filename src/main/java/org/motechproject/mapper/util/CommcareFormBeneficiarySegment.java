@@ -9,17 +9,19 @@ import java.util.List;
 public class CommcareFormBeneficiarySegment {
 
     private CommcareForm commcareForm;
+    private AllElementSearchStrategies allElementSearchStrategies;
     private FormValueElement startElement;
     private List<String> restrictedElements;
 
-    public CommcareFormBeneficiarySegment(CommcareForm commcareForm, FormValueElement startElement, List<String> restrictedElements) {
+    public CommcareFormBeneficiarySegment(CommcareForm commcareForm, FormValueElement startElement, List<String> restrictedElements, AllElementSearchStrategies allElementSearchStrategies) {
         this.startElement = startElement;
         this.restrictedElements = restrictedElements;
         this.commcareForm = commcareForm;
+        this.allElementSearchStrategies = allElementSearchStrategies;
     }
 
     public FormNode search(String lookupPath) {
-        return SearchStrategyChooser.getFor(lookupPath).search(startElement, commcareForm.getForm(), restrictedElements);
+        return allElementSearchStrategies.searchFirst(lookupPath, startElement, commcareForm.getForm(), restrictedElements);
     }
 
     public List<FormValueElement> getElementsByAttribute(String attribute, String value) {

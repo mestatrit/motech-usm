@@ -1,6 +1,6 @@
 package org.motechproject.mapper.domain;
 
-import org.motechproject.mapper.constants.FormMappingConstants;
+import org.motechproject.commcare.domain.FormNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class FormMapperProperties {
     private List<String> restrictedElements;
 
     public FormMapperProperties() {
-        startElement = FormMappingConstants.ROOT_ELEMENT;
+        startElement = FormNode.PREFIX_SEARCH_FROM_ROOT;
         restrictedElements = new ArrayList<>();
     }
 

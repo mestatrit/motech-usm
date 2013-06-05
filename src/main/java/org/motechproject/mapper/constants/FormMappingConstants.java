@@ -14,7 +14,7 @@ public final class FormMappingConstants {
 
     public static final String FORM_NAME_ATTRIBUTE = "name";
     public static final String FORM_XMLNS_ATTRIBUTE = "xmlns";
-    public static final String OPEN_MRS_ACTIVITY_TYPE = "type";
+    public static final String MRS_ACTIVITY_TYPE = "type";
     public static final String ENCOUNTER_ACTIVITY = "encounter";
     public static final String REGISTRATION_ACTIVITY = "registration";
     public static final String FORM_TIME_END = "timeEnd";
@@ -47,7 +47,6 @@ public final class FormMappingConstants {
 
     public static final String MAPPING_CONFIGURATION_FILE_NAME = "mappingConfiguration.properties";
     public static final String DESTINATION = "destination";
-    public static final String ROOT_ELEMENT = "form";
 
     private FormMappingConstants() {
     }

@@ -36,7 +36,7 @@ public class MappingsReader {
 
             if (json.isJsonObject()) {
                 JsonObject object = json.getAsJsonObject();
-                JsonElement typeElement = object.get(FormMappingConstants.OPEN_MRS_ACTIVITY_TYPE);
+                JsonElement typeElement = object.get(FormMappingConstants.MRS_ACTIVITY_TYPE);
                 if (typeElement.isJsonPrimitive()) {
                     JsonPrimitive primitive = typeElement.getAsJsonPrimitive();
                     String type = primitive.getAsString();
