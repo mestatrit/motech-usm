@@ -82,6 +82,9 @@ public class MappingFileControllerTest {
         when(mappingService.getAllMappings()).thenReturn(mappings);
 
         List<MRSMapping> actualList = mappingFileController.getAllMappings();
+
+        verify(mappingService, times(1)).getAllMappings();
+
         assertEquals(null, actualList.get(0));
         assertEquals(mrsMapping4, actualList.get(1));
         assertEquals(mrsMapping2, actualList.get(2));
