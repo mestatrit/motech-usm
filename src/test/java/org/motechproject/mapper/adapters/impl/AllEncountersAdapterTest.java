@@ -66,7 +66,7 @@ public class AllEncountersAdapterTest {
 
         List<ObservationMapping> observationMappings = new ArrayList<>();
         observationMappings.add(observationMapping);
-        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
+        CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
         MRSEncounterActivity activity = new EncounterActivityBuilder().withFormMapperProperties(formMapperProperties).withObservationMappings(observationMapping).getActivity();
         when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());

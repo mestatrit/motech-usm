@@ -27,7 +27,7 @@ public class AllMRSMappings extends MotechBaseRepository<MRSMapping> {
     }
 
     @View(name = "by_xmlns", map = "function(doc) { if(doc.type === 'MRSMapping'){ emit(doc.xmlns,doc._id); }}")
-    public MRSMapping byXmlns(String xmlns) {
+    public MRSMapping findByXmlns(String xmlns) {
         ViewQuery viewQuery = createQuery("by_xmlns").key(xmlns).includeDocs(true);
         List<MRSMapping> mrsMappings = db.queryView(viewQuery, MRSMapping.class);
         return mrsMappings.size() == 0 ? null : mrsMappings.get(0);

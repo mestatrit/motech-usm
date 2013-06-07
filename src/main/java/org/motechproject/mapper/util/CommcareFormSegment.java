@@ -6,14 +6,14 @@ import org.motechproject.commcare.domain.FormValueElement;
 
 import java.util.List;
 
-public class CommcareFormBeneficiarySegment {
+public class CommcareFormSegment {
 
     private CommcareForm commcareForm;
     private AllElementSearchStrategies allElementSearchStrategies;
     private FormValueElement startElement;
     private List<String> restrictedElements;
 
-    public CommcareFormBeneficiarySegment(CommcareForm commcareForm, FormValueElement startElement, List<String> restrictedElements, AllElementSearchStrategies allElementSearchStrategies) {
+    public CommcareFormSegment(CommcareForm commcareForm, FormValueElement startElement, List<String> restrictedElements, AllElementSearchStrategies allElementSearchStrategies) {
         this.startElement = startElement;
         this.restrictedElements = restrictedElements;
         this.commcareForm = commcareForm;

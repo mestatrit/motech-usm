@@ -50,7 +50,7 @@ public class IdentityResolverTest {
         idScheme.put(ID_SCHEME_FIELD, fieldName);
         idScheme.put(ID_SCHEME_ATTRIBUTE, attributeName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormSegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }
@@ -68,7 +68,7 @@ public class IdentityResolverTest {
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
         idScheme.put(ID_SCHEME_FIELD, fieldName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormSegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }
@@ -91,7 +91,7 @@ public class IdentityResolverTest {
         idScheme.put(ID_SCHEME_FIELD, fieldName);
         idScheme.put(ID_SCHEME_ATTRIBUTE, attributeName);
 
-        String id = identityResolver.retrieveId(idScheme, new CommcareFormBeneficiarySegment(form, form.getForm(), null,new AllElementSearchStrategies()));
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormSegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
     }

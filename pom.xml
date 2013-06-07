@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>org.motechproject</groupId>
+            <artifactId>commcare-provider-sync</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-commons-api</artifactId>
             <version>${project.version}</version>
             <exclusions>

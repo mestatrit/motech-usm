@@ -11,7 +11,6 @@ import java.util.Map;
         @JsonSubTypes.Type(value = MRSRegistrationActivity.class, name = "registrationActivity")
 })
 public class MRSActivity {
-
     private String type;
     private Map<String, String> patientIdScheme;
     private Map<String, String> facilityScheme;

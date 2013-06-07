@@ -30,7 +30,7 @@ public class IdentityResolver {
         return caseInfo.getFieldValues().get(openMrsPatientIdentifier);
     }
 
-    public String retrieveId(Map<String, String> idScheme, CommcareFormBeneficiarySegment beneficiarySegment) {
+    public String retrieveId(Map<String, String> idScheme, CommcareFormSegment beneficiarySegment) {
         String id = null;
 
         if (idScheme != null) {

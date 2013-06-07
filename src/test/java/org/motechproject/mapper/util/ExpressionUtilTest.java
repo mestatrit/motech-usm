@@ -17,7 +17,7 @@ public class ExpressionUtilTest {
         String expression = "myexpression";
         String expectedValue = "myvalue";
 
-        CommcareFormBeneficiarySegment beneficiarySegment = mock(CommcareFormBeneficiarySegment.class);
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         FormNode formNode = mock(FormNode.class);
 
         when(beneficiarySegment.search(expression)).thenReturn(formNode);
@@ -29,14 +29,14 @@ public class ExpressionUtilTest {
 
     @Test
     public void shouldHandleNullFormNode() {
-        CommcareFormBeneficiarySegment beneficiarySegment = mock(CommcareFormBeneficiarySegment.class);
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         String actualValue = ExpressionUtil.resolve("myexpression", beneficiarySegment);
         assertNull(actualValue);
     }
 
     @Test
     public void shouldConvertAndReturn() {
-        CommcareFormBeneficiarySegment beneficiarySegment = mock(CommcareFormBeneficiarySegment.class);
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         FormNode formNode = mock(FormNode.class);
 
         String actualValue = ExpressionUtil.resolve("gender", beneficiarySegment);

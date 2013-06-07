@@ -42,7 +42,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
-        for (CommcareFormBeneficiarySegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
+        for (CommcareFormSegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
             String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
 
@@ -61,7 +61,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         }
     }
 
-    private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormBeneficiarySegment beneficiarySegment) {
+    private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormSegment beneficiarySegment) {
         String facilityNameField = null;
         String facilityName = encounterActivity.getFacilityName();
         Map<String, String> encounterMappings = encounterActivity.getEncounterMappings();

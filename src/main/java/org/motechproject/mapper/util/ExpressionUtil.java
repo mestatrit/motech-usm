@@ -5,7 +5,7 @@ import org.motechproject.commcare.domain.FormNode;
 
 public class ExpressionUtil {
 
-    public static <T extends Object> T resolve(String expression, CommcareFormBeneficiarySegment beneficiarySegment, Class<T> T) {
+    public static <T extends Object> T resolve(String expression, CommcareFormSegment beneficiarySegment, Class<T> T) {
         String[] split = expression.split("::", 2);
 
         String rawValue = getRawValue(split[0], beneficiarySegment);
@@ -20,11 +20,11 @@ public class ExpressionUtil {
         return converter.convert(rawValue);
     }
 
-    public static String resolve(String expression, CommcareFormBeneficiarySegment beneficiarySegment) {
+    public static String resolve(String expression, CommcareFormSegment beneficiarySegment) {
         return resolve(expression, beneficiarySegment, String.class);
     }
 
-    private static String getRawValue(String lookupPath, CommcareFormBeneficiarySegment beneficiarySegment) {
+    private static String getRawValue(String lookupPath, CommcareFormSegment beneficiarySegment) {
         FormNode formNode = beneficiarySegment.search(lookupPath);
         return formNode == null ? null : formNode.getValue();
     }

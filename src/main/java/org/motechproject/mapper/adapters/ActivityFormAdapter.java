@@ -6,7 +6,7 @@ import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
-import org.motechproject.mapper.util.CommcareFormBeneficiarySegment;
+import org.motechproject.mapper.util.CommcareFormSegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +27,8 @@ public abstract class ActivityFormAdapter {
 
     public abstract void adaptForm(CommcareForm form, MRSActivity activity);
 
-    protected List<CommcareFormBeneficiarySegment> getAllBeneficiarySegments(CommcareForm form, MRSActivity activity) {
-        List<CommcareFormBeneficiarySegment> beneficiarySegments = new ArrayList<>();
+    protected List<CommcareFormSegment> getAllBeneficiarySegments(CommcareForm form, MRSActivity activity) {
+        List<CommcareFormSegment> beneficiarySegments = new ArrayList<>();
         FormMapperProperties formMapperProperties = activity.getFormMapperProperties();
         String startElementPath = formMapperProperties.getStartElement();
 
@@ -41,7 +41,7 @@ public abstract class ActivityFormAdapter {
         }
 
         for(FormNode startElement : startElements) {
-            beneficiarySegments.add(new CommcareFormBeneficiarySegment(form, (FormValueElement) startElement, formMapperProperties.getRestrictedElements(), allElementSearchStrategies));
+            beneficiarySegments.add(new CommcareFormSegment(form, (FormValueElement) startElement, formMapperProperties.getRestrictedElements(), allElementSearchStrategies));
         }
 
         return beneficiarySegments;

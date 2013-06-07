@@ -1,0 +1,133 @@
+package org.motechproject.mapper.adapters.impl;
+
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.commcare.domain.FormNode;
+import org.motechproject.mapper.builder.FormBuilder;
+import org.motechproject.mapper.constants.FormMappingConstants;
+import org.motechproject.mapper.domain.MRSActivity;
+import org.motechproject.mapper.domain.MRSMapping;
+import org.motechproject.mapper.domain.MRSRegistrationActivity;
+import org.motechproject.mapper.service.MRSMappingService;
+import org.motechproject.mapper.util.AllElementSearchStrategies;
+import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mrs.domain.MRSPerson;
+import org.motechproject.mrs.domain.MRSProvider;
+import org.motechproject.mrs.model.MRSPersonDto;
+import org.motechproject.mrs.model.MRSProviderDto;
+import org.motechproject.mrs.services.MRSProviderAdapter;
+
+import java.util.ArrayList;
+
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class ProviderAdapterTest {
+
+    private ProviderAdapter providerAdapter;
+
+    @Mock
+    private MRSProviderAdapter mrsProviderAdapter;
+
+    @Mock
+    private MRSMappingService mrsMappingService;
+
+    @Mock
+    private AllElementSearchStrategies allElementSearchStrategies;
+
+    @Mock
+    private PersonAdapter personAdapter;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+        providerAdapter = new ProviderAdapter(personAdapter, mrsProviderAdapter, mrsMappingService, allElementSearchStrategies);
+    }
+
+    @Test
+    public void shouldCreateAndSaveProvider() {
+        String providerId = "myproviderid";
+
+        FormNode idNode = mock(FormNode.class);
+        when(idNode.getValue()).thenReturn(providerId);
+        CommcareForm commcareForm = new FormBuilder("form").getForm();
+        when(allElementSearchStrategies.searchFirst("/form/id", commcareForm.getForm(), commcareForm.getForm(), null)).thenReturn(idNode);
+
+        final MRSRegistrationActivity registrationActivity = mock(MRSRegistrationActivity.class);
+        when(registrationActivity.getType()).thenReturn(FormMappingConstants.REGISTRATION_ACTIVITY);
+        MRSMapping mrsMapping = mock(MRSMapping.class);
+        when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
+            add(registrationActivity);
+        }});
+        when(mrsMappingService.findByXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMapping);
+
+        MRSPerson person = new MRSPersonDto();
+        ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
+
+        providerAdapter.adaptForm(commcareForm);
+
+        CommcareFormSegment actualFormSegment = formSegmentCaptor.getValue();
+        assertEquals(idNode, actualFormSegment.search("/form/id"));
+
+        ArgumentCaptor<MRSProvider> captor = ArgumentCaptor.forClass(MRSProvider.class);
+        verify(mrsProviderAdapter).saveProvider(captor.capture());
+        MRSProvider actualProvider = captor.getValue();
+        assertEquals(providerId, actualProvider.getProviderId());
+        assertEquals(person, actualProvider.getPerson());
+
+        verify(mrsProviderAdapter, never()).removeProvider(any(String.class));
+    }
+
+    @Test
+    public void shouldDeleteExistingProviderIfExistsAndSaveNewProvider() {
+        String providerId = "myproviderid";
+
+        FormNode idNode = mock(FormNode.class);
+        when(idNode.getValue()).thenReturn(providerId);
+        CommcareForm commcareForm = new FormBuilder("form").getForm();
+        when(allElementSearchStrategies.searchFirst("/form/id", commcareForm.getForm(), commcareForm.getForm(), null)).thenReturn(idNode);
+
+        final MRSRegistrationActivity registrationActivity = mock(MRSRegistrationActivity.class);
+        when(registrationActivity.getType()).thenReturn(FormMappingConstants.REGISTRATION_ACTIVITY);
+        MRSMapping mrsMapping = mock(MRSMapping.class);
+        when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
+            add(registrationActivity);
+        }});
+        when(mrsMappingService.findByXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMapping);
+
+        MRSPerson person = new MRSPersonDto();
+        ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
+
+        when(mrsProviderAdapter.getProviderByProviderId(providerId)).thenReturn(new MRSProviderDto());
+
+        providerAdapter.adaptForm(commcareForm);
+
+        CommcareFormSegment actualFormSegment = formSegmentCaptor.getValue();
+        assertEquals(idNode, actualFormSegment.search("/form/id"));
+
+        ArgumentCaptor<MRSProvider> captor = ArgumentCaptor.forClass(MRSProvider.class);
+        verify(mrsProviderAdapter).saveProvider(captor.capture());
+        MRSProvider actualProvider = captor.getValue();
+        assertEquals(providerId, actualProvider.getProviderId());
+        assertEquals(person, actualProvider.getPerson());
+
+        verify(mrsProviderAdapter).removeProvider(providerId);
+    }
+
+    @Test
+    public void shouldIgnoreIfProviderIdIsNotFound() {
+        CommcareForm commcareForm = new FormBuilder("form").getForm();
+        providerAdapter.adaptForm(commcareForm);
+
+        verifyZeroInteractions(mrsProviderAdapter);
+        verifyZeroInteractions(personAdapter);
+    }
+
+}

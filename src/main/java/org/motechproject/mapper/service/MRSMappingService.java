@@ -35,4 +35,8 @@ public class MRSMappingService {
     public void deleteAllMappings() {
         allMRSMappings.removeAll();
     }
+
+    public MRSMapping findByXmlns(String xmlns) {
+        return allMRSMappings.findByXmlns(xmlns);
+    }
 }

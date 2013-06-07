@@ -37,7 +37,7 @@ public class ObservationsGeneratorTest {
         String value = "21";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(),
+        CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(),
                 new ArrayList<String>(), new AllElementSearchStrategies());
 
         Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
@@ -67,7 +67,7 @@ public class ObservationsGeneratorTest {
         String value = "raj taj";
         element.setValue(value);
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
-        CommcareFormBeneficiarySegment beneficiarySegment = new CommcareFormBeneficiarySegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
+        CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
         Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
 

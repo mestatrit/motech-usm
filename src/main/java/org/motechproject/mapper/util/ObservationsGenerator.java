@@ -12,7 +12,7 @@ import java.util.*;
 
 public final class ObservationsGenerator {
 
-    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareFormBeneficiarySegment beneficiarySegment, MRSPatient patient) {
+    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareFormSegment beneficiarySegment, MRSPatient patient) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         if (observationMappings == null) {
             return observations;
