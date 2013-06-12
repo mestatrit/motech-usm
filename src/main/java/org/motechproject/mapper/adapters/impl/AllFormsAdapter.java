@@ -50,6 +50,7 @@ public class AllFormsAdapter implements FormAdapter {
                 return;
             }
         }
+        logger.warn(String.format("Could not find mapper file for form of type(%s) and xmlns(%s) ", formName, xmlns));
     }
 
     private ActivityFormAdapter getAdapter(String activityType, String formName) {

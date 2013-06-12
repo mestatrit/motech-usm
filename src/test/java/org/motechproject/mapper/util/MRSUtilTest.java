@@ -62,7 +62,7 @@ public class MRSUtilTest {
         properties.put(FormMappingConstants.DESTINATION, FormMappingConstants.DESTINATION_COUCHDB);
         when(settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME)).thenReturn(properties);
 
-        mrsUtil.addEncounter(patient, mrsObservationDtos, providerID, DateTime.now(), facilityName, encounterType);
+        mrsUtil.addEncounter("anyencounterid", patient, mrsObservationDtos, providerID, DateTime.now(), facilityName, encounterType);
 
         verify(mrsEncounterAdapter, never()).createEncounter(any(MRSEncounterDto.class));
     }
@@ -73,18 +73,24 @@ public class MRSUtilTest {
         MRSPatient patient = new MRSPatientDto();
         Set<MRSObservationDto> observations = new HashSet<>();
         String providerId = "provider Id";
+        String encounterId = "someencounterId";
+
         Properties properties = new Properties();
         properties.put(FormMappingConstants.DESTINATION, FormMappingConstants.DESTINATION_COUCHDB);
         when(settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME)).thenReturn(properties);
         when(mrsProviderAdapter.getProviderByProviderId(providerId)).thenReturn(null);
 
-        mrsUtil.addEncounter(patient, observations, providerId, DateTime.now(), "facility", "encounter type");
+        mrsUtil.addEncounter(encounterId, patient, observations, providerId, DateTime.now(), "facility", "encounter type");
 
         ArgumentCaptor<MRSProvider> providerCaptor = ArgumentCaptor.forClass(MRSProvider.class);
         verify(mrsProviderAdapter).saveProvider(providerCaptor.capture());
         MRSProvider actualProvider = providerCaptor.getValue();
         assertEquals(providerId, actualProvider.getProviderId());
         assertFalse(actualProvider.getPerson().getPersonId().equals(providerId));
+
+        ArgumentCaptor<MRSEncounterDto> encounterCaptor = ArgumentCaptor.forClass(MRSEncounterDto.class);
+        verify(mrsEncounterAdapter).createEncounter(encounterCaptor.capture());
+        assertEquals(encounterId, encounterCaptor.getValue().getEncounterId());
     }
 
     @Test
@@ -97,7 +103,7 @@ public class MRSUtilTest {
         properties.put(FormMappingConstants.DESTINATION, FormMappingConstants.DESTINATION_COUCHDB);
         when(settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME)).thenReturn(properties);
 
-        mrsUtil.addEncounter(patient, observations, providerId, DateTime.now(), "facility", "encounter type");
+        mrsUtil.addEncounter("someencounter", patient, observations, providerId, DateTime.now(), "facility", "encounter type");
 
         verify(mrsProviderAdapter, never()).getProviderByProviderId(providerId);
         verify(mrsProviderAdapter, never()).saveProvider(any(MRSProviderDto.class));

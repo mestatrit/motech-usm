@@ -20,6 +20,7 @@ import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -83,16 +84,23 @@ public class AllEncountersAdapterTest {
     public void shouldCheckIfObservationMappingsAreNull() {
         String elementName = "field";
         String observationValue = "value";
+        String encounterId = "myencounterid";
+
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
+
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
         activity.setObservationMappings(null);
+        HashMap<String, String> encounterIdScheme = new HashMap<>();
+        activity.setEncounterIdScheme(encounterIdScheme);
+
+        when(idResolver.retrieveId(eq(encounterIdScheme), any(CommcareFormSegment.class))).thenReturn(encounterId);
         when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
 
         encountersAdapter.adaptForm(form, activity);
 
-        verify(mrsUtil).addEncounter(any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+        verify(mrsUtil).addEncounter(eq(encounterId), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
         List<Set<MRSObservationDto>> observations = observationCaptor.getAllValues();
         int actualObservation = observations.get(0).size();
         assertEquals(0, actualObservation);
@@ -109,6 +117,6 @@ public class AllEncountersAdapterTest {
 
         encountersAdapter.adaptForm(form, activity);
 
-        verify(mrsUtil,times(0)).addEncounter(any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+        verify(mrsUtil,times(0)).addEncounter(any(String.class), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
     }
 }

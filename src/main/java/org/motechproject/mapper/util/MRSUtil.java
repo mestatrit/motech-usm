@@ -89,7 +89,7 @@ public class MRSUtil {
         return mrsPatientAdapter.getPatientByMotechId(motechId);
     }
 
-    public void addEncounter(MRSPatient patient, Set<MRSObservationDto> observations, String providerId,
+    public void addEncounter(String encounterId, MRSPatient patient, Set<MRSObservationDto> observations, String providerId,
                              DateTime encounterDate, String facilityName, String encounterType) {
 
         MRSFacility facility = findFacility(facilityName);
@@ -101,7 +101,7 @@ public class MRSUtil {
         mrsEncounter.setProvider(provider);
         mrsEncounter.setEncounterType(encounterType);
         mrsEncounter.setObservations(observations);
-        mrsEncounter.setEncounterId(UUID.randomUUID().toString());
+        mrsEncounter.setEncounterId(encounterId);
         List<ValidationError> validationErrors = validator.validateEncounter(mrsEncounter);
         if (validationErrors.size() != 0) {
             logger.info("Unable to save encounter due to validation errors");

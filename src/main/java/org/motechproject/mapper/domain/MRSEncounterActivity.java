@@ -9,6 +9,7 @@ public class MRSEncounterActivity extends MRSActivity {
     private String facilityName;
     private List<ObservationMapping> observationMappings;
     private Map<String, String> encounterMappings;
+    private Map<String, String> encounterIdScheme;
 
     public List<ObservationMapping> getObservationMappings() {
         return observationMappings;
@@ -40,5 +41,13 @@ public class MRSEncounterActivity extends MRSActivity {
 
     public void setEncounterMappings(Map<String, String> encounterMappings) {
         this.encounterMappings = encounterMappings;
+    }
+
+    public Map<String, String> getEncounterIdScheme() {
+        return encounterIdScheme;
+    }
+
+    public void setEncounterIdScheme(Map<String, String> encounterIdScheme) {
+        this.encounterIdScheme = encounterIdScheme;
     }
 }
