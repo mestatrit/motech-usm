@@ -46,6 +46,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
         for (CommcareFormSegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
+            ObservationIdGenerationStrategy observationIdGenerationStrategy = new ObservationIdGenerationStrategy(beneficiarySegment, encounterActivity, idResolver);
             String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
             String encounterId = retrieveEncounterId(encounterIdScheme, beneficiarySegment);
@@ -58,7 +59,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
                 logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
             DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy);
             String facilityName = getFacility(encounterActivity, beneficiarySegment);
             mrsUtil.addEncounter(encounterId, patient, observations, providerId, dateReceived, facilityName,
                     encounterActivity.getEncounterType());

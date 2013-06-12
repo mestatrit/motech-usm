@@ -12,7 +12,9 @@ import java.util.*;
 
 public final class ObservationsGenerator {
 
-    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings, CommcareFormSegment beneficiarySegment, MRSPatient patient) {
+    public static Set<MRSObservationDto> generate(List<ObservationMapping> observationMappings,
+                                                  CommcareFormSegment beneficiarySegment, MRSPatient patient,
+                                                  ObservationIdGenerationStrategy observationIdGenerationStrategy) {
         Set<MRSObservationDto> observations = new HashSet<MRSObservationDto>();
         if (observationMappings == null) {
             return observations;
@@ -27,7 +29,7 @@ public final class ObservationsGenerator {
                 if (elements.size() > 0) {
                     FormValueElement element = elements.get(0);
                     if (!StringUtils.isBlank(element.getValue())) {
-                        observations.addAll(addObservations(obs, element, patient));
+                        observations.addAll(addObservations(obs, element, patient, observationIdGenerationStrategy));
                     }
                 }
             } else {
@@ -35,7 +37,7 @@ public final class ObservationsGenerator {
                 if (elementName != null) {
                     FormNode element = beneficiarySegment.search(elementName);
                     if (element != null && !StringUtils.isBlank(element.getValue())) {
-                        observations.addAll(addObservations(obs, element, patient));
+                        observations.addAll(addObservations(obs, element, patient, observationIdGenerationStrategy));
                     }
                 }
             }
@@ -43,11 +45,11 @@ public final class ObservationsGenerator {
         return observations;
     }
 
-    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormNode element, MRSPatient patient) {
+    private static Collection<MRSObservationDto> addObservations(ObservationMapping obs, FormNode element, MRSPatient patient, ObservationIdGenerationStrategy observationIdGenerationStrategy) {
         Set<MRSObservationDto> observations = new HashSet<>();
 
         if (FormMappingConstants.LIST_TYPE.equals(obs.getType())) {
-            observations.addAll(adaptList(obs, element, patient));
+            observations.addAll(adaptList(obs, element, patient, observationIdGenerationStrategy));
         } else {
             Map<String, String> valueMappings = obs.getValues();
             String mappedValue = null;
@@ -61,19 +63,22 @@ public final class ObservationsGenerator {
             } else {
                 observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), element.getValue());
             }
+            observation.setObservationId(observationIdGenerationStrategy.generate(conceptName));
             observations.add(observation);
         }
         return observations;
     }
 
-    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormNode element, MRSPatient patient) {
+    private static Collection<MRSObservationDto> adaptList(ObservationMapping obs, FormNode element, MRSPatient patient,
+                                                           ObservationIdGenerationStrategy observationIdGenerationStrategy) {
         Set<MRSObservationDto> observations = new HashSet<>();
 
         String[] values = element.getValue().split(FormMappingConstants.LIST_DELIMITER);
         Map<String, String> valueMappings = obs.getValues();
         String conceptName = obs.getConceptName();
 
-        for (String value : values) {
+        for (int i = 0, valuesLength = values.length; i < valuesLength; i++) {
+            String value = values[i];
             String mappedValue = null;
 
             if (valueMappings != null) {
@@ -85,6 +90,7 @@ public final class ObservationsGenerator {
             } else {
                 observation = new MRSObservationDto(new Date(), conceptName, patient.getMotechId(), value);
             }
+            observation.setObservationId(observationIdGenerationStrategy.generate(conceptName, i));
             observations.add(observation);
         }
 

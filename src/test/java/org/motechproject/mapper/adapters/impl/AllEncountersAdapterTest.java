@@ -44,6 +44,9 @@ public class AllEncountersAdapterTest {
     @Captor
     private ArgumentCaptor<Set<MRSObservationDto>> observationCaptor;
 
+    @Mock
+    private ObservationIdGenerationStrategy observationIdGenerationStrategy;
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -73,7 +76,7 @@ public class AllEncountersAdapterTest {
         when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
 
         encountersAdapter.adaptForm(form, activity);
-        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient);
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy);
 
         MRSObservationDto actualObservation = observations.iterator().next();
         assertEquals(conceptName, actualObservation.getConceptName());
