@@ -6,7 +6,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 
-public class JsonUtils {
+public class JsonUtil {
     public static <T> T fromJson(String json, Class<T> responseType) {
         ObjectMapper mapper = new ObjectMapper();
         try {

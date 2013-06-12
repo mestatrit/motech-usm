@@ -8,7 +8,7 @@ import org.motechproject.commcare.provider.sync.response.Provider;
 import org.motechproject.event.MotechEvent;
 import org.motechproject.event.listener.annotations.MotechListener;
 import org.motechproject.mapper.adapters.impl.ProviderAdapter;
-import org.motechproject.mapper.util.JsonUtils;
+import org.motechproject.mapper.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +24,9 @@ public class ProviderListener {
         this.providerAdapter = providerAdapter;
     }
 
-    @MotechListener(subjects = EventConstants.COMMCARE_PROVIDER_SYNC_EVENT)
+    @MotechListener(subjects = EventConstants.PROVIDER_DETAILS_EVENT)
     public void handleProviderEvent(MotechEvent event) {
-        List<Provider> providers = (List<Provider>) event.getParameters().get(EventConstants.PROVIDER_DETAILS);
+        List<Provider> providers = (List<Provider>) event.getParameters().get(EventConstants.DETAILS_LIST);
         for(Provider provider: providers) {
             CommcareForm commcareForm = constructFormValueElement(provider);
             providerAdapter.adaptForm(commcareForm);
@@ -34,7 +34,7 @@ public class ProviderListener {
     }
 
     private CommcareForm constructFormValueElement(Provider provider) {
-        String json = JsonUtils.toJson(provider);
+        String json = JsonUtil.toJson(provider);
         return FormAdapter.readJson(wrapJson(json));
     }
 

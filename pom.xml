@@ -164,6 +164,7 @@
                             org.motechproject.commons.couchdb.service;version=${project.version},
                             org.motechproject.couch.mrs.model;version=${project.version},
                             org.motechproject.couch.mrs.repository;version=${project.version},
+                            org.motechproject.commcare.parser;version=${project.version},
                             *
                         </Import-Package>
                         <Private-Package>
