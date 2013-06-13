@@ -40,6 +40,7 @@ public final class FormMappingConstants {
     public static final String DEATH_DATE_FIELD = "deathDate";
     public static final String FACILITY_NAME_FIELD = "facility";
     public static final String DEFAULT_FACILITY = "Unknown Location";
+    public static final String ENCOUNTER_DATE_FIELD = "encounterDate";
 
     //Destination decides which values are required during the mapping process, configuration is in mappingConfiguration.properties
     public static final String DESTINATION_COUCHDB = "couchdb";

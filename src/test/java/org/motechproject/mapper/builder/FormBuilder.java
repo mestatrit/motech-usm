@@ -39,6 +39,15 @@ public class FormBuilder {
         return this;
     }
 
+    public FormBuilder withAttributes(String field, final String attributeName, final String attributeValue) {
+        FormValueElement formValueElement = new FormValueElement();
+        formValueElement.setAttributes(new HashMap<String, String>() {{
+            put(attributeName, attributeValue);
+        }});
+        this.form.getForm().getSubElements().put(field, formValueElement);
+        return this;
+    }
+
     public FormBuilder withMeta(String key, String value) {
         form.getMetadata().put(key, value);
         return this;

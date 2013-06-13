@@ -58,20 +58,28 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             } else {
                 logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
-            DateTime dateReceived = DateTime.parse(form.getMetadata().get(FormMappingConstants.FORM_TIME_END));
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy);
+            DateTime encounterDate = getEncounterDate(encounterActivity.getEncounterMappings(), beneficiarySegment);
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy, encounterDate);
             String facilityName = getFacility(encounterActivity, beneficiarySegment);
-            mrsUtil.addEncounter(encounterId, patient, observations, providerId, dateReceived, facilityName,
+            mrsUtil.addEncounter(encounterId, patient, observations, providerId, encounterDate, facilityName,
                     encounterActivity.getEncounterType());
         }
     }
 
     private String retrieveEncounterId(Map<String, String> encounterIdScheme, CommcareFormSegment beneficiarySegment) {
         String encounterId = idResolver.retrieveId(encounterIdScheme, beneficiarySegment);
-        if(encounterId == null) {
+        if (encounterId == null) {
             return UUID.randomUUID().toString();
         }
         return encounterId;
+    }
+
+    private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {
+        if (encounterMappings == null)
+            return null;
+        String encounterDatePath = encounterMappings.get(FormMappingConstants.ENCOUNTER_DATE_FIELD);
+        FormNode formNode = beneficiarySegment.search(encounterDatePath);
+        return formNode != null && formNode.getValue() != null ? DateTime.parse(formNode.getValue()) : null;
     }
 
     private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormSegment beneficiarySegment) {

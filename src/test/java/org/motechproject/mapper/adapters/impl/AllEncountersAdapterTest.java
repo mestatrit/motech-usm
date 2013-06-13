@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -50,7 +51,7 @@ public class AllEncountersAdapterTest {
     @Before
     public void setUp() {
         initMocks(this);
-        encountersAdapter = new AllEncountersAdapter(mrsUtil, idResolver,new AllElementSearchStrategies());
+        encountersAdapter = new AllEncountersAdapter(mrsUtil, idResolver, new AllElementSearchStrategies());
     }
 
     @Test
@@ -74,13 +75,14 @@ public class AllEncountersAdapterTest {
 
         MRSEncounterActivity activity = new EncounterActivityBuilder().withFormMapperProperties(formMapperProperties).withObservationMappings(observationMapping).getActivity();
         when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
-
         encountersAdapter.adaptForm(form, activity);
-        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy);
+        DateTime encounterDate = DateTime.now();
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy, encounterDate);
 
         MRSObservationDto actualObservation = observations.iterator().next();
         assertEquals(conceptName, actualObservation.getConceptName());
         assertEquals(observationValue, actualObservation.getValue());
+        assertEquals(encounterDate, actualObservation.getDate());
     }
 
     @Test
@@ -120,6 +122,63 @@ public class AllEncountersAdapterTest {
 
         encountersAdapter.adaptForm(form, activity);
 
-        verify(mrsUtil,times(0)).addEncounter(any(String.class), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+        verify(mrsUtil, times(0)).addEncounter(any(String.class), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+    }
+
+    @Test
+    public void shouldGetEncounterDateAndAddEncounter() {
+        DateTime encounterDate = DateTime.now();
+        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+        activity.setEncounterMappings(new HashMap<String, String>() {{
+            put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//case/@date_modified");
+        }});
+        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+
+        encountersAdapter.adaptForm(form, activity);
+
+        ArgumentCaptor<DateTime> encounterDateCaptor = ArgumentCaptor.forClass(DateTime.class);
+        verify(mrsUtil).addEncounter(anyString(), any(MRSPatientDto.class), any(Set.class), anyString(), encounterDateCaptor.capture(), anyString(), anyString());
+        assertEquals(encounterDate.getMillis(), encounterDateCaptor.getValue().getMillis());
+    }
+
+    @Test
+    public void shouldAddEncounterWithNullEncounterDateIfEncounterMappingsIsNotProvided() {
+        DateTime encounterDate = DateTime.now();
+        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+
+        encountersAdapter.adaptForm(form, activity);
+
+        ArgumentCaptor<DateTime> encounterDateCaptor = ArgumentCaptor.forClass(DateTime.class);
+        verify(mrsUtil).addEncounter(anyString(), any(MRSPatientDto.class), any(Set.class), anyString(), encounterDateCaptor.capture(), anyString(), anyString());
+        assertNull(encounterDateCaptor.getValue());
+    }
+
+    @Test
+    public void shouldAddEncounterWithNullEncounterDateIfDateModifiedIsNotFound() {
+        DateTime encounterDate = DateTime.now();
+        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+        activity.setEncounterMappings(new HashMap<String, String>() {{
+            put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//somefield/@date_modified");
+        }});
+        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+
+        encountersAdapter.adaptForm(form, activity);
+
+        ArgumentCaptor<DateTime> encounterDateCaptor = ArgumentCaptor.forClass(DateTime.class);
+        verify(mrsUtil).addEncounter(anyString(), any(MRSPatientDto.class), any(Set.class), anyString(), encounterDateCaptor.capture(), anyString(), anyString());
+        assertNull(encounterDateCaptor.getValue());
     }
 }
