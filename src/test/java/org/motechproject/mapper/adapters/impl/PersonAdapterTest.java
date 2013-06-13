@@ -4,10 +4,13 @@ package org.motechproject.mapper.adapters.impl;
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.junit.Test;
+import org.motechproject.commcare.domain.FormValueAttribute;
+import org.motechproject.mapper.builder.RegistrationActivityBuilder;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.domain.MRSPerson;
+import org.motechproject.mrs.model.MRSAttributeDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.motechproject.commons.date.util.DateUtil.now;
 import static org.motechproject.mapper.constants.FormMappingConstants.*;
+import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class PersonAdapterTest {
 
@@ -133,5 +137,28 @@ public class PersonAdapterTest {
         assertFalse(person.getBirthDateEstimated());
         assertTrue(person.isDead());
         assertEquals(deathDate, person.getDeathDate());
+    }
+
+    @Test
+    public void shouldUpdateAnAttributeIfExistsAlreadyOrAddNew() {
+        CommcareFormSegment commcareFormSegment = mock(CommcareFormSegment.class);
+        MRSPersonDto person = new MRSPersonDto();
+        final MRSAttribute existingAttribute1 = new MRSAttributeDto("firstName", "myOldName");
+        final MRSAttribute existingAttribute2 = new MRSAttributeDto("lastName", "myLastName");
+        final MRSAttribute expectedUpdatedAttribute = new MRSAttributeDto("firstName", "myNewName");
+        final MRSAttribute expectedAdditionalAttribute = new MRSAttributeDto("phoneNumber", "myPhoneNumber");
+        person.setAttributes(new ArrayList<MRSAttribute>() {{
+            add(existingAttribute1);
+            add(existingAttribute2);
+        }});
+        when(commcareFormSegment.search("fname")).thenReturn(new FormValueAttribute("myNewName"));
+        when(commcareFormSegment.search("ph")).thenReturn(new FormValueAttribute("myPhoneNumber"));
+
+        new PersonAdapter().updatePerson(person, new RegistrationActivityBuilder().withAttributes("firstName", "fname").withAttributes("phoneNumber", "ph").getActivity(), commcareFormSegment);
+
+        assertEquals(3, person.getAttributes().size());
+        assertReflectionEquals(expectedUpdatedAttribute, person.getAttributes().get(0));
+        assertReflectionEquals(existingAttribute2, person.getAttributes().get(1));
+        assertReflectionEquals(expectedAdditionalAttribute, person.getAttributes().get(2));
     }
 }

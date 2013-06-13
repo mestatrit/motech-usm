@@ -1,6 +1,9 @@
 package org.motechproject.mapper.adapters.impl;
 
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.CommcareFormSegment;
@@ -42,8 +45,9 @@ public class PersonAdapter {
         DateTime deathDate = registrationActivity.getValueFor(DEATH_DATE_FIELD, commcareFormSegment, DateTime.class);
         List<MRSAttribute> attributes = registrationActivity.getMRSAttributes(commcareFormSegment);
 
-        updatePersonFields(person, firstName, lastName, dateOfBirth, gender, middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, attributes);
+        updatePersonFields(person, firstName, lastName, dateOfBirth, gender, middleName, preferredName, address, birthDateIsEstimated, age, isDead, deathDate, updateAttributes(person, attributes));
     }
+
     private void updatePersonFields(MRSPerson person, String firstName, String lastName, DateTime dateOfBirth, String gender, String middleName, String preferredName, String address, Boolean birthDateIsEstimated,
                                     Integer age, Boolean isDead, DateTime deathDate, List<MRSAttribute> attributes) {
         if (firstName != null) {
@@ -84,5 +88,22 @@ public class PersonAdapter {
         }
     }
 
-
+    private List<MRSAttribute> updateAttributes(MRSPerson existingPerson, List<MRSAttribute> newAttributes) {
+        final List<MRSAttribute> existingAttributes = existingPerson.getAttributes();
+        CollectionUtils.filter(newAttributes, new Predicate() {
+            @Override
+            public boolean evaluate(Object object) {
+                for (MRSAttribute existingAttribute : existingAttributes) {
+                    MRSAttribute attribute = (MRSAttribute) object;
+                    if (StringUtils.equals(existingAttribute.getName(), attribute.getName())) {
+                        existingAttribute.setValue(attribute.getValue());
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+        existingAttributes.addAll(newAttributes);
+        return existingAttributes;
+    }
 }
