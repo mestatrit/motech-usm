@@ -29,8 +29,8 @@
 
     <table class="table table-hover">
         <tr ng-repeat="mapping in mappings">
-            <td>{{mapping.xmlns}}</td>
-            <td><input type="button" class="btn btn-danger" value="Delete" ng-click="deleteMapping(mapping.xmlns)"/>
+            <td>{{mapping.xmlns}} [Version={{mapping.version}}]</td>
+            <td><input type="button" class="btn btn-danger" value="Delete" ng-click="deleteMapping(mapping._id)"/>
             </td>
         <tr>
     </table>

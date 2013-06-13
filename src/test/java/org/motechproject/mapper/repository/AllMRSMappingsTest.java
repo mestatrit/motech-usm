@@ -1,14 +1,11 @@
 package org.motechproject.mapper.repository;
 
 import org.ektorp.CouchDbConnector;
+import org.ektorp.support.CouchDbDocument;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.motechproject.mapper.domain.MRSActivity;
-import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.MRSMapping;
-import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.testing.utils.SpringIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,11 +13,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath*:/META-INF/motech/*.xml")
@@ -32,36 +29,89 @@ public class AllMRSMappingsTest extends SpringIntegrationTest {
     @Qualifier("mapperDbConnector")
     private CouchDbConnector connector;
 
-    @Before
+    private List<String> idsToDelete = new ArrayList<>();
+
+    @Override
     @After
-    public void setup() {
-        allMRSMappings.removeAll();
+    public void tearDown() {
+        super.tearDown();
+        for(String id : idsToDelete) {
+            MRSMapping mrsMapping = connector.find(MRSMapping.class, id);
+            if(mrsMapping != null) {
+                connector.delete(mrsMapping);
+            }
+        }
     }
 
     @Test
-    public void shouldSaveDifferentMSRActivityType() {
-        MRSMapping mrsMapping = new MRSMapping();
-        mrsMapping.setXmlns("xmlns");
-        List<MRSActivity> activities = new ArrayList<>();
-        MRSRegistrationActivity registrationActivity = new MRSRegistrationActivity();
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put("key", "value");
-        registrationActivity.setAttributes(attributes);
-        MRSEncounterActivity encounterActivity = new MRSEncounterActivity();
-        encounterActivity.setEncounterType("encounterType");
-        activities.add(registrationActivity);
-        activities.add(encounterActivity);
-        mrsMapping.setActivities(activities);
+    public void shouldFindMRSMappingByXmlnsAndVersion() {
+        createMRSMapping("xmlns1", "*");
+        createMRSMapping("xmlns1", "version1");
+        createMRSMapping("xmlns2", "*");
+        createMRSMapping("xmlns2", "version2");
 
-        allMRSMappings.addOrUpdate(mrsMapping);
+        validateEquals("xmlns1", "*", allMRSMappings.findByXmlnsAndVersion("xmlns1", "*"));
+        validateEquals("xmlns2", "version2", allMRSMappings.findByXmlnsAndVersion("xmlns2", "version2"));
+    }
 
-        List<MRSMapping> mrsMappingsFromDb = allMRSMappings.getAll();
-        assertEquals(1, mrsMappingsFromDb.size());
+    @Test
+    public void shouldFindMRSMappingsByXmlns() {
+        createMRSMapping("xmlns1", "*");
+        createMRSMapping("xmlns1", "version1");
+        createMRSMapping("xmlns2", "*");
+        createMRSMapping("xmlns2", "version2");
+
+        List<MRSMapping> actualMappings = allMRSMappings.findByXmlns("xmlns1");
+        validateEquals("xmlns1", "*", actualMappings.get(0));
+        validateEquals("xmlns1", "version1", actualMappings.get(1));
+    }
+
+    @Test
+    public void shouldDeleteMRSMappingsById() {
+        MRSMapping mrsMapping = createMRSMapping("xmlns1", "version1");
+        String id = mrsMapping.getId();
+
+        assertNotNull(connector.get(MRSMapping.class, id));
+
+        allMRSMappings.deleteMapping(id);
+
+        assertNull(connector.find(MRSMapping.class, id));
+    }
+
+    @Test
+    public void shouldIgnoreDeletingIfMappingForIdDoesNotExist() {
+        String id = "doesnotexist";
+
+        assertNull(connector.find(MRSMapping.class, id));
+
+        allMRSMappings.deleteMapping(id);
     }
 
     @Override
     public CouchDbConnector getDBConnector() {
         return connector;
+    }
+
+    @Override
+    protected void markForDeletion(Object obj) {
+        if(!(obj instanceof CouchDbDocument)) {
+            return;
+        }
+        idsToDelete.add(((CouchDbDocument) obj).getId());
+    }
+
+    private MRSMapping createMRSMapping(String xmlNs, String version) {
+        MRSMapping mrsMapping = new MRSMapping();
+        mrsMapping.setXmlns(xmlNs);
+        mrsMapping.setVersion(version);
+        connector.create(mrsMapping);
+        markForDeletion(mrsMapping);
+        return mrsMapping;
+    }
+
+    private void validateEquals(String xmlNs, String version, MRSMapping mrsMapping) {
+        assertEquals(xmlNs, mrsMapping.getXmlns());
+        assertEquals(version, mrsMapping.getVersion());
     }
 
 }

@@ -1,11 +1,10 @@
 /* put your angular controllers here */
 
 function uploadController($scope, $http) {
-    $scope.allMappingsUrl = "../commcare-mrs-mapper/getAllMappings";
-    $scope.deleteMappingUrl = "../commcare-mrs-mapper/deleteMapping?xmlns=";
-    $scope.deleteAllMappingsUrl = "../commcare-mrs-mapper/deleteAllMappings";
+    $scope.mappingUrl = "../commcare-mrs-mapper/mapping";
+    $scope.mappingsUrl = "../commcare-mrs-mapper/mappings";
 
-    $http({method: "GET", url: $scope.allMappingsUrl}).
+    $http({method: "GET", url: $scope.mappingsUrl}).
         success(function (data, status) {
             $scope.status = status;
             $scope.mappings = data;
@@ -16,14 +15,14 @@ function uploadController($scope, $http) {
             $scope.status = status;
         });
 
-    $scope.deleteMapping = function (xmlns) {
+    $scope.deleteMapping = function (id) {
 
-        $http({method: 'DELETE', url: $scope.deleteMappingUrl + xmlns}).
+        $http({method: 'DELETE', url: $scope.mappingUrl + "/" + id}).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.message = data;
                 $scope.mappings = $scope.mappings.filter(function (mapping) {
-                    return mapping.xmlns != xmlns;
+                    return mapping._id != id;
                 });
             }).
             error(function (data, status) {
@@ -34,7 +33,7 @@ function uploadController($scope, $http) {
     };
 
     $scope.deleteAllMappings = function () {
-        $http({method: 'DELETE', url: $scope.deleteAllMappingsUrl}).
+        $http({method: 'DELETE', url: $scope.mappingsUrl}).
             success(function (data, status) {
                 $scope.status = status;
                 $scope.message = data;

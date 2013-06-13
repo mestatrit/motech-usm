@@ -64,7 +64,7 @@ public class ProviderAdapterTest {
         when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
             add(registrationActivity);
         }});
-        when(mrsMappingService.findByXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMapping);
+        when(mrsMappingService.findMatchingMappingFor(ProviderAdapter.PROVIDER_XML_NS, null)).thenReturn(mrsMapping);
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
@@ -99,7 +99,7 @@ public class ProviderAdapterTest {
         when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
             add(registrationActivity);
         }});
-        when(mrsMappingService.findByXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMapping);
+        when(mrsMappingService.findMatchingMappingFor(ProviderAdapter.PROVIDER_XML_NS, null)).thenReturn(mrsMapping);
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);

@@ -1,6 +1,5 @@
 package org.motechproject.mapper.web.controllers;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.model.UploadRequest;
 import org.motechproject.mapper.service.MRSMappingService;
@@ -10,12 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -41,28 +44,24 @@ public class MappingFileController {
         return "redirect:" + httpServletRequest.getHeader("Referer");
     }
 
-    @RequestMapping(value = "/getAllMappings", method = RequestMethod.GET)
+    @RequestMapping(value = "/mappings", method = RequestMethod.GET)
     @ResponseBody
     public List<MRSMapping> getAllMappings() {
         List<MRSMapping> allMappings = mrsMappingService.getAllMappings();
-        Collections.sort(allMappings, new Comparator<MRSMapping>() {
-            @Override
-            public int compare(MRSMapping mapping1, MRSMapping mapping2) {
-                return new CompareToBuilder().append(mapping1 == null ? null: mapping1.getXmlns(), mapping2 == null ? null : mapping2.getXmlns())
-                .toComparison();
-            }
-        });
+        Collections.sort(allMappings);
         return allMappings;
     }
 
-    @RequestMapping(value = "/deleteMapping", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/mapping/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteMapping(@RequestParam String xmlns) {
-        mrsMappingService.deleteMapping(xmlns);
-        return "Mapping deleted successfully";
+    public String deleteMapping(@PathVariable String id) throws ResourceNotFoundException {
+        if(mrsMappingService.deleteMapping(id)) {
+            return "Mapping deleted successfully";
+        }
+        throw new ResourceNotFoundException();
     }
 
-    @RequestMapping(value = "/deleteAllMappings", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/mappings", method = RequestMethod.DELETE)
     @ResponseBody
     public String deleteAllMappings() {
         mrsMappingService.deleteAllMappings();

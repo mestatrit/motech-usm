@@ -75,14 +75,19 @@ public class ProviderAdapter {
     }
 
     private MRSRegistrationActivity getProviderRegistrationActivity() {
-        MRSMapping mapping = mappingService.findByXmlns(PROVIDER_XML_NS);
+        MRSMapping mapping = mappingService.findMatchingMappingFor(PROVIDER_XML_NS, null);
+        if(mapping == null) {
+            RuntimeException e = new RuntimeException("Could not find provider mapping");
+            logger.error("Could not find provider mapping", e);
+            throw e;
+        }
         for(MRSActivity activity: mapping.getActivities()) {
             if(FormMappingConstants.REGISTRATION_ACTIVITY.equals(activity.getType())) {
                 return (MRSRegistrationActivity) activity;
             }
         }
-        RuntimeException e = new RuntimeException("Could not find registration activity for provider.");
-        logger.error("Could not find registration activity for provider.", e);
+        RuntimeException e = new RuntimeException("Could not find registration activity for provider");
+        logger.error("Could not find registration activity for provider", e);
         throw e;
     }
 

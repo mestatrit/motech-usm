@@ -17,7 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.server.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.server.result.MockMvcResultMatchers.content;
@@ -58,38 +61,49 @@ public class MappingFileControllerTest {
 
     @Test
     public void shouldDeleteMappings() throws Exception {
-        String xmlns = "http://bihar.commcarehq.org/pregnancy/registration";
-        MockMvcBuilders.standaloneSetup(mappingFileController).build().perform(delete("/deleteMapping").param("xmlns", xmlns))
+        final String id = "myId";
+        when(mappingService.deleteMapping(id)).thenReturn(true);
+        MockMvcBuilders.standaloneSetup(mappingFileController).build().perform(delete("/mapping/" + id))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Mapping deleted successfully"));
 
-        verify(mappingService).deleteMapping(xmlns);
+        verify(mappingService).deleteMapping(id);
+    }
+
+    @Test
+    public void shouldThrowResouceNotFoundExceptionIfMappingNotFound() throws Exception {
+        final String id = "myId";
+        when(mappingService.deleteMapping(id)).thenReturn(false);
+        MockMvcBuilders.standaloneSetup(mappingFileController).build().perform(delete("/mapping/" + id))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""));
+
+        verify(mappingService).deleteMapping(id);
     }
 
     @Test
     public void shouldSortTheListWhileReturingAllMappings() {
         MRSMapping mrsMapping1 = new MRSMapping();
         mrsMapping1.setXmlns("xmlns2");
-        MRSMapping mrsMapping2 = new MRSMapping();
-        mrsMapping2.setXmlns("xmlns1");
-        MRSMapping mrsMapping3 = new MRSMapping();
-        mrsMapping3.setXmlns("xmlns3");
-        MRSMapping mrsMapping4 = new MRSMapping();
-        MRSMapping mrsMapping5 = new MRSMapping();
-        mrsMapping5.setXmlns("xmlns2");
+        mrsMapping1.setVersion("version1");
 
-        List<MRSMapping> mappings = Arrays.asList(mrsMapping1, mrsMapping2, mrsMapping3, null, mrsMapping4, mrsMapping5);
+        MRSMapping mrsMapping2 = new MRSMapping();
+        mrsMapping2.setXmlns("xmlns2");
+        mrsMapping2.setVersion("version2");
+
+        MRSMapping mrsMapping3 = new MRSMapping();
+        mrsMapping3.setXmlns("xmlns1");
+        mrsMapping3.setVersion("version1");
+
+        List<MRSMapping> mappings = Arrays.asList(mrsMapping1, mrsMapping3, mrsMapping2);
         when(mappingService.getAllMappings()).thenReturn(mappings);
 
         List<MRSMapping> actualList = mappingFileController.getAllMappings();
 
         verify(mappingService, times(1)).getAllMappings();
 
-        assertEquals(null, actualList.get(0));
-        assertEquals(mrsMapping4, actualList.get(1));
+        assertEquals(mrsMapping3, actualList.get(0));
+        assertEquals(mrsMapping1, actualList.get(1));
         assertEquals(mrsMapping2, actualList.get(2));
-        assertEquals(mrsMapping1, actualList.get(3));
-        assertEquals(mrsMapping5, actualList.get(4));
-        assertEquals(mrsMapping3, actualList.get(5));
     }
 }

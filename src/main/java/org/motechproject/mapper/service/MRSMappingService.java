@@ -19,24 +19,42 @@ public class MRSMappingService {
 
     public void addOrUpdate(List<MRSMapping> mrsMappings) {
         for (MRSMapping mrsMapping : mrsMappings) {
-            allMRSMappings.addOrUpdate(mrsMapping);
+           addOrUpdate(mrsMapping);
         }
+    }
+
+    private void addOrUpdate(MRSMapping mrsMapping) {
+        MRSMapping existingMapping = allMRSMappings.findByXmlnsAndVersion(mrsMapping.getXmlns(), mrsMapping.getVersion());
+        if(existingMapping != null) {
+            allMRSMappings.remove(existingMapping);
+        }
+        allMRSMappings.add(mrsMapping);
     }
 
     public List<MRSMapping> getAllMappings() {
         return allMRSMappings.getAll();
     }
 
-    public void deleteMapping(String xmlns) {
-        String fieldName = "xmlns";
-        allMRSMappings.removeAll(fieldName, xmlns);
+    public boolean deleteMapping(String id) {
+        return allMRSMappings.deleteMapping(id);
     }
 
     public void deleteAllMappings() {
         allMRSMappings.removeAll();
     }
 
-    public MRSMapping findByXmlns(String xmlns) {
-        return allMRSMappings.findByXmlns(xmlns);
+    public MRSMapping findMatchingMappingFor(String xmlns, String version) {
+        List<MRSMapping> mappings = allMRSMappings.findByXmlns(xmlns);
+        MRSMapping defaultMapping = null;
+        for (MRSMapping mapping : mappings) {
+            if(mapping.hasWildcardVersion()) {
+                defaultMapping = mapping;
+                continue;
+            }
+            if(mapping.matchesVersion(version)) {
+                return mapping;
+            }
+        }
+        return defaultMapping;
     }
 }
