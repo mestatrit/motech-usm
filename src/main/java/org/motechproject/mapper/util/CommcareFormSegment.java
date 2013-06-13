@@ -21,7 +21,28 @@ public class CommcareFormSegment {
     }
 
     public FormNode search(String lookupPath) {
-        return allElementSearchStrategies.searchFirst(lookupPath, startElement, commcareForm.getForm(), restrictedElements);
+        if(!lookupPath.endsWith("[]")) {
+            return allElementSearchStrategies.searchFirst(lookupPath, startElement, commcareForm.getForm(), restrictedElements);
+        }
+        return searchAndCombine(lookupPath);
+    }
+
+    private FormNode searchAndCombine(String lookupPath) {
+        lookupPath = lookupPath.replace("[]", "");
+        List<FormNode> nodes = allElementSearchStrategies.search(lookupPath, startElement, commcareForm.getForm(), restrictedElements);
+        final StringBuilder sb = new StringBuilder();
+        for (FormNode node : nodes) {
+            if(sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(node.getValue());
+        }
+        return new FormNode() {
+            @Override
+            public String getValue() {
+                return sb.toString();
+            }
+        };
     }
 
     public List<FormValueElement> getElementsByAttribute(String attribute, String value) {
