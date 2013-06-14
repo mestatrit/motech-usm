@@ -10,6 +10,7 @@ import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
 import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.model.MRSProviderDto;
@@ -30,15 +31,18 @@ public class ProviderAdapter {
     private MRSProviderAdapter providerAdapter;
     private MRSMappingService mappingService;
     private AllElementSearchStrategies allElementSearchStrategies;
+    private MRSMappingVersionMatchStrategy mappingVersionMatchStrategy;
 
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
-    public ProviderAdapter(PersonAdapter personAdapter, MRSProviderAdapter providerAdapter, MRSMappingService mappingService, AllElementSearchStrategies allElementSearchStrategies) {
+    public ProviderAdapter(PersonAdapter personAdapter, MRSProviderAdapter providerAdapter, MRSMappingService mappingService,
+                           AllElementSearchStrategies allElementSearchStrategies, MRSMappingVersionMatchStrategy mappingVersionMatchStrategy) {
         this.personAdapter = personAdapter;
         this.providerAdapter = providerAdapter;
         this.mappingService = mappingService;
         this.allElementSearchStrategies = allElementSearchStrategies;
+        this.mappingVersionMatchStrategy = mappingVersionMatchStrategy;
     }
 
     public void adaptForm(CommcareForm commcareForm) {
@@ -75,7 +79,7 @@ public class ProviderAdapter {
     }
 
     private MRSRegistrationActivity getProviderRegistrationActivity() {
-        MRSMapping mapping = mappingService.findMatchingMappingFor(PROVIDER_XML_NS, null);
+        MRSMapping mapping = mappingVersionMatchStrategy.findBestMatch(mappingService.findAllMappingsForXmlns(PROVIDER_XML_NS), null);
         if(mapping == null) {
             RuntimeException e = new RuntimeException("Could not find provider mapping");
             logger.error("Could not find provider mapping", e);

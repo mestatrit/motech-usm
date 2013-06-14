@@ -70,6 +70,6 @@ public class MRSMapping extends MotechBaseDataObject implements Comparable<MRSMa
     }
 
     public boolean matchesVersion(String toMatch) {
-        return hasWildcardVersion() || StringUtils.startsWith(toMatch, version);
+        return hasWildcardVersion() || StringUtils.contains(toMatch, version);
     }
 }

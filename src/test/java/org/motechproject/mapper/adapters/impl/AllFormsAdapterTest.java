@@ -12,6 +12,7 @@ import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.service.MRSMappingService;
 import org.motechproject.mapper.service.MappingsReader;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
+import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
 import org.motechproject.server.config.SettingsFacade;
 
 import java.util.ArrayList;
@@ -47,13 +48,16 @@ public class AllFormsAdapterTest {
     @Mock
     private Properties properties;
 
+    @Mock
+    private MRSMappingVersionMatchStrategy mappingVersionMatchStrategy;
+
     private AllFormsAdapter formsAdapter;
 
     @Before
     public void setup() {
         initMocks(this);
         when(settings.getProperties(FormMappingConstants.MAPPING_CONFIGURATION_FILE_NAME)).thenReturn(properties);
-        formsAdapter = new AllFormsAdapter(encounterAdapter, registrationsAdapter, mrsMappingService, settings, allSearchStrategies);
+        formsAdapter = new AllFormsAdapter(encounterAdapter, registrationsAdapter, mrsMappingService, settings, allSearchStrategies, mappingVersionMatchStrategy);
     }
 
     @Test
@@ -72,17 +76,19 @@ public class AllFormsAdapterTest {
         activity.setType("registration");
         activities.add(activity);
         mapping.setActivities(activities);
-
+        List<MRSMapping> mappings = new ArrayList<>();
 
         String formVersionPath = "myformversionpath";
         String version = "myversion";
 
         when(properties.getProperty(FormMappingConstants.FORM_VERSION_PATH)).thenReturn(formVersionPath);
         when(allSearchStrategies.searchFirst(formVersionPath, formValueElement, formValueElement, null)).thenReturn(new FormValueAttribute(version));
-        when(mrsMappingService.findMatchingMappingFor(xmlns, version)).thenReturn(mapping);
+        when(mrsMappingService.findAllMappingsForXmlns(xmlns)).thenReturn(mappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mappings, version)).thenReturn(mapping);
 
         formsAdapter.adaptForm(form);
 
+        verify(mappingVersionMatchStrategy).findBestMatch(mappings, version);
         verify(registrationsAdapter).adaptForm(form, activity);
     }
 
@@ -102,16 +108,19 @@ public class AllFormsAdapterTest {
         activity.setType("encounter");
         activities.add(activity);
         mapping.setActivities(activities);
+        List<MRSMapping> mappings = new ArrayList<>();
 
         String formVersionPath = "myformversionpath";
         String version = "myversion";
 
         when(properties.getProperty(FormMappingConstants.FORM_VERSION_PATH)).thenReturn(formVersionPath);
         when(allSearchStrategies.searchFirst(formVersionPath, formValueElement, formValueElement, null)).thenReturn(new FormValueAttribute(version));
-        when(mrsMappingService.findMatchingMappingFor(xmlns, version)).thenReturn(mapping);
+        when(mrsMappingService.findAllMappingsForXmlns(xmlns)).thenReturn(mappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mappings, version)).thenReturn(mapping);
 
         formsAdapter.adaptForm(form);
 
+        verify(mappingVersionMatchStrategy).findBestMatch(mappings, version);
         verify(encounterAdapter).adaptForm(form, activity);
     }
 
@@ -129,12 +138,16 @@ public class AllFormsAdapterTest {
         String formVersionPath = "myformversionpath";
         String version = "myversion";
 
+        List<MRSMapping> mappings = new ArrayList<>();
+
         when(properties.getProperty(FormMappingConstants.FORM_VERSION_PATH)).thenReturn(formVersionPath);
         when(allSearchStrategies.searchFirst(formVersionPath, formValueElement, formValueElement, null)).thenReturn(new FormValueAttribute(version));
-        when(mrsMappingService.findMatchingMappingFor(xmlns, version)).thenReturn(null);
+        when(mrsMappingService.findAllMappingsForXmlns(xmlns)).thenReturn(mappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mappings, version)).thenReturn(null);
 
         formsAdapter.adaptForm(form);
 
+        verify(mappingVersionMatchStrategy).findBestMatch(mappings, version);
         verifyZeroInteractions(encounterAdapter);
         verifyZeroInteractions(registrationsAdapter);
     }
@@ -150,10 +163,14 @@ public class AllFormsAdapterTest {
         formValueElement.setAttributes(attributes);
         form.setForm(formValueElement);
 
-        when(mrsMappingService.findMatchingMappingFor(xmlns, null)).thenReturn(null);
+        List<MRSMapping> mappings = new ArrayList<>();
+
+        when(mrsMappingService.findAllMappingsForXmlns(xmlns)).thenReturn(mappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mappings, null)).thenReturn(null);
 
         formsAdapter.adaptForm(form);
 
+        verify(mappingVersionMatchStrategy).findBestMatch(mappings, null);
         verifyZeroInteractions(allSearchStrategies);
         verifyZeroInteractions(encounterAdapter);
         verifyZeroInteractions(registrationsAdapter);
@@ -173,10 +190,14 @@ public class AllFormsAdapterTest {
         String formVersionPath = "myformversionpath";
 
         when(properties.getProperty(FormMappingConstants.FORM_VERSION_PATH)).thenReturn(formVersionPath);
-        when(mrsMappingService.findMatchingMappingFor(xmlns, null)).thenReturn(null);
+        List<MRSMapping> mappings = new ArrayList<>();
+
+        when(mrsMappingService.findAllMappingsForXmlns(xmlns)).thenReturn(mappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mappings, null)).thenReturn(null);
 
         formsAdapter.adaptForm(form);
 
+        verify(mappingVersionMatchStrategy).findBestMatch(mappings, null);
         verify(allSearchStrategies).searchFirst(formVersionPath, formValueElement, formValueElement, null);
         verifyZeroInteractions(encounterAdapter);
         verifyZeroInteractions(registrationsAdapter);

@@ -6,13 +6,12 @@ import org.mockito.Mock;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.repository.AllMRSMappings;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -86,53 +85,13 @@ public class MRSMappingServiceTest {
     }
 
     @Test
-    public void shouldMatchMappingBasedOnVerson() {
+    public void shouldFindAllMappingsForXmlns() {
         String xmlNs = "myxmlns";
-        String version = "myversion";
 
-        MRSMapping mrsMapping1 = mock(MRSMapping.class);
-        MRSMapping mrsMapping2 = mock(MRSMapping.class);
-        MRSMapping mrsMapping3 = mock(MRSMapping.class);
-        MRSMapping mrsMapping4 = mock(MRSMapping.class);
+        ArrayList<MRSMapping> expectedMappings = new ArrayList<>();
 
-        when(mrsMapping3.matchesVersion(version)).thenReturn(true);
-        when(allMRSMappings.findByXmlns(xmlNs)).thenReturn(Arrays.asList(mrsMapping1, mrsMapping2, mrsMapping3, mrsMapping4));
+        when(allMRSMappings.findByXmlns(xmlNs)).thenReturn(expectedMappings);
 
-        assertEquals(mrsMapping3, mappingService.findMatchingMappingFor(xmlNs, version));
+        assertEquals(expectedMappings, mappingService.findAllMappingsForXmlns(xmlNs));
     }
-
-    @Test
-    public void shouldReturnNullIfNoMatchingMappingIsFound() {
-        String xmlNs = "myxmlns";
-        String version = "myversion";
-
-        MRSMapping mrsMapping1 = mock(MRSMapping.class);
-        MRSMapping mrsMapping2 = mock(MRSMapping.class);
-        MRSMapping mrsMapping3 = mock(MRSMapping.class);
-        MRSMapping mrsMapping4 = mock(MRSMapping.class);
-
-        when(allMRSMappings.findByXmlns(xmlNs)).thenReturn(Arrays.asList(mrsMapping1, mrsMapping2, mrsMapping3, mrsMapping4));
-
-        assertNull(mappingService.findMatchingMappingFor(xmlNs, version));
-        assertNull(mappingService.findMatchingMappingFor(xmlNs, "*"));
-        assertNull(mappingService.findMatchingMappingFor(xmlNs, null));
-        assertNull(mappingService.findMatchingMappingFor(xmlNs, ""));
-    }
-
-    @Test
-    public void shouldReturnWildcardMappingIfNoMatchingMappingIsFound() {
-        String xmlNs = "myxmlns";
-        String version = "myversion";
-
-        MRSMapping mrsMapping1 = mock(MRSMapping.class);
-        MRSMapping mrsMapping2 = mock(MRSMapping.class);
-        MRSMapping mrsMapping3 = mock(MRSMapping.class);
-        MRSMapping mrsMapping4 = mock(MRSMapping.class);
-
-        when(mrsMapping2.hasWildcardVersion()).thenReturn(true);
-        when(allMRSMappings.findByXmlns(xmlNs)).thenReturn(Arrays.asList(mrsMapping1, mrsMapping2, mrsMapping3, mrsMapping4));
-
-        assertEquals(mrsMapping2, mappingService.findMatchingMappingFor(xmlNs, version));
-    }
-
 }

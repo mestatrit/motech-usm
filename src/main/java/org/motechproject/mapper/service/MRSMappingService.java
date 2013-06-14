@@ -43,18 +43,8 @@ public class MRSMappingService {
         allMRSMappings.removeAll();
     }
 
-    public MRSMapping findMatchingMappingFor(String xmlns, String version) {
-        List<MRSMapping> mappings = allMRSMappings.findByXmlns(xmlns);
-        MRSMapping defaultMapping = null;
-        for (MRSMapping mapping : mappings) {
-            if(mapping.hasWildcardVersion()) {
-                defaultMapping = mapping;
-                continue;
-            }
-            if(mapping.matchesVersion(version)) {
-                return mapping;
-            }
-        }
-        return defaultMapping;
+    public List<MRSMapping> findAllMappingsForXmlns(String xmlNs) {
+        return allMRSMappings.findByXmlns(xmlNs);
     }
+
 }

@@ -106,12 +106,12 @@ public class MRSMappingTest {
     @Test
     public void shouldVerifyIfVersionMatches() {
         MRSMapping mrsMapping = new MRSMapping();
-        mrsMapping.setVersion("someversion");
+        mrsMapping.setVersion("3.14");
 
-        assertTrue(mrsMapping.matchesVersion("someversion"));
-        assertTrue(mrsMapping.matchesVersion("someversionandmore"));
+        assertTrue(mrsMapping.matchesVersion("3.14"));
+        assertTrue(mrsMapping.matchesVersion("for-3.14.5"));
 
-        assertFalse(mrsMapping.matchesVersion("someversio"));
+        assertFalse(mrsMapping.matchesVersion("3.1"));
         assertFalse(mrsMapping.matchesVersion(null));
         assertFalse(mrsMapping.matchesVersion(""));
         assertFalse(mrsMapping.matchesVersion("*"));

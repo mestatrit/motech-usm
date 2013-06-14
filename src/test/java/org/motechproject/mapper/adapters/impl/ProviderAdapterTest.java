@@ -15,6 +15,7 @@ import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
 import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.domain.MRSProvider;
 import org.motechproject.mrs.model.MRSPersonDto;
@@ -22,9 +23,16 @@ import org.motechproject.mrs.model.MRSProviderDto;
 import org.motechproject.mrs.services.MRSProviderAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ProviderAdapterTest {
@@ -41,12 +49,15 @@ public class ProviderAdapterTest {
     private AllElementSearchStrategies allElementSearchStrategies;
 
     @Mock
+    private MRSMappingVersionMatchStrategy mappingVersionMatchStrategy;
+
+    @Mock
     private PersonAdapter personAdapter;
 
     @Before
     public void setup() {
         initMocks(this);
-        providerAdapter = new ProviderAdapter(personAdapter, mrsProviderAdapter, mrsMappingService, allElementSearchStrategies);
+        providerAdapter = new ProviderAdapter(personAdapter, mrsProviderAdapter, mrsMappingService, allElementSearchStrategies, mappingVersionMatchStrategy);
     }
 
     @Test
@@ -64,13 +75,18 @@ public class ProviderAdapterTest {
         when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
             add(registrationActivity);
         }});
-        when(mrsMappingService.findMatchingMappingFor(ProviderAdapter.PROVIDER_XML_NS, null)).thenReturn(mrsMapping);
+
+        List<MRSMapping> mrsMappings = new ArrayList<>();
+        when(mrsMappingService.findAllMappingsForXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mrsMappings, null)).thenReturn(mrsMapping);
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
         when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
 
         providerAdapter.adaptForm(commcareForm);
+
+        verify(mappingVersionMatchStrategy).findBestMatch(mrsMappings, null);
 
         CommcareFormSegment actualFormSegment = formSegmentCaptor.getValue();
         assertEquals(idNode, actualFormSegment.search("/form/id"));
@@ -99,7 +115,10 @@ public class ProviderAdapterTest {
         when(mrsMapping.getActivities()).thenReturn(new ArrayList<MRSActivity>(){{
             add(registrationActivity);
         }});
-        when(mrsMappingService.findMatchingMappingFor(ProviderAdapter.PROVIDER_XML_NS, null)).thenReturn(mrsMapping);
+
+        List<MRSMapping> mrsMappings = new ArrayList<>();
+        when(mrsMappingService.findAllMappingsForXmlns(ProviderAdapter.PROVIDER_XML_NS)).thenReturn(mrsMappings);
+        when(mappingVersionMatchStrategy.findBestMatch(mrsMappings, null)).thenReturn(mrsMapping);
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
@@ -108,6 +127,8 @@ public class ProviderAdapterTest {
         when(mrsProviderAdapter.getProviderByProviderId(providerId)).thenReturn(new MRSProviderDto());
 
         providerAdapter.adaptForm(commcareForm);
+
+        verify(mappingVersionMatchStrategy).findBestMatch(mrsMappings, null);
 
         CommcareFormSegment actualFormSegment = formSegmentCaptor.getValue();
         assertEquals(idNode, actualFormSegment.search("/form/id"));

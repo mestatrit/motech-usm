@@ -11,6 +11,7 @@ import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.service.MRSMappingService;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
 import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +34,19 @@ public class AllFormsAdapter implements FormAdapter {
     private MRSMappingService mrsMappingService;
     private SettingsFacade settings;
     private AllElementSearchStrategies allElementSearchStrategies;
+    private MRSMappingVersionMatchStrategy mappingVersionMatchStrategy;
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     public AllFormsAdapter(AllEncountersAdapter encounterAdapter, AllRegistrationsAdapter registrationAdapter,
                            MRSMappingService mrsMappingService, @Qualifier("commcareMapperSettings") SettingsFacade settings,
-                           AllElementSearchStrategies allElementSearchStrategies) {
+                           AllElementSearchStrategies allElementSearchStrategies, MRSMappingVersionMatchStrategy mappingVersionMatchStrategy) {
         this.encounterAdapter = encounterAdapter;
         this.registrationAdapter = registrationAdapter;
         this.mrsMappingService = mrsMappingService;
         this.settings = settings;
         this.allElementSearchStrategies = allElementSearchStrategies;
+        this.mappingVersionMatchStrategy = mappingVersionMatchStrategy;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class AllFormsAdapter implements FormAdapter {
 
         logger.info(String.format("Received form of type: %s; xmlns: %s; version: %s", formName, xmlns, version == null ? "N/A" : version));
 
-        MRSMapping mapping = mrsMappingService.findMatchingMappingFor(xmlns, version);
+        MRSMapping mapping = mappingVersionMatchStrategy.findBestMatch(mrsMappingService.findAllMappingsForXmlns(xmlns), version);
         if(mapping == null) {
             logger.warn(String.format("Could not find mappings for form of type: %s; xmlns: %s; version: %s", formName, xmlns, version == null ? "N/A" : version));
             return;
