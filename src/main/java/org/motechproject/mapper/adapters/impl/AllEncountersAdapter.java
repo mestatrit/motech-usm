@@ -75,11 +75,9 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
     }
 
     private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {
-        if (encounterMappings == null)
-            return null;
-        String encounterDatePath = encounterMappings.get(FormMappingConstants.ENCOUNTER_DATE_FIELD);
-        FormNode formNode = beneficiarySegment.search(encounterDatePath);
-        return formNode != null && formNode.getValue() != null ? DateTime.parse(formNode.getValue()) : null;
+        String encounterDatePath = encounterMappings != null ? encounterMappings.get(FormMappingConstants.ENCOUNTER_DATE_FIELD) : null;
+        FormNode formNode = encounterDatePath != null ? beneficiarySegment.search(encounterDatePath) : null;
+        return formNode != null && formNode.getValue() != null ? DateTime.parse(formNode.getValue()) : DateTime.now();
     }
 
     private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormSegment beneficiarySegment) {
