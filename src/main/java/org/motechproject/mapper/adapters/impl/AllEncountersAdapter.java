@@ -1,5 +1,6 @@
 package org.motechproject.mapper.adapters.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormNode;
@@ -77,7 +78,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
     private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {
         String encounterDatePath = encounterMappings != null ? encounterMappings.get(FormMappingConstants.ENCOUNTER_DATE_FIELD) : null;
         FormNode formNode = encounterDatePath != null ? beneficiarySegment.search(encounterDatePath) : null;
-        return formNode != null && formNode.getValue() != null ? DateTime.parse(formNode.getValue()) : DateTime.now();
+        return formNode != null && StringUtils.isNotBlank(formNode.getValue()) ? DateTime.parse(formNode.getValue()) : DateTime.now();
     }
 
     private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormSegment beneficiarySegment) {
