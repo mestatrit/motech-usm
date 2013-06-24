@@ -9,7 +9,12 @@ import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.*;
+import org.motechproject.mapper.util.AllElementSearchStrategies;
+import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.EncounterIdGenerationStrategy;
+import org.motechproject.mapper.util.IdentityResolver;
+import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.util.ObservationsGenerator;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.slf4j.Logger;
@@ -20,7 +25,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 public class AllEncountersAdapter extends ActivityFormAdapter {
@@ -47,10 +51,11 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         List<ObservationMapping> observationMappings = encounterActivity.getObservationMappings();
 
         for (CommcareFormSegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
-            ObservationIdGenerationStrategy observationIdGenerationStrategy = new ObservationIdGenerationStrategy(beneficiarySegment, encounterActivity, idResolver);
-            String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
-            String encounterId = retrieveEncounterId(encounterIdScheme, beneficiarySegment, motechId);
+            EncounterIdGenerationStrategy encounterIdGenerationStrategy = new EncounterIdGenerationStrategy(idResolver, encounterIdScheme, beneficiarySegment, motechId);
+            String encounterId = encounterIdGenerationStrategy.getEncounterId();
+
+            String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
 
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
             if (patient == null) {
@@ -60,19 +65,11 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
                 logger.info(String.format("Adding encounter for patient(%s)", motechId));
             }
             DateTime encounterDate = getEncounterDate(encounterActivity.getEncounterMappings(), beneficiarySegment);
-            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy, encounterDate);
+            Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
             String facilityName = getFacility(encounterActivity, beneficiarySegment);
             mrsUtil.addEncounter(encounterId, patient, observations, providerId, encounterDate, facilityName,
                     encounterActivity.getEncounterType());
         }
-    }
-
-    private String retrieveEncounterId(Map<String, String> encounterIdScheme, CommcareFormSegment beneficiarySegment, String patientId) {
-        String encounterId = idResolver.retrieveId(encounterIdScheme, beneficiarySegment);
-        if (encounterId == null) {
-            return UUID.randomUUID().toString();
-        }
-        return String.format("%s-%s", encounterId, patientId);
     }
 
     private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {

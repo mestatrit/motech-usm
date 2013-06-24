@@ -45,7 +45,7 @@ public class AllEncountersAdapterTest {
     private ArgumentCaptor<Set<MRSObservationDto>> observationCaptor;
 
     @Mock
-    private ObservationIdGenerationStrategy observationIdGenerationStrategy;
+    private EncounterIdGenerationStrategy observationIdGenerationStrategy;
 
     @Before
     public void setUp() {
@@ -110,7 +110,7 @@ public class AllEncountersAdapterTest {
 
         encountersAdapter.adaptForm(form, activity);
 
-        verify(mrsUtil).addEncounter(eq(instanceId + "-" + patientId), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+        verify(mrsUtil).addEncounter(eq(patientId + "-" + instanceId), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
         List<Set<MRSObservationDto>> observations = observationCaptor.getAllValues();
         int actualObservation = observations.get(0).size();
         assertEquals(0, actualObservation);

@@ -26,7 +26,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ObservationsGeneratorTest {
 
     @Mock
-    private ObservationIdGenerationStrategy observationIdGenerationStrategy;
+    private EncounterIdGenerationStrategy encounterIdGenerationStrategy;
 
     @Before
     public void setUp() throws Exception {
@@ -53,9 +53,9 @@ public class ObservationsGeneratorTest {
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(),
                 new ArrayList<String>(), new AllElementSearchStrategies());
-        when(observationIdGenerationStrategy.generate(any(String.class))).thenReturn("observationId-concept");
+        when(encounterIdGenerationStrategy.generateConceptId(any(String.class))).thenReturn("observationId-concept");
 
-        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy, encounterDate);
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
 
         MRSObservationDto actualObservation = observations.iterator().next();
         assertEquals(1, observations.size());
@@ -87,10 +87,10 @@ public class ObservationsGeneratorTest {
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
-        when(observationIdGenerationStrategy.generate("Child Names", 0)).thenReturn("observationId-concept-0");
-        when(observationIdGenerationStrategy.generate("Child Names", 1)).thenReturn("observationId-concept-1");
+        when(encounterIdGenerationStrategy.generateConceptId("Child Names", 0)).thenReturn("observationId-concept-0");
+        when(encounterIdGenerationStrategy.generateConceptId("Child Names", 1)).thenReturn("observationId-concept-1");
 
-        Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, observationIdGenerationStrategy, encounterDate);
+        Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
 
         assertEquals(2, observationSet.size());
         Iterator<MRSObservationDto> observations = observationSet.iterator();
@@ -120,7 +120,7 @@ public class ObservationsGeneratorTest {
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
-        Set<MRSObservationDto> actualObservations = ObservationsGenerator.generate(Arrays.asList(observationMapping), beneficiarySegment, new MRSPatientDto(), observationIdGenerationStrategy, null);
+        Set<MRSObservationDto> actualObservations = ObservationsGenerator.generate(Arrays.asList(observationMapping), beneficiarySegment, new MRSPatientDto(), encounterIdGenerationStrategy, null);
 
         assertEquals(1, actualObservations.size());
         assertNull(actualObservations.iterator().next().getDate());
