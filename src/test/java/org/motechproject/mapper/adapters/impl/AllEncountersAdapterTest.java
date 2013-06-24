@@ -88,7 +88,8 @@ public class AllEncountersAdapterTest {
     public void shouldCheckIfObservationMappingsAreNull() {
         String elementName = "field";
         String observationValue = "value";
-        String encounterId = "myencounterid";
+        String instanceId = "myinstanceid";
+        String patientId = "mypatientod";
 
         CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
@@ -96,15 +97,20 @@ public class AllEncountersAdapterTest {
 
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
         activity.setObservationMappings(null);
+
         HashMap<String, String> encounterIdScheme = new HashMap<>();
         activity.setEncounterIdScheme(encounterIdScheme);
 
-        when(idResolver.retrieveId(eq(encounterIdScheme), any(CommcareFormSegment.class))).thenReturn(encounterId);
-        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
+        when(idResolver.retrieveId(same(encounterIdScheme), any(CommcareFormSegment.class))).thenReturn(instanceId);
+        when(idResolver.retrieveId(same(patientIdScheme) , any(CommcareFormSegment.class))).thenReturn(patientId);
+        when(mrsUtil.getPatientByMotechId(patientId)).thenReturn(new MRSPatientDto());
 
         encountersAdapter.adaptForm(form, activity);
 
-        verify(mrsUtil).addEncounter(eq(encounterId), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
+        verify(mrsUtil).addEncounter(eq(instanceId + "-" + patientId), any(MRSPatientDto.class), observationCaptor.capture(), anyString(), any(DateTime.class), anyString(), anyString());
         List<Set<MRSObservationDto>> observations = observationCaptor.getAllValues();
         int actualObservation = observations.get(0).size();
         assertEquals(0, actualObservation);

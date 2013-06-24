@@ -50,7 +50,7 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
             ObservationIdGenerationStrategy observationIdGenerationStrategy = new ObservationIdGenerationStrategy(beneficiarySegment, encounterActivity, idResolver);
             String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
-            String encounterId = retrieveEncounterId(encounterIdScheme, beneficiarySegment);
+            String encounterId = retrieveEncounterId(encounterIdScheme, beneficiarySegment, motechId);
 
             MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
             if (patient == null) {
@@ -67,12 +67,12 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
         }
     }
 
-    private String retrieveEncounterId(Map<String, String> encounterIdScheme, CommcareFormSegment beneficiarySegment) {
+    private String retrieveEncounterId(Map<String, String> encounterIdScheme, CommcareFormSegment beneficiarySegment, String patientId) {
         String encounterId = idResolver.retrieveId(encounterIdScheme, beneficiarySegment);
         if (encounterId == null) {
             return UUID.randomUUID().toString();
         }
-        return encounterId;
+        return String.format("%s-%s", encounterId, patientId);
     }
 
     private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {
