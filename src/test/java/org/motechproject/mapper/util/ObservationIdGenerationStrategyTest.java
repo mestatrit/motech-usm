@@ -38,8 +38,8 @@ public class ObservationIdGenerationStrategyTest {
         strategy = new EncounterIdGenerationStrategy(identityResolver, idScheme, beneficiarySegment, patientId);
 
         assertEquals("patientId-myId", strategy.getEncounterId());
-        assertEquals("patientId-myId-concept", strategy.generateConceptId("concept"));
-        assertEquals("patientId-myId-concept-5", strategy.generateConceptId("concept", 5));
+        assertEquals("patientId-myId-concept", strategy.generateObservationId("concept"));
+        assertEquals("patientId-myId-concept-5", strategy.generateObservationId("concept", 5));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class ObservationIdGenerationStrategyTest {
         strategy = new EncounterIdGenerationStrategy(identityResolver, idScheme, beneficiarySegment, patientId);
 
         UUID.fromString(strategy.getEncounterId());
-        UUID.fromString(strategy.generateConceptId("concept"));
-        UUID.fromString(strategy.generateConceptId("concept", 0));
+        UUID.fromString(strategy.generateObservationId("concept"));
+        UUID.fromString(strategy.generateObservationId("concept", 0));
     }
 }

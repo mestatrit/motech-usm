@@ -21,4 +21,9 @@ public class DateTimeConverter implements Converter<DateTime> {
         }
         return dateValue;
     }
+
+    @Override
+    public DateTime missing() {
+        return convert(null);
+    }
 }

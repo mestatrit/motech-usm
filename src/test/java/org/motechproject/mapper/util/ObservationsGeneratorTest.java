@@ -18,6 +18,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.Mock;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -53,7 +54,7 @@ public class ObservationsGeneratorTest {
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(),
                 new ArrayList<String>(), new AllElementSearchStrategies());
-        when(encounterIdGenerationStrategy.generateConceptId(any(String.class))).thenReturn("observationId-concept");
+        when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId-concept");
 
         Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
 
@@ -87,8 +88,8 @@ public class ObservationsGeneratorTest {
         CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
-        when(encounterIdGenerationStrategy.generateConceptId("Child Names", 0)).thenReturn("observationId-concept-0");
-        when(encounterIdGenerationStrategy.generateConceptId("Child Names", 1)).thenReturn("observationId-concept-1");
+        when(encounterIdGenerationStrategy.generateObservationId("Child Names", 0)).thenReturn("observationId-concept-0");
+        when(encounterIdGenerationStrategy.generateObservationId("Child Names", 1)).thenReturn("observationId-concept-1");
 
         Set<MRSObservationDto> observationSet = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
 
@@ -114,6 +115,7 @@ public class ObservationsGeneratorTest {
         ObservationMapping observationMapping = new ObservationMapping();
         String fieldName = "name";
         observationMapping.setElementName(fieldName);
+        observationMapping.setType(FormMappingConstants.LIST_TYPE);
         FormValueElement element = new FormValueElement();
         element.setElementName(fieldName);
         element.setValue("value");
@@ -124,5 +126,120 @@ public class ObservationsGeneratorTest {
 
         assertEquals(1, actualObservations.size());
         assertNull(actualObservations.iterator().next().getDate());
+    }
+
+    @Test
+    public void shouldAddObservationIfElementValueIsNullButPresentInMapping() {
+        String patientId = "motech Id";
+        MRSPatientDto patient = new MRSPatientDto();
+        patient.setMotechId(patientId);
+        List<ObservationMapping> observationMappings = new ArrayList<>();
+
+        ObservationMapping observationMapping= new ObservationMapping();
+        String fieldName="close";
+        String conceptName = "closed";
+        DateTime encounterDate = DateTime.now();
+
+        observationMapping.setElementName(fieldName);
+        observationMapping.setConceptName(conceptName);
+        observationMappings.add(observationMapping);
+        observationMapping.setEmptyValue("true");
+
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
+        when(beneficiarySegment.search(fieldName)).thenReturn(new FormValueElement());
+
+        when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId");
+
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
+
+        assertEquals(1, observations.size());
+        MRSObservationDto actualObservation = observations.iterator().next();
+        assertEquals(conceptName, actualObservation.getConceptName());
+        assertEquals("true", actualObservation.getValue());
+        assertEquals("observationId", actualObservation.getObservationId());
+    }
+
+    @Test
+    public void shouldNotAddObservationIfElementValueIsNullButNotPresentInMapping() {
+        String patientId = "motech Id";
+        MRSPatientDto patient = new MRSPatientDto();
+        patient.setMotechId(patientId);
+        List<ObservationMapping> observationMappings = new ArrayList<>();
+
+        ObservationMapping observationMapping= new ObservationMapping();
+        String fieldName="close";
+        String conceptName = "closed";
+        DateTime encounterDate = DateTime.now();
+
+        observationMapping.setElementName(fieldName);
+        observationMapping.setConceptName(conceptName);
+        observationMappings.add(observationMapping);
+
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
+        when(beneficiarySegment.search(fieldName)).thenReturn(new FormValueElement());
+
+        when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId");
+
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
+
+        assertTrue(observations.isEmpty());
+    }
+
+    @Test
+    public void shouldAddObservationWithMissingValue() {
+        String patientId = "motech Id";
+        MRSPatientDto patient = new MRSPatientDto();
+        patient.setMotechId(patientId);
+        List<ObservationMapping> observationMappings = new ArrayList<>();
+
+        ObservationMapping observationMapping= new ObservationMapping();
+        String fieldName="close";
+        String conceptName = "closed";
+        DateTime encounterDate = DateTime.now();
+
+        observationMapping.setElementName(fieldName);
+        observationMapping.setConceptName(conceptName);
+        observationMappings.add(observationMapping);
+        observationMapping.setMissingValue("myvalue");
+
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
+
+        when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId");
+
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
+
+        assertEquals(1, observations.size());
+        MRSObservationDto actualObservation = observations.iterator().next();
+        assertEquals(conceptName, actualObservation.getConceptName());
+        assertEquals("myvalue", actualObservation.getValue());
+        assertEquals("observationId", actualObservation.getObservationId());
+    }
+
+    @Test
+    public void shouldNotAddObservationIfElementIsNotFoundAndMissingValueIsNull() {
+        String patientId = "motech Id";
+        MRSPatientDto patient = new MRSPatientDto();
+        patient.setMotechId(patientId);
+        List<ObservationMapping> observationMappings = new ArrayList<>();
+
+        ObservationMapping observationMapping= new ObservationMapping();
+        String fieldName="close";
+        String conceptName = "closed";
+        DateTime encounterDate = DateTime.now();
+
+        observationMapping.setElementName(fieldName);
+        observationMapping.setConceptName(conceptName);
+        observationMappings.add(observationMapping);
+        observationMapping.setValues(new HashMap<String, String>(){{
+            put(null, "true");
+        }});
+
+        CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
+
+        when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId");
+
+        Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
+
+        assertTrue(observations.isEmpty());
     }
 }

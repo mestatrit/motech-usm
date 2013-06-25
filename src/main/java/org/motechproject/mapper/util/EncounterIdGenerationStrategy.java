@@ -27,14 +27,14 @@ public class EncounterIdGenerationStrategy {
     }
 
 
-    public String generateConceptId(String conceptName) {
+    public String generateObservationId(String conceptName) {
         if(random) {
             return UUID.randomUUID().toString();
         }
         return String.format("%s-%s-%s", patientId, instanceId, conceptName);
     }
 
-    public String generateConceptId(String conceptName, int counter) {
+    public String generateObservationId(String conceptName, int counter) {
         if(random) {
             return UUID.randomUUID().toString();
         }

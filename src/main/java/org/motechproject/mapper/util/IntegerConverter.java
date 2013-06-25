@@ -21,4 +21,9 @@ public class IntegerConverter implements Converter<Integer> {
         }
         return integerValue;
     }
+
+    @Override
+    public Integer missing() {
+        return convert(null);
+    }
 }

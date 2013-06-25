@@ -42,8 +42,8 @@ public class ExpressionUtilTest {
         String actualValue = ExpressionUtil.resolve("gender", beneficiarySegment);
         assertNull(actualValue);
 
-        actualValue = ExpressionUtil.resolve("gender::{default: 'female'}", beneficiarySegment);
-        assertEquals("female", actualValue);
+        actualValue = ExpressionUtil.resolve("gender::{default: 'female', missing: 'donotknow'}", beneficiarySegment);
+        assertEquals("donotknow", actualValue);
 
         when(beneficiarySegment.search("gender")).thenReturn(formNode);
         when(formNode.getValue()).thenReturn("male");

@@ -53,6 +53,7 @@ public class BooleanConverterTest {
         assertFalse(converter.convert("anything"));
         assertFalse(converter.convert(""));
         assertFalse(converter.convert(null));
+        assertFalse(converter.missing());
     }
 
 

@@ -20,6 +20,9 @@ public class BooleanConverter implements Converter<Boolean> {
     @SerializedName("default")
     private Boolean defaultValue =  Boolean.FALSE;
 
+    @SerializedName("missing")
+    private Boolean missingValue =  Boolean.FALSE;
+
     public BooleanConverter(List<String> trueValues, List<String> falseValues, List<String> nullValues, Boolean defaultValue) {
         this.trueValues = trueValues;
         this.falseValues = falseValues;
@@ -57,6 +60,11 @@ public class BooleanConverter implements Converter<Boolean> {
             }
         }
         return false;
+    }
+
+    @Override
+    public Boolean missing() {
+        return missingValue;
     }
 }
 

@@ -1,6 +1,6 @@
 package org.motechproject.mapper.domain;
 
-import org.motechproject.commcare.domain.FormNode;
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.ExpressionUtil;
 import org.motechproject.mrs.domain.MRSAttribute;
@@ -63,18 +63,13 @@ public class MRSRegistrationActivity extends MRSActivity {
         Map<String, String> mappedAttributes = getAttributes();
         if (mappedAttributes != null) {
             for (Map.Entry<String, String> entry : mappedAttributes.entrySet()) {
-
-                FormNode attributeElement = beneficiarySegment.search(entry.getValue());
-
-                String attributeValue = null;
-                if (attributeElement != null) {
-                    attributeValue = attributeElement.getValue();
+                String attributeValue = ExpressionUtil.resolve(entry.getValue(), beneficiarySegment);
+                if (StringUtils.isBlank(attributeValue)) {
+                    continue;
                 }
-                if (attributeValue != null && attributeValue.trim().length() > 0) {
-                    String attributeName = entry.getKey();
-                    MRSAttributeDto attribute = new MRSAttributeDto(attributeName, attributeValue);
-                    attributes.add(attribute);
-                }
+                String attributeName = entry.getKey();
+                MRSAttributeDto attribute = new MRSAttributeDto(attributeName, attributeValue);
+                attributes.add(attribute);
             }
         }
         return attributes;
