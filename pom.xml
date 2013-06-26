@@ -10,6 +10,7 @@
     <name>MoTeCH CommCare to MRS Mapper</name>
     <url>http://maven.apache.org</url>
     <properties>
+        <motech.version>0.20</motech.version>
         <jdk.version>1.7</jdk.version>
     </properties>
     <dependencies>
@@ -21,7 +22,7 @@
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-commons-api</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>org.springframework.context.support</artifactId>
@@ -32,37 +33,37 @@
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-mrs-couchdb</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-server-api</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-event</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-commons-couchdb</artifactId>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-server-config</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-commcare-api</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-osgi-web-util</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -76,15 +77,15 @@
             <version>2.6</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.motechproject</groupId>
             <artifactId>motech-testing-utils</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>motech-platform-osgi-extender-fragment</artifactId>
-            <version>${project.version}</version>
+            <version>${motech.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -107,7 +108,7 @@
         <dependency>
             <groupId>org.motechproject</groupId>
             <artifactId>org.motechproject.osgi.it</artifactId>
-            <version>1.0.2.RELEASE-r013</version>
+            <version>1.0.2.RELEASE-r014</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -160,17 +161,17 @@
                             org.motechproject.mapper.*
                         </Export-Package>
                         <Import-Package>
-                            org.motechproject.commcare.service;version=${project.version},
-                            org.motechproject.mrs.services;version=${project.version},
-                            org.motechproject.server.config;version=${project.version},
-                            org.motechproject.server.config.service;version=${project.version},
-                            org.motechproject.event.listener;version=${project.version},
-                            org.motechproject.event.listener.annotations;version=${project.version},
-                            org.motechproject.osgi.web;version=${project.version},
-                            org.motechproject.commons.couchdb.service;version=${project.version},
-                            org.motechproject.couch.mrs.model;version=${project.version},
-                            org.motechproject.couch.mrs.repository;version=${project.version},
-                            org.motechproject.commcare.parser;version=${project.version},
+                            org.motechproject.commcare.service;version=${motech.version},
+                            org.motechproject.mrs.services;version=${motech.version},
+                            org.motechproject.server.config;version=${motech.version},
+                            org.motechproject.server.config.service;version=${motech.version},
+                            org.motechproject.event.listener;version=${motech.version},
+                            org.motechproject.event.listener.annotations;version=${motech.version},
+                            org.motechproject.osgi.web;version=${motech.version},
+                            org.motechproject.commons.couchdb.service;version=${motech.version},
+                            org.motechproject.couch.mrs.model;version=${motech.version},
+                            org.motechproject.couch.mrs.repository;version=${motech.version},
+                            org.motechproject.commcare.parser;version=${motech.version},
                             *
                         </Import-Package>
                         <Private-Package>
