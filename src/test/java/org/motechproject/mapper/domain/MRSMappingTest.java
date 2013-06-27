@@ -104,12 +104,13 @@ public class MRSMappingTest {
     }
 
     @Test
-    public void shouldVerifyIfVersionMatches() {
+    public void shouldMatchForExactVersion() {
         MRSMapping mrsMapping = new MRSMapping();
-        mrsMapping.setVersion("3.14");
+        mrsMapping.setVersion("3.14R");
 
-        assertTrue(mrsMapping.matchesVersion("3.14"));
-        assertTrue(mrsMapping.matchesVersion("for-3.14.5"));
+        assertTrue(mrsMapping.matchesVersion("3.14R"));
+        assertFalse(mrsMapping.matchesVersion("3.14r"));
+        assertFalse(mrsMapping.matchesVersion("for-3.14R.5"));
 
         assertFalse(mrsMapping.matchesVersion("3.1"));
         assertFalse(mrsMapping.matchesVersion(null));

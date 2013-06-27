@@ -1,6 +1,5 @@
 package org.motechproject.mapper.domain;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.ektorp.support.TypeDiscriminator;
 import org.motechproject.commons.couchdb.model.MotechBaseDataObject;
@@ -70,6 +69,6 @@ public class MRSMapping extends MotechBaseDataObject implements Comparable<MRSMa
     }
 
     public boolean matchesVersion(String toMatch) {
-        return hasWildcardVersion() || StringUtils.contains(toMatch, version);
+        return hasWildcardVersion() || version.equals(toMatch);
     }
 }
