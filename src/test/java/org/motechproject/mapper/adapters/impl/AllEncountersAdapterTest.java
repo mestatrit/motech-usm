@@ -1,13 +1,16 @@
 package org.motechproject.mapper.adapters.impl;
 
+import org.apache.log4j.Level;
+import org.hamcrest.core.IsAnything;
+import org.hamcrest.core.IsEqual;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
-import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.builder.EncounterActivityBuilder;
 import org.motechproject.mapper.builder.FormBuilder;
 import org.motechproject.mapper.builder.FormValueElementBuilder;
@@ -21,11 +24,11 @@ import org.motechproject.mapper.util.EncounterIdGenerationStrategy;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsGenerator;
+import org.motechproject.mapper.util.TestAppender;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,11 +36,10 @@ import java.util.List;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -66,6 +68,11 @@ public class AllEncountersAdapterTest {
     public void setUp() {
         initMocks(this);
         encountersAdapter = new AllEncountersAdapter(mrsUtil, idResolver, new AllElementSearchStrategies());
+    }
+
+    @After
+    public void tearDown() {
+        TestAppender.clear();
     }
 
     @Test
@@ -169,13 +176,11 @@ public class AllEncountersAdapterTest {
 
         when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
 
-        Logger logger = mock(Logger.class);
-        AllEncountersAdapter.setLogger(logger);
+        assertNull(TestAppender.findMatching(new IsEqual(Level.ERROR), new IsEqual<>(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId))));
 
         encountersAdapter.adaptForm(form, activity);
 
         verifyZeroInteractions(mrsUtil);
-        verify(logger).error(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId));
     }
 
     @Test
@@ -190,7 +195,7 @@ public class AllEncountersAdapterTest {
         activity.setObservationMappings(null);
 
         HashMap<String, String> patientIdScheme = new HashMap<String, String>(){{
-            put(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND, "True");
+            put(FormMappingConstants.REPORT_MISSING_ID, "False");
         }};
 
         activity.setPatientIdScheme(patientIdScheme);
@@ -201,13 +206,10 @@ public class AllEncountersAdapterTest {
 
         when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
 
-        Logger logger = mock(Logger.class);
-        ActivityFormAdapter.setLogger(logger);
-
         encountersAdapter.adaptForm(form, activity);
 
         verifyZeroInteractions(mrsUtil);
-        verify(logger, never()).error(anyString());
+        assertNull(TestAppender.findMatching(new IsEqual(Level.ERROR), new IsAnything<String>()));
     }
 
     @Test

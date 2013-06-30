@@ -50,7 +50,7 @@ public final class FormMappingConstants {
     public static final String DESTINATION = "destination";
     public static final String FORM_VERSION_PATH = "formVersionPath";
 
-    public static final String SKIP_MAPPING_IF_ID_NOT_FOUND = "skipMappingIfIdNotFound";
+    public static final String REPORT_MISSING_ID = "reportMissingId";
 
     private FormMappingConstants() {
     }

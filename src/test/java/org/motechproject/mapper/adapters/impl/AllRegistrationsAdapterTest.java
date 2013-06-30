@@ -1,13 +1,16 @@
 package org.motechproject.mapper.adapters.impl;
 
 import com.google.common.collect.HashMultimap;
+import org.apache.log4j.Level;
+import org.hamcrest.core.IsAnything;
+import org.hamcrest.core.IsEqual;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
-import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.builder.FormBuilder;
 import org.motechproject.mapper.builder.RegistrationActivityBuilder;
 import org.motechproject.mapper.constants.FormMappingConstants;
@@ -17,6 +20,7 @@ import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.IdentityResolver;
 import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.util.TestAppender;
 import org.motechproject.mapper.validation.ValidationError;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.domain.MRSAttribute;
@@ -24,16 +28,22 @@ import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.motechproject.mapper.constants.FormMappingConstants.FIRST_NAME_FIELD;
 
@@ -53,6 +63,11 @@ public class AllRegistrationsAdapterTest {
     public void setUp() {
         initMocks(this);
         registrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator,new AllElementSearchStrategies(), new PersonAdapter());
+    }
+
+    @After
+    public void tearDown() {
+        TestAppender.clear();
     }
 
     @Test
@@ -181,14 +196,12 @@ public class AllRegistrationsAdapterTest {
         registrationActivity.setPatientIdScheme(patientIdScheme);
 
         when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
-        Logger logger = mock(Logger.class);
-        ActivityFormAdapter.setLogger(logger);
 
         registrationAdapter.adaptForm(form, registrationActivity);
 
         verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
         verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
-        verify(logger).error(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId));
+        assertNotNull(TestAppender.findMatching(new IsEqual(Level.ERROR), new IsEqual<>(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId))));
     }
 
     @Test
@@ -207,19 +220,17 @@ public class AllRegistrationsAdapterTest {
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
 
         HashMap<String, String> patientIdScheme = new HashMap<String, String>(){{
-            put(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND, "True");
+            put(FormMappingConstants.REPORT_MISSING_ID, "False");
         }};
         registrationActivity.setPatientIdScheme(patientIdScheme);
 
         when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
-        Logger logger = mock(Logger.class);
-        ActivityFormAdapter.setLogger(logger);
 
         registrationAdapter.adaptForm(form, registrationActivity);
 
         verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
         verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
-        verify(logger, never()).error(anyString());
+        assertNull(TestAppender.findMatching(new IsEqual(Level.ERROR), new IsAnything<String>()));
     }
 
     @Test

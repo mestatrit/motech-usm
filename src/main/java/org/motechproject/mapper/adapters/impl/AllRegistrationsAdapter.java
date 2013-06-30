@@ -16,6 +16,8 @@ import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.exception.MRSException;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,8 @@ import static org.motechproject.mapper.constants.FormMappingConstants.FACILITY_N
 
 @Component
 public class AllRegistrationsAdapter extends ActivityFormAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     private MRSUtil mrsUtil;
     private IdentityResolver idResolver;

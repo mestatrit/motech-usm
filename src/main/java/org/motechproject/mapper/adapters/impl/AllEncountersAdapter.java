@@ -17,6 +17,8 @@ import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsGenerator;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,8 @@ import java.util.Set;
 
 @Component
 public class AllEncountersAdapter extends ActivityFormAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     private MRSUtil mrsUtil;
     private IdentityResolver idResolver;

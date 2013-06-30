@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public abstract class ActivityFormAdapter {
 
-    protected static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
+    private static final Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     private AllElementSearchStrategies allElementSearchStrategies;
 
@@ -52,14 +52,17 @@ public abstract class ActivityFormAdapter {
 
     protected  void handleEmptyMotechId(CommcareForm form, Map<String, String> patientIdScheme) {
         String ignoreMessage = String.format("Motech id is empty for form(%s). Ignoring this form.", form.getId());
-        if(patientIdScheme != null && Boolean.parseBoolean(patientIdScheme.get(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND))) {
-            logger.info(ignoreMessage);
+        if(shouldReportMissingId(patientIdScheme)) {
+            logger.error(ignoreMessage);
             return;
         }
-        logger.error(ignoreMessage);
+        logger.info(ignoreMessage);
     }
 
-    public static void setLogger(Logger logger) {
-        ActivityFormAdapter.logger = logger;
+    private boolean shouldReportMissingId(Map<String, String> patientIdScheme) {
+        if(patientIdScheme != null && "false".equalsIgnoreCase(patientIdScheme.get(FormMappingConstants.REPORT_MISSING_ID))) {
+            return false;
+        }
+        return true;
     }
 }
