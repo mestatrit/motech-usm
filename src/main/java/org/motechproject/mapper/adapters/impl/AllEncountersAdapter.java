@@ -17,8 +17,6 @@ import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.ObservationsGenerator;
 import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSObservationDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +27,6 @@ import java.util.Set;
 @Component
 public class AllEncountersAdapter extends ActivityFormAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
     private MRSUtil mrsUtil;
     private IdentityResolver idResolver;
 
@@ -42,7 +39,6 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
     @Override
     public void adaptForm(CommcareForm form, MRSActivity activity) {
-
         MRSEncounterActivity encounterActivity = (MRSEncounterActivity) activity;
         Map<String, String> patientIdScheme = encounterActivity.getPatientIdScheme();
         Map<String, String> providerIdScheme = encounterActivity.getProviderScheme();
@@ -52,18 +48,25 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
         for (CommcareFormSegment beneficiarySegment : getAllBeneficiarySegments(form, activity)) {
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
+
+            if(StringUtils.isEmpty(motechId)) {
+                handleEmptyMotechId(form, patientIdScheme);
+                continue;
+            }
+
+            MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
+            if (patient == null) {
+                logger.error(String.format("Patient for motech id(%s) does not exist, failed to handle form(%s).", motechId, form.getId()));
+                return;
+            } else {
+                logger.info(String.format("Adding encounter for patient(%s)", motechId));
+            }
+
             EncounterIdGenerationStrategy encounterIdGenerationStrategy = new EncounterIdGenerationStrategy(idResolver, encounterIdScheme, beneficiarySegment, motechId);
             String encounterId = encounterIdGenerationStrategy.getEncounterId();
 
             String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
 
-            MRSPatient patient = mrsUtil.getPatientByMotechId(motechId);
-            if (patient == null) {
-                logger.error(String.format("Patient(%s) does not exist, failed to handle form", form.getId()));
-                return;
-            } else {
-                logger.info(String.format("Adding encounter for patient(%s)", motechId));
-            }
             DateTime encounterDate = getEncounterDate(encounterActivity.getEncounterMappings(), beneficiarySegment);
             Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
             String facilityName = getFacility(encounterActivity, beneficiarySegment);

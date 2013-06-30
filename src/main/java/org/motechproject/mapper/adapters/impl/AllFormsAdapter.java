@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 import static org.motechproject.mapper.constants.FormMappingConstants.ENCOUNTER_ACTIVITY;
 import static org.motechproject.mapper.constants.FormMappingConstants.FORM_NAME_ATTRIBUTE;
 import static org.motechproject.mapper.constants.FormMappingConstants.FORM_XMLNS_ATTRIBUTE;
@@ -55,11 +53,11 @@ public class AllFormsAdapter implements FormAdapter {
         String xmlns = form.getForm().getAttributes().get(FORM_XMLNS_ATTRIBUTE);
         String version = findFormVersion(form);
 
-        logger.info(String.format("Received form of type: %s; xmlns: %s; version: %s", formName, xmlns, version == null ? "N/A" : version));
+        logger.info(String.format("Received form. id: %s, type: %s; xmlns: %s; version: %s", form.getId(), formName, xmlns, version == null ? "N/A" : version));
 
         MRSMapping mapping = mappingVersionMatchStrategy.findBestMatch(mrsMappingService.findAllMappingsForXmlns(xmlns), version);
         if(mapping == null) {
-            logger.warn(String.format("Could not find mappings for form of type: %s; xmlns: %s; version: %s", formName, xmlns, version == null ? "N/A" : version));
+            logger.warn(String.format("Could not find mappings for form. id: %s, type: %s; xmlns: %s; version: %s", form.getId(), formName, xmlns, version == null ? "N/A" : version));
             return;
         }
 
@@ -80,19 +78,6 @@ public class AllFormsAdapter implements FormAdapter {
 
         FormNode versionNode = formSegment.search(formVersionField);
         return versionNode == null ? null : versionNode.getValue();
-    }
-
-    private MRSMapping findAppropriateMappingForVersion(List<MRSMapping> mappings, CommcareForm form) {
-        MRSMapping wildCardMapping = null;
-
-        for (MRSMapping mapping : mappings) {
-            if(mapping.hasWildcardVersion()) {
-                wildCardMapping = mapping;
-                continue;
-            }
-
-        }
-        return mappings.get(0);
     }
 
     private ActivityFormAdapter getAdapter(String activityType, String formName) {

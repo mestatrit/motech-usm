@@ -2,6 +2,7 @@ package org.motechproject.mapper.util;
 
 import org.motechproject.commcare.domain.CaseInfo;
 import org.motechproject.commcare.domain.CommcareUser;
+import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
 import org.motechproject.commcare.service.CommcareCaseService;
 import org.motechproject.commcare.service.CommcareUserService;
@@ -39,7 +40,11 @@ public class IdentityResolver {
             String idAttributeName = idScheme.get(ID_SCHEME_ATTRIBUTE);
 
             if (ID_FROM_FORM_SCHEME.equals(idSchemeType) && idAttributeName != null) {
-                id = ((FormValueElement) beneficiarySegment.search(idFieldName)).getAttributes().get(idAttributeName);
+                FormNode element = beneficiarySegment.search(idFieldName);
+                if(element == null) {
+                    return null;
+                }
+                id = ((FormValueElement) element).getAttributes().get(idAttributeName);
             } else if (ID_FROM_FORM_SCHEME.equals(idSchemeType)) {
                 id = beneficiarySegment.search(idFieldName).getValue();
             } else if (ID_FROM_COMMCARE_CASE_SCHEME.equals(idSchemeType)) {

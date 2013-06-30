@@ -7,8 +7,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
+import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.builder.FormBuilder;
 import org.motechproject.mapper.builder.RegistrationActivityBuilder;
+import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
@@ -22,8 +24,10 @@ import org.motechproject.mrs.domain.MRSPatient;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -58,7 +62,7 @@ public class AllRegistrationsAdapterTest {
         element1.setElementName("child_info_1");
         element2.setElementName("child_info_2");
         String startElement = "child_info";
-        CommcareForm form = new FormBuilder(startElement).with(startElement, element1).with(startElement, element2).getForm();
+        CommcareForm form = new FormBuilder(startElement).withSubElement(element1).withSubElement(element2).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(startElement);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
@@ -72,7 +76,7 @@ public class AllRegistrationsAdapterTest {
         FormValueElement element1 = new FormValueElement();
         element1.setElementName("child_info");
         String startElement = "form";
-        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        CommcareForm form = new FormBuilder(startElement).withSubElement(element1).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(startElement);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
@@ -86,9 +90,9 @@ public class AllRegistrationsAdapterTest {
    @Test
     public void shouldHandleIfStartElementIsNull() {
         FormValueElement element1 = new FormValueElement();
-       element1.setElementName("child_info");
+        element1.setElementName("child_info");
         String startElement = "form";
-        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        CommcareForm form = new FormBuilder(startElement).withSubElement(element1).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("invalid_start_node");
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
@@ -104,7 +108,7 @@ public class AllRegistrationsAdapterTest {
         String nameFieldInForm = "name";
         String nameValueInForm = "amy";
         String topElementName = "form";
-        CommcareForm form = new FormBuilder(topElementName).with(nameFieldInForm, nameValueInForm).getForm();
+        CommcareForm form = new FormBuilder(topElementName).withSubElement(nameFieldInForm, nameValueInForm).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topElementName);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(FIRST_NAME_FIELD, nameFieldInForm).withFormMapperProperties(formMapperProperties).getActivity();
@@ -126,7 +130,7 @@ public class AllRegistrationsAdapterTest {
         formValueElement.setElementName(child_info);
         FormValueElement anotherFormValueElement = new FormValueElement();
         anotherFormValueElement.setElementName(child_info);
-        CommcareForm form = new FormBuilder(topFormElement).with(child_info, formValueElement).with(child_info, anotherFormValueElement).getForm();
+        CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).withSubElement(anotherFormValueElement).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().
@@ -147,7 +151,7 @@ public class AllRegistrationsAdapterTest {
         formValueElement.setElementName(child_info);
         FormValueElement anotherFormValueElement = new FormValueElement();
         anotherFormValueElement.setElementName(child_info);
-        CommcareForm form = new FormBuilder(topFormElement).with(child_info, formValueElement).with(child_info, anotherFormValueElement).getForm();
+        CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).withSubElement(anotherFormValueElement).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
@@ -159,21 +163,63 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-    public void shouldNotSavePatientIfMotechIdNotFound() {
+    public void shouldNotSavePatientIfMotechIdNotFoundAndLogError() {
+        String instanceId = "myInstanceId";
         String topFormElement = "form";
         FormValueElement formValueElement = new FormValueElement();
         String child_info = "child_info";
         formValueElement.setElementName(child_info);
-        CommcareForm form = new FormBuilder(topFormElement).with(child_info, formValueElement).getForm();
+        CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).getForm();
+
+        form.setId(instanceId);
+
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
-        when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn(null);
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        registrationActivity.setPatientIdScheme(patientIdScheme);
+
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
+        Logger logger = mock(Logger.class);
+        ActivityFormAdapter.setLogger(logger);
 
         registrationAdapter.adaptForm(form, registrationActivity);
 
         verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
         verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
+        verify(logger).error(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId));
+    }
+
+    @Test
+    public void shouldNotSavePatientIfMotechIdNotFoundAndDoNotLogErrorIfSkipMappingIsSetToTrue() {
+        String instanceId = "myInstanceId";
+        String topFormElement = "form";
+        FormValueElement formValueElement = new FormValueElement();
+        String child_info = "child_info";
+        formValueElement.setElementName(child_info);
+        CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).getForm();
+
+        form.setId(instanceId);
+
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement(topFormElement);
+        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+
+        HashMap<String, String> patientIdScheme = new HashMap<String, String>(){{
+            put(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND, "True");
+        }};
+        registrationActivity.setPatientIdScheme(patientIdScheme);
+
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
+        Logger logger = mock(Logger.class);
+        ActivityFormAdapter.setLogger(logger);
+
+        registrationAdapter.adaptForm(form, registrationActivity);
+
+        verify(mrsPatientAdapter, never()).getPatientByMotechId(anyString());
+        verify(mrsPatientAdapter, never()).savePatient(any(MRSPatientDto.class));
+        verify(logger, never()).error(anyString());
     }
 
     @Test
@@ -182,7 +228,7 @@ public class AllRegistrationsAdapterTest {
         String startElement = "form";
         formMapperProperties.setStartElement(startElement);
         String value = "value";
-        CommcareForm form = new FormBuilder(startElement).with("attribute", value).getForm();
+        CommcareForm form = new FormBuilder(startElement).withSubElement("attribute", value).getForm();
         String description = "Attribute description";
         MRSRegistrationActivity attribute = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes(description, "attribute").getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
@@ -206,7 +252,7 @@ public class AllRegistrationsAdapterTest {
         String child_info = "child_info";
         formValueElement.setElementName(child_info);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
-        CommcareForm form = new FormBuilder(startElement).with(child_info, formValueElement).getForm();
+        CommcareForm form = new FormBuilder(startElement).withSubElement(formValueElement).getForm();
         String motechId = "motech-id";
         MRSPatientDto patient = new MRSPatientDto();
         MRSPersonDto person = new MRSPersonDto();
@@ -226,7 +272,7 @@ public class AllRegistrationsAdapterTest {
         FormValueElement formValueElement = new FormValueElement();
         String child_info = "child_info";
         formValueElement.setElementName(child_info);
-        CommcareForm form = new FormBuilder(topFormElement).with(child_info, formValueElement).getForm();
+        CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
@@ -253,7 +299,8 @@ public class AllRegistrationsAdapterTest {
         registrationActivity.setType(null);
         FormValueElement element1 = new FormValueElement();
         String startElement = "form";
-        CommcareForm form = new FormBuilder(startElement).with("child_info", element1).getForm();
+        element1.setElementName("child_info");
+        CommcareForm form = new FormBuilder(startElement).withSubElement(element1).getForm();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
         registrationAdapter.adaptForm(form, registrationActivity);
@@ -272,7 +319,8 @@ public class AllRegistrationsAdapterTest {
         subElements.put("case", subElement);
         element1.setSubElements(subElements);
         element1.getAttributes().put("myAttribute", "myValue");
-        CommcareForm form = new FormBuilder("form").with("case", element1).getForm();
+        element1.setElementName("case");
+        CommcareForm form = new FormBuilder("form").withSubElement(element1).getForm();
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes("value field", "//@myAttribute").getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
@@ -297,7 +345,7 @@ public class AllRegistrationsAdapterTest {
         subElement.setValue("value");
         subElements.put("element", subElement);
         element1.setSubElements(subElements);
-        CommcareForm form = new FormBuilder("form").with("case", element1).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element1).getForm();
         MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes("value field", "//element").getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 

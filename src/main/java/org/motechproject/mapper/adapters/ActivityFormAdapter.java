@@ -3,6 +3,7 @@ package org.motechproject.mapper.adapters;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormNode;
 import org.motechproject.commcare.domain.FormValueElement;
+import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
@@ -12,13 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Adapts a particular form by an activity type, such as encounters, registrations, drugs orders, etc.
  */
 public abstract class ActivityFormAdapter {
 
-    protected Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
+    protected static Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
+
     private AllElementSearchStrategies allElementSearchStrategies;
 
     public ActivityFormAdapter(AllElementSearchStrategies allElementSearchStrategies) {
@@ -36,7 +39,7 @@ public abstract class ActivityFormAdapter {
         List<FormNode> startElements = allElementSearchStrategies.search(startElementPath, rootElement, rootElement, null);
 
         if (startElements.size() == 0) {
-            logger.warn(String.format("Cannot find the start node(%s) in the form(%s)", startElementPath, form.getId()));
+            logger.info(String.format("Cannot find the start node(%s) in the form(%s). Ignoring this form.", startElementPath, form.getId()));
             return beneficiarySegments;
         }
 
@@ -45,5 +48,18 @@ public abstract class ActivityFormAdapter {
         }
 
         return beneficiarySegments;
+    }
+
+    protected  void handleEmptyMotechId(CommcareForm form, Map<String, String> patientIdScheme) {
+        String ignoreMessage = String.format("Motech id is empty for form(%s). Ignoring this form.", form.getId());
+        if(patientIdScheme != null && Boolean.parseBoolean(patientIdScheme.get(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND))) {
+            logger.info(ignoreMessage);
+            return;
+        }
+        logger.error(ignoreMessage);
+    }
+
+    public static void setLogger(Logger logger) {
+        ActivityFormAdapter.logger = logger;
     }
 }

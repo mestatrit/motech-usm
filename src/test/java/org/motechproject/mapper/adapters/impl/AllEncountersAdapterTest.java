@@ -7,17 +7,25 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
+import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.builder.EncounterActivityBuilder;
 import org.motechproject.mapper.builder.FormBuilder;
+import org.motechproject.mapper.builder.FormValueElementBuilder;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSEncounterActivity;
 import org.motechproject.mapper.domain.ObservationMapping;
-import org.motechproject.mapper.util.*;
+import org.motechproject.mapper.util.AllElementSearchStrategies;
+import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.EncounterIdGenerationStrategy;
+import org.motechproject.mapper.util.IdentityResolver;
+import org.motechproject.mapper.util.MRSUtil;
+import org.motechproject.mapper.util.ObservationsGenerator;
 import org.motechproject.mapper.validation.ValidationManager;
 import org.motechproject.mrs.model.MRSObservationDto;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +35,14 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.same;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AllEncountersAdapterTest {
@@ -60,7 +75,7 @@ public class AllEncountersAdapterTest {
         String patientId = "motech Id";
         MRSPatientDto patient = new MRSPatientDto();
         patient.setMotechId(patientId);
-        CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
         ObservationMapping observationMapping = new ObservationMapping();
@@ -89,9 +104,9 @@ public class AllEncountersAdapterTest {
         String elementName = "field";
         String observationValue = "value";
         String instanceId = "myinstanceid";
-        String patientId = "mypatientod";
+        String patientId = "mypatientid";
 
-        CommcareForm form = new FormBuilder("form").with(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(elementName, observationValue).withMeta(FormMappingConstants.FORM_TIME_END, "2013-12-12").getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
 
@@ -131,17 +146,90 @@ public class AllEncountersAdapterTest {
     }
 
     @Test
-    public void shouldGetEncounterDateAndAddEncounter() {
+    public void shouldIgnoreMappingIfFormDoesNotHaveMotechIdAndLogError() {
+        String instanceId = "myInstanceId";
+
         DateTime encounterDate = DateTime.now();
-        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString());
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();
+        form.setId(instanceId);
+
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
         activity.setObservationMappings(null);
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
         activity.setEncounterMappings(new HashMap<String, String>() {{
             put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//case/@date_modified");
         }});
-        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
+
+        Logger logger = mock(Logger.class);
+        AllEncountersAdapter.setLogger(logger);
+
+        encountersAdapter.adaptForm(form, activity);
+
+        verifyZeroInteractions(mrsUtil);
+        verify(logger).error(String.format("Motech id is empty for form(%s). Ignoring this form.", instanceId));
+    }
+
+    @Test
+    public void shouldIgnoreMappingIfFormDoesNotHaveMotechIdAndDoNotLogError() {
+        DateTime encounterDate = DateTime.now();
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString());
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+
+        HashMap<String, String> patientIdScheme = new HashMap<String, String>(){{
+            put(FormMappingConstants.SKIP_MAPPING_IF_ID_NOT_FOUND, "True");
+        }};
+
+        activity.setPatientIdScheme(patientIdScheme);
+
+        activity.setEncounterMappings(new HashMap<String, String>() {{
+            put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//case/@date_modified");
+        }});
+
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(null);
+
+        Logger logger = mock(Logger.class);
+        ActivityFormAdapter.setLogger(logger);
+
+        encountersAdapter.adaptForm(form, activity);
+
+        verifyZeroInteractions(mrsUtil);
+        verify(logger, never()).error(anyString());
+    }
+
+    @Test
+    public void shouldGetEncounterDateAndAddEncounter() {
+        DateTime encounterDate = DateTime.now();
+        String caseId = "myCaseId";
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString());
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();
+        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        formMapperProperties.setStartElement("form");
+        MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+        activity.setObservationMappings(null);
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
+        activity.setEncounterMappings(new HashMap<String, String>() {{
+            put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//case/@date_modified");
+        }});
+        when(mrsUtil.getPatientByMotechId(caseId)).thenReturn(new MRSPatientDto());
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(caseId);
 
         encountersAdapter.adaptForm(form, activity);
 
@@ -153,12 +241,20 @@ public class AllEncountersAdapterTest {
     @Test
     public void shouldAddEncounterWithEncounterDateAsCurrentTimeIfEncounterMappingsIsNotProvided() {
         DateTime encounterDate = DateTime.now();
-        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
-        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        String caseId = "myCaseId";
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString());
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
+
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
         activity.setObservationMappings(null);
-        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+        when(mrsUtil.getPatientByMotechId(caseId)).thenReturn(new MRSPatientDto());
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(caseId);
 
         encountersAdapter.adaptForm(form, activity);
 
@@ -170,15 +266,23 @@ public class AllEncountersAdapterTest {
     @Test
     public void shouldAddEncounterWithEncounterDateAsCurrentTimeIfEncounterDateFieldMappingIsNotFound() {
         DateTime encounterDate = DateTime.now();
-        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
-        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        String caseId = "myCaseId";
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString())
+                .withAttribute("case_id", caseId);
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
         activity.setObservationMappings(null);
         activity.setEncounterMappings(new HashMap<String, String>() {{
             put("someKey", "//someValue");
         }});
-        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+        when(mrsUtil.getPatientByMotechId(caseId)).thenReturn(new MRSPatientDto());
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(caseId);
 
         encountersAdapter.adaptForm(form, activity);
 
@@ -190,15 +294,23 @@ public class AllEncountersAdapterTest {
     @Test
     public void shouldAddEncounterWithEncounterDateAsCurrentTimeIfDateModifiedIsNotFoundInForm() {
         DateTime encounterDate = DateTime.now();
-        CommcareForm form = new FormBuilder("form").withAttributes("case", "date_modified", encounterDate.toString()).getForm();
-        FormMapperProperties formMapperProperties = new FormMapperProperties();
+        String caseId = "myCaseId";
+        FormValueElementBuilder rootElementBuilder = new FormValueElementBuilder("case")
+                .withAttribute("date_modified", encounterDate.toString())
+                .withAttribute("case_id", caseId);
+        CommcareForm form = new FormBuilder("form").withSubElement(rootElementBuilder.build()).getForm();FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement("form");
         MRSEncounterActivity activity = new EncounterActivityBuilder().getActivity();
+
+        HashMap<String, String> patientIdScheme = new HashMap<>();
+        activity.setPatientIdScheme(patientIdScheme);
+
         activity.setObservationMappings(null);
         activity.setEncounterMappings(new HashMap<String, String>() {{
             put(FormMappingConstants.ENCOUNTER_DATE_FIELD, "//somefield/@date_modified");
         }});
-        when(mrsUtil.getPatientByMotechId(anyString())).thenReturn(new MRSPatientDto());
+        when(mrsUtil.getPatientByMotechId(caseId)).thenReturn(new MRSPatientDto());
+        when(idResolver.retrieveId(eq(patientIdScheme), any(CommcareFormSegment.class))).thenReturn(caseId);
 
         encountersAdapter.adaptForm(form, activity);
 

@@ -51,7 +51,7 @@ public class ObservationsGeneratorTest {
         element.setElementName(fieldName);
         String value = "21";
         element.setValue(value);
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(),
                 new ArrayList<String>(), new AllElementSearchStrategies());
         when(encounterIdGenerationStrategy.generateObservationId(any(String.class))).thenReturn("observationId-concept");
@@ -85,7 +85,7 @@ public class ObservationsGeneratorTest {
         element.setElementName(fieldName);
         String value = "raj taj";
         element.setValue(value);
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
         when(encounterIdGenerationStrategy.generateObservationId("Child Names", 0)).thenReturn("observationId-concept-0");
@@ -119,7 +119,7 @@ public class ObservationsGeneratorTest {
         FormValueElement element = new FormValueElement();
         element.setElementName(fieldName);
         element.setValue("value");
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
         CommcareFormSegment beneficiarySegment = new CommcareFormSegment(form, form.getForm(), new ArrayList<String>(), new AllElementSearchStrategies());
 
         Set<MRSObservationDto> actualObservations = ObservationsGenerator.generate(Arrays.asList(observationMapping), beneficiarySegment, new MRSPatientDto(), encounterIdGenerationStrategy, null);

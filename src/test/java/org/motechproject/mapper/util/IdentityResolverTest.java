@@ -12,6 +12,7 @@ import org.motechproject.mapper.builder.FormBuilder;
 import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.motechproject.mapper.constants.FormMappingConstants.*;
 
@@ -36,14 +37,14 @@ public class IdentityResolverTest {
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
 
         FormValueElement element = new FormValueElement();
-        element.setElementName("case");
+        element.setElementName(fieldName);
 
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(attributeName, expectedId);
 
         element.setAttributes(attributes);
 
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
 
         HashMap<String, String> idScheme = new HashMap<>();
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
@@ -62,8 +63,8 @@ public class IdentityResolverTest {
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
         FormValueElement element = new FormValueElement();
         element.setValue(expectedId);
-        element.setElementName("case");
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        element.setElementName(fieldName);
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
         HashMap<String, String> idScheme = new HashMap<>();
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
         idScheme.put(ID_SCHEME_FIELD, fieldName);
@@ -81,11 +82,11 @@ public class IdentityResolverTest {
         IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
         FormValueElement element = new FormValueElement();
         element.setValue(expectedId);
-        element.setElementName("case");
+        element.setElementName(fieldName);
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put(attributeName, expectedId);
         element.setAttributes(attributes);
-        CommcareForm form = new FormBuilder("form").with(fieldName, element).getForm();
+        CommcareForm form = new FormBuilder("form").withSubElement(element).getForm();
         HashMap<String, String> idScheme = new HashMap<>();
         idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
         idScheme.put(ID_SCHEME_FIELD, fieldName);
@@ -94,6 +95,27 @@ public class IdentityResolverTest {
         String id = identityResolver.retrieveId(idScheme, new CommcareFormSegment(form, form.getForm(), null,new AllElementSearchStrategies()));
 
         assertEquals(expectedId, id);
+    }
+
+    @Test
+    public void shouldReturnNullIfIdSchemeFieldDoesNotExist() {
+        String fieldName = "case";
+        String attributeName = "case_id";
+        String expectedId = "value";
+        IdentityResolver identityResolver = new IdentityResolver(caseService, userService);
+
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put(attributeName, expectedId);
+
+        CommcareForm form = new FormBuilder("form").getForm();
+        HashMap<String, String> idScheme = new HashMap<>();
+        idScheme.put(ID_SCHEME_TYPE, ID_FROM_FORM_SCHEME);
+        idScheme.put(ID_SCHEME_FIELD, fieldName);
+        idScheme.put(ID_SCHEME_ATTRIBUTE, attributeName);
+
+        String id = identityResolver.retrieveId(idScheme, new CommcareFormSegment(form, form.getForm(), null,new AllElementSearchStrategies()));
+
+        assertNull(id);
     }
 
 

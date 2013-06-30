@@ -12,17 +12,21 @@ public class FormBuilder {
     private CommcareForm form;
 
     public FormBuilder(String topFormElementName) {
-        form = new CommcareForm();
-        FormValueElement formValueElement = new FormValueElement();
+        this(new FormValueElement());
+        FormValueElement formValueElement = form.getForm();
         formValueElement.setElementName(topFormElementName);
         HashMultimap<String, FormValueElement> subElements = new HashMultimap<>();
         formValueElement.setSubElements(subElements);
-        Map<String, String> meta = new HashMap<>();
-        form.setMetadata(meta);
-        form.setForm(formValueElement);
     }
 
-    public FormBuilder with(String field, String value) {
+    public FormBuilder(FormValueElement topFormElement) {
+        form = new CommcareForm();
+        Map<String, String> meta = new HashMap<>();
+        form.setMetadata(meta);
+        form.setForm(topFormElement);
+    }
+
+    public FormBuilder withSubElement(String field, String value) {
         FormValueElement element = new FormValueElement();
         element.setValue(value);
         element.setElementName(field);
@@ -34,17 +38,8 @@ public class FormBuilder {
         return form;
     }
 
-    public FormBuilder with(String elementName, FormValueElement formValueElement) {
-        form.getForm().getSubElements().put(elementName, formValueElement);
-        return this;
-    }
-
-    public FormBuilder withAttributes(String field, final String attributeName, final String attributeValue) {
-        FormValueElement formValueElement = new FormValueElement();
-        formValueElement.setAttributes(new HashMap<String, String>() {{
-            put(attributeName, attributeValue);
-        }});
-        this.form.getForm().getSubElements().put(field, formValueElement);
+    public FormBuilder withSubElement(FormValueElement subElement) {
+        form.getForm().getSubElements().put(subElement.getElementName(), subElement);
         return this;
     }
 

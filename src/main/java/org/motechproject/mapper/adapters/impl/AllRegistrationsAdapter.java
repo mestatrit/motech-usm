@@ -56,7 +56,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
             Map<String, String> patientIdScheme = registrationActivity.getPatientIdScheme();
             String motechId = idResolver.retrieveId(patientIdScheme, beneficiarySegment);
             if (motechId == null) {
-                logger.error("MotechId could not be obtained");
+                handleEmptyMotechId(form, patientIdScheme);
                 return;
             }
             MRSPatient patient = mrsPatientAdapter.getPatientByMotechId(motechId);
