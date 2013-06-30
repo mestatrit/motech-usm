@@ -25,7 +25,7 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
             <param name="ConversionPattern" value="[%t] - %d %-5p [%c] %m%n" />
         </layout>
     </appender>
@@ -33,14 +33,19 @@
     <appender name="FA2" class="org.apache.log4j.FileAppender">
         <param name="File" value="commcareToOpenMrsMapper.log" />
         <param name="Append" value="true" />
-        <layout class="org.apache.log4j.PatternLayout">
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
             <param name="ConversionPattern" value="[%t] - %d %-5p [%c] %m%n" />
         </layout>
     </appender>
 
     <logger name="commcare-mrs-mapper">
         <level value="DEBUG" />
-        <appender-ref ref="FA2" />
     </logger>
+
+    <root>
+        <level value="ERROR" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FA2" />
+    </root>
 
 </log4j:configuration>
