@@ -13,6 +13,8 @@ import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
+import org.motechproject.mapper.service.NonNullPersonFieldUpdateStrategy;
+import org.motechproject.mapper.service.PersonFieldUpdateStrategy;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -82,7 +85,8 @@ public class ProviderAdapterTest {
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
-        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
+        ArgumentCaptor<PersonFieldUpdateStrategy> updateStrategyCaptor = ArgumentCaptor.forClass(PersonFieldUpdateStrategy.class);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture(), updateStrategyCaptor.capture())).thenReturn(person);
 
         providerAdapter.adaptForm(commcareForm);
 
@@ -96,7 +100,7 @@ public class ProviderAdapterTest {
         MRSProvider actualProvider = captor.getValue();
         assertEquals(providerId, actualProvider.getProviderId());
         assertEquals(person, actualProvider.getPerson());
-
+        assertTrue(updateStrategyCaptor.getValue() instanceof NonNullPersonFieldUpdateStrategy);
         verify(mrsProviderAdapter, never()).removeProvider(any(String.class));
     }
 
@@ -122,8 +126,8 @@ public class ProviderAdapterTest {
 
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
-        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
-
+        ArgumentCaptor<PersonFieldUpdateStrategy> updateStrategyCaptor = ArgumentCaptor.forClass(PersonFieldUpdateStrategy.class);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture(), updateStrategyCaptor.capture())).thenReturn(person);
         when(mrsProviderAdapter.getProviderByProviderId(providerId)).thenReturn(new MRSProviderDto());
 
         providerAdapter.adaptForm(commcareForm);
@@ -138,6 +142,8 @@ public class ProviderAdapterTest {
         MRSProvider actualProvider = captor.getValue();
         assertEquals(providerId, actualProvider.getProviderId());
         assertEquals(person, actualProvider.getPerson());
+
+        assertTrue(updateStrategyCaptor.getValue() instanceof NonNullPersonFieldUpdateStrategy);
 
         verify(mrsProviderAdapter).removeProvider(providerId);
     }

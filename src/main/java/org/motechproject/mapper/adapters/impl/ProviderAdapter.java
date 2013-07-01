@@ -8,6 +8,7 @@ import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
+import org.motechproject.mapper.service.NonNullPersonFieldUpdateStrategy;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
@@ -97,7 +98,7 @@ public class ProviderAdapter {
 
     private MRSPerson createPerson(CommcareFormSegment formSegment, MRSRegistrationActivity activity) {
         String personId = UUID.randomUUID().toString();
-        MRSPerson person = personAdapter.createPerson(activity, formSegment);
+        MRSPerson person = personAdapter.createPerson(activity, formSegment, new NonNullPersonFieldUpdateStrategy());
         person.setPersonId(personId);
         return person;
     }
