@@ -4,7 +4,7 @@ import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.mapper.adapters.ActivityFormAdapter;
 import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.service.NonNullPersonFieldUpdateStrategy;
+import org.motechproject.mapper.service.PersonFieldUpdateStrategyFactory;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.IdentityResolver;
@@ -39,11 +39,13 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     private MRSPatientAdapter mrsPatientAdapter;
     private ValidationManager validator;
     private PersonAdapter personAdapter;
+    private PersonFieldUpdateStrategyFactory updateStrategyFactory;
 
     @Autowired
     public AllRegistrationsAdapter(MRSUtil mrsUtil, IdentityResolver idResolver, MRSPatientAdapter mrsPatientAdapter,
                                    ValidationManager validator, AllElementSearchStrategies allElementSearchStrategies,
-                                   PersonAdapter personAdapter
+                                   PersonAdapter personAdapter,
+                                   PersonFieldUpdateStrategyFactory updateStrategyFactory
     ) {
         super(allElementSearchStrategies);
         this.mrsUtil = mrsUtil;
@@ -51,6 +53,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         this.mrsPatientAdapter = mrsPatientAdapter;
         this.validator = validator;
         this.personAdapter = personAdapter;
+        this.updateStrategyFactory = updateStrategyFactory;
     }
 
 
@@ -75,7 +78,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
         MRSPerson person;
         if (patient == null) {
             String id = UUID.randomUUID().toString();
-            person = personAdapter.createPerson(activity, beneficiarySegment, new NonNullPersonFieldUpdateStrategy());
+            person = personAdapter.createPerson(activity, beneficiarySegment, updateStrategyFactory.getStrategyForCreate());
             person.setPersonId(id);
 
             patient = new MRSPatientDto(id, facility, person, motechId);
@@ -116,7 +119,7 @@ public class AllRegistrationsAdapter extends ActivityFormAdapter {
     }
 
     private void updatePatient(MRSPatient patient, MRSPerson person, MRSRegistrationActivity activity, CommcareFormSegment beneficiarySegment) {
-        personAdapter.updatePerson(person, activity, beneficiarySegment, new NonNullPersonFieldUpdateStrategy());
+        personAdapter.updatePerson(person, activity, beneficiarySegment, updateStrategyFactory.getStrategyForUpdate());
         List<ValidationError> validationErrors = validator.validatePatient(patient);
         if (validationErrors.size() == 0) {
             mrsPatientAdapter.updatePatient(patient);
