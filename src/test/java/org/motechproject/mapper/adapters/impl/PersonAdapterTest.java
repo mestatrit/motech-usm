@@ -2,35 +2,28 @@ package org.motechproject.mapper.adapters.impl;
 
 
 import org.joda.time.DateTime;
-import org.joda.time.Years;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.motechproject.commcare.domain.FormValueAttribute;
-import org.motechproject.mapper.builder.RegistrationActivityBuilder;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategy;
+import org.motechproject.mapper.service.PersonUpdaterFactory;
 import org.motechproject.mapper.util.CommcareFormSegment;
+import org.motechproject.mapper.util.PersonUpdater;
 import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.model.MRSAttributeDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.motechproject.commons.date.util.DateUtil.now;
 import static org.motechproject.mapper.constants.FormMappingConstants.ADDRESS_FIELD;
 import static org.motechproject.mapper.constants.FormMappingConstants.AGE_FIELD;
 import static org.motechproject.mapper.constants.FormMappingConstants.BIRTH_DATE_ESTIMATED_FIELD;
@@ -42,12 +35,11 @@ import static org.motechproject.mapper.constants.FormMappingConstants.IS_DEAD_FI
 import static org.motechproject.mapper.constants.FormMappingConstants.LAST_NAME_FIELD;
 import static org.motechproject.mapper.constants.FormMappingConstants.MIDDLE_NAME_FIELD;
 import static org.motechproject.mapper.constants.FormMappingConstants.PREFERRED_NAME_FIELD;
-import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class PersonAdapterTest {
 
     @Mock
-    private PersonFieldUpdateStrategy updateStrategy;
+    private PersonUpdaterFactory personUpdaterFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -56,20 +48,30 @@ public class PersonAdapterTest {
 
     @Test
     public void shouldDefaultValuesWhenCreatingAPerson() {
+        MRSPersonDto expectedPerson = new MRSPersonDto();
         String nameValueInForm = "amy";
+
+        DateTime activityDate = new DateTime(2000, 1, 1, 1, 1, 1);
 
         CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         MRSRegistrationActivity activity = mock(MRSRegistrationActivity.class);
         when(activity.getValueFor(FIRST_NAME_FIELD, beneficiarySegment, String.class)).thenReturn(nameValueInForm);
+        when(activity.getActivityDate(beneficiarySegment)).thenReturn(activityDate);
 
-        MRSPerson actualPerson = new PersonAdapter().createPerson(activity, beneficiarySegment, updateStrategy);
+        PersonUpdater personUpdater = mock(PersonUpdater.class);
+        ArgumentCaptor<MRSPerson> personArgumentCaptor = ArgumentCaptor.forClass(MRSPerson.class);
+        when(personUpdaterFactory.getPersonUpdater(personArgumentCaptor.capture(), eq(activityDate))).thenReturn(personUpdater);
 
-        assertFalse(actualPerson.isDead());
-        assertFalse(actualPerson.getBirthDateEstimated());
+        MRSPerson actualPerson = new PersonAdapter(personUpdaterFactory).createPerson(activity, beneficiarySegment);
+
+        assertEquals(personArgumentCaptor.getValue(), actualPerson);
+        verify(personUpdater).setDead(false);
+        verify(personUpdater).setBirthDateEstimated(false);
     }
 
     @Test
     public void shouldCreateAPersonAndSetAllFields() {
+
         DateTime dob = new DateTime(2004, 12, 12, 0, 0);
         DateTime deathDate = new DateTime(2013, 11, 12, 0, 0);
         String gender = "mygender";
@@ -79,7 +81,10 @@ public class PersonAdapterTest {
         String preferredName = "mypreferredname";
         String address = "myaddress";
         Integer age = 12;
-        List<MRSAttribute> mrsAttributes = new ArrayList<>();
+
+        MRSAttribute mrsAttribute1 = new MRSAttributeDto("attr1", "value1");
+        MRSAttribute mrsAttribute2 = new MRSAttributeDto("attr2", "value2");
+        List<MRSAttribute> mrsAttributes = Arrays.asList(mrsAttribute1, mrsAttribute2);
 
         CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         MRSRegistrationActivity activity = mock(MRSRegistrationActivity.class);
@@ -96,47 +101,51 @@ public class PersonAdapterTest {
         when(activity.getValueFor(DEATH_DATE_FIELD, beneficiarySegment, DateTime.class)).thenReturn(deathDate);
         when(activity.getMRSAttributes(beneficiarySegment)).thenReturn(mrsAttributes);
 
-        Integer expectedAge = Years.yearsBetween(dob, new DateTime(now())).getYears();
+        MRSPersonDto expectedPerson = new MRSPersonDto();
+        PersonUpdater personUpdater = mock(PersonUpdater.class);
+        DateTime activityDate = new DateTime(2000, 1, 1, 1, 1, 1);
+        when(activity.getActivityDate(beneficiarySegment)).thenReturn(activityDate);
 
-        when(updateStrategy.canUpdateField(anyString(), anyString())).thenReturn(true);
+        ArgumentCaptor<MRSPerson> personArgumentCaptor = ArgumentCaptor.forClass(MRSPerson.class);
+        when(personUpdaterFactory.getPersonUpdater(personArgumentCaptor.capture(), eq(activityDate))).thenReturn(personUpdater);
 
-        MRSPerson actualPerson = new PersonAdapter().createPerson(activity, beneficiarySegment, updateStrategy);
-        assertEquals(gender, actualPerson.getGender());
-        assertEquals(dob, actualPerson.getDateOfBirth());
-        assertEquals(firstName, actualPerson.getFirstName());
-        assertEquals(lastName, actualPerson.getLastName());
-        assertEquals(middleName, actualPerson.getMiddleName());
-        assertEquals(preferredName, actualPerson.getPreferredName());
-        assertEquals(address, actualPerson.getAddress());
-        assertEquals(expectedAge, actualPerson.getAge());
-        assertTrue(actualPerson.getBirthDateEstimated());
-        assertTrue(actualPerson.isDead());
-        assertEquals(deathDate, actualPerson.getDeathDate());
+        MRSPerson actualPerson = new PersonAdapter(personUpdaterFactory).createPerson(activity, beneficiarySegment);
+
+        assertEquals(personArgumentCaptor.getValue(), actualPerson);
+
+        verify(personUpdater).setGender(gender);
+        verify(personUpdater).setDateOfBirth(dob);
+        verify(personUpdater).setFirstName(firstName);
+        verify(personUpdater).setLastName(lastName);
+        verify(personUpdater).setMiddleName(middleName);
+        verify(personUpdater).setPreferredName(preferredName);
+        verify(personUpdater).setAddress(address);
+        verify(personUpdater).setAge(age);
+        verify(personUpdater).setBirthDateEstimated(true);
+        verify(personUpdater).setDead(true);
+        verify(personUpdater).setDeathDate(deathDate);
+
+        verify(personUpdater).addAttribute(mrsAttribute1);
+        verify(personUpdater).addAttribute(mrsAttribute2);
     }
 
+
     @Test
-    public void shouldNotUpdateIfFieldIsNull() {
-        String id = "myid";
-        DateTime oldDob = new DateTime(2014, 12, 12, 0, 0);
-        DateTime dob = null;
+    public void shouldUpdateAPersonAndSetAllFields() {
+
+        DateTime dob = new DateTime(2004, 12, 12, 0, 0);
         DateTime deathDate = new DateTime(2013, 11, 12, 0, 0);
         String gender = "mygender";
         String firstName = "myfirstnmae";
-        String lastName = null;
+        String lastName = "mylastname";
         String middleName = "mymiddlename";
         String preferredName = "mypreferredname";
-        String address = null;
-        Integer age = 1;
-        List<MRSAttribute> mrsAttributes = new ArrayList<>();
+        String address = "myaddress";
+        Integer age = 12;
 
-        MRSPerson person = new MRSPersonDto();
-        person.setPersonId(id);
-        person.setLastName("oldlastname");
-        person.setGender("oldgender");
-        person.setMiddleName("oldmiddlename");
-        person.setDead(true);
-        person.setBirthDateEstimated(false);
-        person.setDateOfBirth(oldDob);
+        MRSAttribute mrsAttribute1 = new MRSAttributeDto("attr1", "value1");
+        MRSAttribute mrsAttribute2 = new MRSAttributeDto("attr2", "value2");
+        List<MRSAttribute> mrsAttributes = Arrays.asList(mrsAttribute1, mrsAttribute2);
 
         CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
         MRSRegistrationActivity activity = mock(MRSRegistrationActivity.class);
@@ -148,60 +157,36 @@ public class PersonAdapterTest {
         when(activity.getValueFor(PREFERRED_NAME_FIELD, beneficiarySegment, String.class)).thenReturn(preferredName);
         when(activity.getValueFor(ADDRESS_FIELD, beneficiarySegment, String.class)).thenReturn(address);
         when(activity.getValueFor(AGE_FIELD, beneficiarySegment, Integer.class)).thenReturn(age);
-        when(activity.getValueFor(BIRTH_DATE_ESTIMATED_FIELD, beneficiarySegment, Boolean.class)).thenReturn(null);
-        when(activity.getValueFor(IS_DEAD_FIELD, beneficiarySegment, Boolean.class)).thenReturn(null);
+        when(activity.getValueFor(BIRTH_DATE_ESTIMATED_FIELD, beneficiarySegment, Boolean.class)).thenReturn(true);
+        when(activity.getValueFor(IS_DEAD_FIELD, beneficiarySegment, Boolean.class)).thenReturn(true);
         when(activity.getValueFor(DEATH_DATE_FIELD, beneficiarySegment, DateTime.class)).thenReturn(deathDate);
         when(activity.getMRSAttributes(beneficiarySegment)).thenReturn(mrsAttributes);
 
-        when(updateStrategy.canUpdateField(anyString(), isNotNull())).thenReturn(true);
-        when(updateStrategy.canUpdateField(anyString(), isNull())).thenReturn(false);
-        new PersonAdapter().updatePerson(person, activity, beneficiarySegment, updateStrategy);
-
-        assertEquals(id, person.getPersonId());
-        assertEquals(gender, person.getGender());
-        assertEquals(oldDob, person.getDateOfBirth());
-        assertEquals(firstName, person.getFirstName());
-        assertEquals("oldlastname", person.getLastName());
-        assertEquals(middleName, person.getMiddleName());
-        assertEquals(preferredName, person.getPreferredName());
-        assertEquals(address, person.getAddress());
-        assertFalse(person.getBirthDateEstimated());
-        assertTrue(person.isDead());
-        assertEquals(deathDate, person.getDeathDate());
-    }
-
-    @Test
-    public void shouldUpdateAnAttributeIfExistsAlreadyOrAddNew() {
         MRSPersonDto person = new MRSPersonDto();
-        final MRSAttribute existingAttribute1 = new MRSAttributeDto("firstName", "myOldFirstName");
-        final MRSAttribute existingAttribute2 = new MRSAttributeDto("lastName", "myOldLastName");
-        final MRSAttribute existingAttribute3 = new MRSAttributeDto("preferredName", "myOldPreferredName");
-        person.setAttributes(new ArrayList<MRSAttribute>() {{
-            add(existingAttribute1);
-            add(existingAttribute2);
-            add(existingAttribute3);
-        }});
+        PersonUpdater personUpdater = mock(PersonUpdater.class);
+        DateTime activityDate = new DateTime(2000, 1, 1, 1, 1, 1);
+        when(activity.getActivityDate(beneficiarySegment)).thenReturn(activityDate);
 
-        CommcareFormSegment commcareFormSegment = mock(CommcareFormSegment.class);
-        when(commcareFormSegment.search("fname")).thenReturn(new FormValueAttribute("myNewFirstName"));
-        when(commcareFormSegment.search("ph")).thenReturn(new FormValueAttribute("myNewPhoneNumber"));
-        when(commcareFormSegment.search("pfname")).thenReturn(new FormValueAttribute("myNewPreferredName"));
+        ArgumentCaptor<MRSPerson> personArgumentCaptor = ArgumentCaptor.forClass(MRSPerson.class);
+        when(personUpdaterFactory.getPersonUpdater(personArgumentCaptor.capture(), eq(activityDate))).thenReturn(personUpdater);
 
-        when(updateStrategy.canUpdateField(eq("firstName"), any())).thenReturn(true);
-        when(updateStrategy.canUpdateField(eq("phoneNumber"), any())).thenReturn(true);
+        new PersonAdapter(personUpdaterFactory).updatePerson(person, activity, beneficiarySegment);
 
-        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder()
-                .withAttributes("firstName", "fname")
-                .withAttributes("lastName", "lname")
-                .withAttributes("preferredName", "pfname")
-                .withAttributes("phoneNumber", "ph")
-                .getActivity();
-        new PersonAdapter().updatePerson(person, registrationActivity, commcareFormSegment, updateStrategy);
+        assertEquals(person, personArgumentCaptor.getValue());
 
-        assertEquals(4, person.getAttributes().size());
-        assertReflectionEquals(new MRSAttributeDto("firstName", "myNewFirstName"), person.getAttributes().get(0));
-        assertReflectionEquals(new MRSAttributeDto("lastName", "myOldLastName"), person.getAttributes().get(1));
-        assertReflectionEquals(new MRSAttributeDto("preferredName", "myOldPreferredName"), person.getAttributes().get(2));
-        assertReflectionEquals(new MRSAttributeDto("phoneNumber", "myNewPhoneNumber"), person.getAttributes().get(3));
+        verify(personUpdater).setGender(gender);
+        verify(personUpdater).setDateOfBirth(dob);
+        verify(personUpdater).setFirstName(firstName);
+        verify(personUpdater).setLastName(lastName);
+        verify(personUpdater).setMiddleName(middleName);
+        verify(personUpdater).setPreferredName(preferredName);
+        verify(personUpdater).setAddress(address);
+        verify(personUpdater).setAge(age);
+        verify(personUpdater).setBirthDateEstimated(true);
+        verify(personUpdater).setDead(true);
+        verify(personUpdater).setDeathDate(deathDate);
+
+        verify(personUpdater).addAttribute(mrsAttribute1);
+        verify(personUpdater).addAttribute(mrsAttribute2);
     }
 }

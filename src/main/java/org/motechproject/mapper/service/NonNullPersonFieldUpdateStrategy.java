@@ -1,9 +1,18 @@
 package org.motechproject.mapper.service;
 
-public class NonNullPersonFieldUpdateStrategy  implements PersonFieldUpdateStrategy {
+public class NonNullPersonFieldUpdateStrategy implements PersonFieldUpdateStrategy {
+
+    public NonNullPersonFieldUpdateStrategy() {
+    }
 
     @Override
-    public boolean canUpdateField(String name, Object value) {
-        return value != null;
+    public boolean canUpdate(String fieldName, Object fieldValue) {
+        return fieldValue != null;
     }
+
+    @Override
+    public void markUpdated(String fieldName) {
+
+    }
+
 }

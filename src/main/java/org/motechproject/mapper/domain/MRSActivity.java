@@ -1,7 +1,11 @@
 package org.motechproject.mapper.domain;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.joda.time.DateTime;
+import org.motechproject.commcare.domain.FormNode;
+import org.motechproject.mapper.util.CommcareFormSegment;
 
 import java.util.Map;
 
@@ -59,5 +63,21 @@ public class MRSActivity {
 
     public void setProviderScheme(Map<String, String> providerScheme) {
         this.providerScheme = providerScheme;
+    }
+
+    protected DateTime getActivityDate(CommcareFormSegment beneficiarySegment, Map<String, String> mappings, String dateFieldPathKey) {
+        DateTime now = DateTime.now();
+        if(mappings == null) {
+            return now;
+        }
+        String dateFieldPath = mappings.get(dateFieldPathKey);
+        if(StringUtils.isEmpty(dateFieldPath)) {
+            return now;
+        }
+        FormNode dateFieldNode = beneficiarySegment.search(dateFieldPath);
+        if(dateFieldNode == null || StringUtils.isEmpty(dateFieldNode.getValue())) {
+            return now;
+        }
+        return DateTime.parse(dateFieldNode.getValue());
     }
 }

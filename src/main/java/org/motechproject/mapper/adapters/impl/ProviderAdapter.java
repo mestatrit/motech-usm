@@ -8,7 +8,6 @@ import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategyFactory;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
@@ -33,21 +32,18 @@ public class ProviderAdapter {
     private MRSMappingService mappingService;
     private AllElementSearchStrategies allElementSearchStrategies;
     private MRSMappingVersionMatchStrategy mappingVersionMatchStrategy;
-    private PersonFieldUpdateStrategyFactory updateStrategyFactory;
 
     private Logger logger = LoggerFactory.getLogger("commcare-mrs-mapper");
 
     @Autowired
     public ProviderAdapter(PersonAdapter personAdapter, MRSProviderAdapter providerAdapter, MRSMappingService mappingService,
-                           AllElementSearchStrategies allElementSearchStrategies, MRSMappingVersionMatchStrategy mappingVersionMatchStrategy,
-                           PersonFieldUpdateStrategyFactory updateStrategyFactory
+                           AllElementSearchStrategies allElementSearchStrategies, MRSMappingVersionMatchStrategy mappingVersionMatchStrategy
     ) {
         this.personAdapter = personAdapter;
         this.providerAdapter = providerAdapter;
         this.mappingService = mappingService;
         this.allElementSearchStrategies = allElementSearchStrategies;
         this.mappingVersionMatchStrategy = mappingVersionMatchStrategy;
-        this.updateStrategyFactory = updateStrategyFactory;
     }
 
     public void adaptForm(CommcareForm commcareForm) {
@@ -102,7 +98,7 @@ public class ProviderAdapter {
 
     private MRSPerson createPerson(CommcareFormSegment formSegment, MRSRegistrationActivity activity) {
         String personId = UUID.randomUUID().toString();
-        MRSPerson person = personAdapter.createPerson(activity, formSegment, updateStrategyFactory.getStrategyForCreate());
+        MRSPerson person = personAdapter.createPerson(activity, formSegment);
         person.setPersonId(personId);
         return person;
     }

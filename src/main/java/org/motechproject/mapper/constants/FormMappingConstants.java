@@ -41,6 +41,7 @@ public final class FormMappingConstants {
     public static final String FACILITY_NAME_FIELD = "facility";
     public static final String DEFAULT_FACILITY = "Unknown Location";
     public static final String ENCOUNTER_DATE_FIELD = "encounterDate";
+    public static final String REGISTRATION_DATE_FIELD = "registrationDate";
 
     //Destination decides which values are required during the mapping process, configuration is in mappingConfiguration.properties
     public static final String DESTINATION_COUCHDB = "couchdb";
@@ -49,6 +50,7 @@ public final class FormMappingConstants {
     public static final String MAPPING_CONFIGURATION_FILE_NAME = "mappingConfiguration.properties";
     public static final String DESTINATION = "destination";
     public static final String FORM_VERSION_PATH = "formVersionPath";
+    public static final String AVOID_STALE_REGISTRATION_UPDATES = "avoidStaleRegistrationUpdates";
 
     public static final String REPORT_MISSING_ID = "reportMissingId";
 

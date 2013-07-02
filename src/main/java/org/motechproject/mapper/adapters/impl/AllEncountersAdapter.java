@@ -71,18 +71,12 @@ public class AllEncountersAdapter extends ActivityFormAdapter {
 
             String providerId = idResolver.retrieveId(providerIdScheme, beneficiarySegment);
 
-            DateTime encounterDate = getEncounterDate(encounterActivity.getEncounterMappings(), beneficiarySegment);
+            DateTime encounterDate = encounterActivity.getActivityDate(beneficiarySegment);
             Set<MRSObservationDto> observations = ObservationsGenerator.generate(observationMappings, beneficiarySegment, patient, encounterIdGenerationStrategy, encounterDate);
             String facilityName = getFacility(encounterActivity, beneficiarySegment);
             mrsUtil.addEncounter(encounterId, patient, observations, providerId, encounterDate, facilityName,
                     encounterActivity.getEncounterType());
         }
-    }
-
-    private DateTime getEncounterDate(Map<String, String> encounterMappings, CommcareFormSegment beneficiarySegment) {
-        String encounterDatePath = encounterMappings != null ? encounterMappings.get(FormMappingConstants.ENCOUNTER_DATE_FIELD) : null;
-        FormNode formNode = encounterDatePath != null ? beneficiarySegment.search(encounterDatePath) : null;
-        return formNode != null && StringUtils.isNotBlank(formNode.getValue()) ? DateTime.parse(formNode.getValue()) : DateTime.now();
     }
 
     private String getFacility(MRSEncounterActivity encounterActivity, CommcareFormSegment beneficiarySegment) {

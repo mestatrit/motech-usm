@@ -1,20 +1,23 @@
 package org.motechproject.mapper.domain;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.ExpressionUtil;
 import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.model.MRSAttributeDto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class MRSRegistrationActivity extends MRSActivity {
 
-    private Map<String, String> attributes;
-    private Map<String, String> registrationMappings;
-    private Map<String, String> staticMappings;
+    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> registrationMappings = new HashMap<>();
+    private Map<String, String> staticMappings = new HashMap<>();
 
     public Map<String, String> getAttributes() {
         return attributes;
@@ -58,6 +61,7 @@ public class MRSRegistrationActivity extends MRSActivity {
         }
         return null;
     }
+
     public List<MRSAttribute> getMRSAttributes(CommcareFormSegment beneficiarySegment) {
         List<MRSAttribute> attributes = new ArrayList<>();
         Map<String, String> mappedAttributes = getAttributes();
@@ -73,5 +77,9 @@ public class MRSRegistrationActivity extends MRSActivity {
             }
         }
         return attributes;
+    }
+
+    public DateTime getActivityDate(CommcareFormSegment beneficiarySegment) {
+        return getActivityDate(beneficiarySegment, registrationMappings, FormMappingConstants.REGISTRATION_DATE_FIELD);
     }
 }

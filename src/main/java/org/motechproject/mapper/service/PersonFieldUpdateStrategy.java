@@ -1,6 +1,8 @@
 package org.motechproject.mapper.service;
 
 public interface PersonFieldUpdateStrategy {
-    public boolean canUpdateField(String name, Object value);
+    public boolean canUpdate(String fieldName, Object fieldValue);
+
+    public void markUpdated(String fieldName);
 
 }

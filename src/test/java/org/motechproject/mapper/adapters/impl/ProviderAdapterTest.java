@@ -4,7 +4,6 @@ package org.motechproject.mapper.adapters.impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormNode;
@@ -14,8 +13,6 @@ import org.motechproject.mapper.domain.MRSActivity;
 import org.motechproject.mapper.domain.MRSMapping;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
 import org.motechproject.mapper.service.MRSMappingService;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategy;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategyFactory;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.MRSMappingVersionMatchStrategy;
@@ -57,17 +54,10 @@ public class ProviderAdapterTest {
     @Mock
     private PersonAdapter personAdapter;
 
-    @Mock
-    private PersonFieldUpdateStrategyFactory updateStrategyFactory;
-
-    @Mock
-    private PersonFieldUpdateStrategy updateStrategyForCreate;
-
     @Before
     public void setup() {
         initMocks(this);
-        when(updateStrategyFactory.getStrategyForCreate()).thenReturn(updateStrategyForCreate);
-        providerAdapter = new ProviderAdapter(personAdapter, mrsProviderAdapter, mrsMappingService, allElementSearchStrategies, mappingVersionMatchStrategy, updateStrategyFactory);
+        providerAdapter = new ProviderAdapter(personAdapter, mrsProviderAdapter, mrsMappingService, allElementSearchStrategies, mappingVersionMatchStrategy);
     }
 
     @Test
@@ -93,7 +83,7 @@ public class ProviderAdapterTest {
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
 
-        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture(), Matchers.eq(updateStrategyForCreate))).thenReturn(person);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
         providerAdapter.adaptForm(commcareForm);
 
         verify(mappingVersionMatchStrategy).findBestMatch(mrsMappings, null);
@@ -130,7 +120,7 @@ public class ProviderAdapterTest {
         when(mappingVersionMatchStrategy.findBestMatch(mrsMappings, null)).thenReturn(mrsMapping);
         MRSPerson person = new MRSPersonDto();
         ArgumentCaptor<CommcareFormSegment> formSegmentCaptor = ArgumentCaptor.forClass(CommcareFormSegment.class);
-        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture(), Matchers.eq(updateStrategyForCreate))).thenReturn(person);
+        when(personAdapter.createPerson(eq(registrationActivity), formSegmentCaptor.capture())).thenReturn(person);
         when(mrsProviderAdapter.getProviderByProviderId(providerId)).thenReturn(new MRSProviderDto());
 
         providerAdapter.adaptForm(commcareForm);

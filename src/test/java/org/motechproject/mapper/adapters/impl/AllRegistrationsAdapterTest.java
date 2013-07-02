@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.motechproject.commcare.domain.CommcareForm;
 import org.motechproject.commcare.domain.FormValueElement;
@@ -16,8 +17,6 @@ import org.motechproject.mapper.builder.RegistrationActivityBuilder;
 import org.motechproject.mapper.constants.FormMappingConstants;
 import org.motechproject.mapper.domain.FormMapperProperties;
 import org.motechproject.mapper.domain.MRSRegistrationActivity;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategy;
-import org.motechproject.mapper.service.PersonFieldUpdateStrategyFactory;
 import org.motechproject.mapper.util.AllElementSearchStrategies;
 import org.motechproject.mapper.util.CommcareFormSegment;
 import org.motechproject.mapper.util.IdentityResolver;
@@ -25,8 +24,8 @@ import org.motechproject.mapper.util.MRSUtil;
 import org.motechproject.mapper.util.TestAppender;
 import org.motechproject.mapper.validation.ValidationError;
 import org.motechproject.mapper.validation.ValidationManager;
-import org.motechproject.mrs.domain.MRSAttribute;
 import org.motechproject.mrs.domain.MRSPatient;
+import org.motechproject.mrs.domain.MRSPerson;
 import org.motechproject.mrs.model.MRSPatientDto;
 import org.motechproject.mrs.model.MRSPersonDto;
 import org.motechproject.mrs.services.MRSPatientAdapter;
@@ -42,6 +41,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,21 +58,16 @@ public class AllRegistrationsAdapterTest {
     private IdentityResolver idResolver;
     @Mock
     private ValidationManager validator;
-    @Mock
-    private PersonFieldUpdateStrategyFactory updateStrategyFactory;
-    @Mock
-    private PersonFieldUpdateStrategy updateStrategyForCreate;
-    @Mock
-    private PersonFieldUpdateStrategy updateStrategyForUpdate;
 
     private AllRegistrationsAdapter registrationAdapter;
+
+    @Mock
+    private PersonAdapter personAdapter;
 
     @Before
     public void setUp() {
         initMocks(this);
-        when(updateStrategyFactory.getStrategyForCreate()).thenReturn(updateStrategyForCreate);
-        when(updateStrategyFactory.getStrategyForUpdate()).thenReturn(updateStrategyForUpdate);
-        registrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator,new AllElementSearchStrategies(), new PersonAdapter(), updateStrategyFactory);
+        registrationAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator,new AllElementSearchStrategies(), personAdapter);
     }
 
     @After
@@ -92,7 +87,12 @@ public class AllRegistrationsAdapterTest {
         formMapperProperties.setStartElement(startElement);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
+
+        MRSPerson newPerson = mock(MRSPerson.class);
+        when(personAdapter.createPerson(eq(activity), any(CommcareFormSegment.class))).thenReturn(newPerson);
+
         registrationAdapter.adaptForm(form, activity);
+
         verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
     }
 
@@ -106,6 +106,9 @@ public class AllRegistrationsAdapterTest {
         formMapperProperties.setStartElement(startElement);
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
+
+        MRSPerson newPerson = mock(MRSPerson.class);
+        when(personAdapter.createPerson(eq(activity), any(CommcareFormSegment.class))).thenReturn(newPerson);
 
         registrationAdapter.adaptForm(form, activity);
 
@@ -123,7 +126,10 @@ public class AllRegistrationsAdapterTest {
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
-        registrationAdapter.adaptForm(form, activity);
+        MRSPerson newPerson = mock(MRSPerson.class);
+        when(personAdapter.createPerson(eq(activity), any(CommcareFormSegment.class))).thenReturn(newPerson);
+
+       registrationAdapter.adaptForm(form, activity);
 
         verify(mrsPatientAdapter, times(0)).savePatient(any(MRSPatientDto.class));
     }
@@ -138,15 +144,16 @@ public class AllRegistrationsAdapterTest {
         formMapperProperties.setStartElement(topElementName);
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
-        when(updateStrategyForCreate.canUpdateField(FIRST_NAME_FIELD, nameValueInForm)).thenReturn(true);
+        MRSPersonDto personCreated = new MRSPersonDto();
         MRSRegistrationActivity activity = new RegistrationActivityBuilder().withRegistrationMapping(FIRST_NAME_FIELD, nameFieldInForm)
                 .withFormMapperProperties(formMapperProperties).getActivity();
+
+        when(personAdapter.createPerson(eq(activity), any(CommcareFormSegment.class))).thenReturn(personCreated);
         registrationAdapter.adaptForm(form, activity);
 
         ArgumentCaptor<MRSPatient> patientCaptor = ArgumentCaptor.forClass(MRSPatient.class);
         verify(mrsPatientAdapter,times(1)).savePatient(patientCaptor.capture());
-        String actualName = patientCaptor.getValue().getPerson().getFirstName();
-        assertEquals(nameValueInForm, actualName);
+        assertEquals(personCreated, patientCaptor.getValue().getPerson());
     }
 
     @Test
@@ -160,12 +167,15 @@ public class AllRegistrationsAdapterTest {
         CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).withSubElement(anotherFormValueElement).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
-        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().
                 withFormMapperProperties(formMapperProperties).getActivity();
-        AllRegistrationsAdapter registrationsAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator, new AllElementSearchStrategies(), new PersonAdapter(), updateStrategyFactory);
+        AllRegistrationsAdapter registrationsAdapter = new AllRegistrationsAdapter(mrsUtil, idResolver, mrsPatientAdapter, validator, new AllElementSearchStrategies(), personAdapter);
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
-        registrationsAdapter.adaptForm(form, registrationActivity);
+        MRSPersonDto personCreated = new MRSPersonDto();
+        when(personAdapter.createPerson(Matchers.eq(activity), any(CommcareFormSegment.class))).thenReturn(personCreated);
+
+        registrationAdapter.adaptForm(form, activity);
 
         verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
     }
@@ -181,10 +191,13 @@ public class AllRegistrationsAdapterTest {
         CommcareForm form = new FormBuilder(topFormElement).withSubElement(formValueElement).withSubElement(anotherFormValueElement).getForm();
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         formMapperProperties.setStartElement(topFormElement);
-        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
-        registrationAdapter.adaptForm(form, registrationActivity);
+        MRSPersonDto personCreated = new MRSPersonDto();
+        when(personAdapter.createPerson(Matchers.eq(activity), any(CommcareFormSegment.class))).thenReturn(personCreated);
+
+        registrationAdapter.adaptForm(form, activity);
 
         verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
     }
@@ -246,28 +259,6 @@ public class AllRegistrationsAdapterTest {
     }
 
     @Test
-     public void shouldSavePatientWithAttributes() {
-        FormMapperProperties formMapperProperties = new FormMapperProperties();
-        String startElement = "form";
-        formMapperProperties.setStartElement(startElement);
-        String value = "value";
-        CommcareForm form = new FormBuilder(startElement).withSubElement("attribute", value).getForm();
-        String description = "Attribute description";
-        MRSRegistrationActivity attribute = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes(description, "attribute").getActivity();
-        when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
-        when(updateStrategyForCreate.canUpdateField(description, value) ).thenReturn(true);
-
-        registrationAdapter.adaptForm(form, attribute);
-
-        ArgumentCaptor<MRSPatientDto> patientCaptor = ArgumentCaptor.forClass(MRSPatientDto.class);
-        verify(mrsPatientAdapter).savePatient(patientCaptor.capture());
-        List<MRSAttribute> attributes = patientCaptor.getValue().getPerson().getAttributes();
-        assertEquals(1, attributes.size());
-        assertEquals(description, attributes.get(0).getName());
-        assertEquals(value, attributes.get(0).getValue());
-    }
-
-    @Test
     public void shouldUpdateThePatientsDetails() {
         FormMapperProperties formMapperProperties = new FormMapperProperties();
         String startElement = "form";
@@ -313,21 +304,24 @@ public class AllRegistrationsAdapterTest {
 
     @Test
     public void shouldHandleNullActivityFields() {
-        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().getActivity();
-        registrationActivity.setRegistrationMappings(null);
-        registrationActivity.setAttributes(null);
-        registrationActivity.setStaticMappings(null);
-        registrationActivity.setFacilityScheme(null);
-        registrationActivity.setPatientIdScheme(null);
-        registrationActivity.setProviderScheme(null);
-        registrationActivity.setType(null);
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().getActivity();
+        activity.setRegistrationMappings(null);
+        activity.setAttributes(null);
+        activity.setStaticMappings(null);
+        activity.setFacilityScheme(null);
+        activity.setPatientIdScheme(null);
+        activity.setProviderScheme(null);
+        activity.setType(null);
         FormValueElement element1 = new FormValueElement();
         String startElement = "form";
         element1.setElementName("child_info");
         CommcareForm form = new FormBuilder(startElement).withSubElement(element1).getForm();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
 
-        registrationAdapter.adaptForm(form, registrationActivity);
+        MRSPersonDto personCreated = new MRSPersonDto();
+        when(personAdapter.createPerson(Matchers.eq(activity), any(CommcareFormSegment.class))).thenReturn(personCreated);
+
+        registrationAdapter.adaptForm(form, activity);
 
         verify(mrsPatientAdapter, times(1)).savePatient(any(MRSPatientDto.class));
     }
@@ -345,17 +339,19 @@ public class AllRegistrationsAdapterTest {
         element1.getAttributes().put("myAttribute", "myValue");
         element1.setElementName("case");
         CommcareForm form = new FormBuilder("form").withSubElement(element1).getForm();
-        MRSRegistrationActivity registrationActivity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes("value field", "//@myAttribute").getActivity();
+        MRSRegistrationActivity activity = new RegistrationActivityBuilder().withFormMapperProperties(formMapperProperties).withAttributes("value field", "//@myAttribute").getActivity();
         when(idResolver.retrieveId(anyMap(), any(CommcareFormSegment.class))).thenReturn("motech-id");
-        when(updateStrategyForCreate.canUpdateField("value field", "myValue")).thenReturn(true);
 
-        registrationAdapter.adaptForm(form, registrationActivity);
+        MRSPersonDto personCreated = new MRSPersonDto();
+        when(personAdapter.createPerson(Matchers.eq(activity), any(CommcareFormSegment.class))).thenReturn(personCreated);
+
+        registrationAdapter.adaptForm(form, activity);
 
         ArgumentCaptor<MRSPatientDto> patientCaptor = ArgumentCaptor.forClass(MRSPatientDto.class);
         verify(mrsPatientAdapter,times(1)).savePatient(patientCaptor.capture());
         MRSPatientDto actualPatient = patientCaptor.getValue();
-        assertEquals(1, actualPatient.getPerson().getAttributes().size());
-        assertEquals("myValue", actualPatient.getPerson().getAttributes().get(0).getValue());
+
+        assertEquals(personCreated, actualPatient.getPerson());
     }
 
     @Test

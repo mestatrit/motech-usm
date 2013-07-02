@@ -9,9 +9,11 @@ public class NonNullPersonFieldUpdateStrategyTest {
     @Test
     public void shouldReturnFalseIfFieldValueIsNull() {
         NonNullPersonFieldUpdateStrategy strategy = new NonNullPersonFieldUpdateStrategy();
-        assertTrue(strategy.canUpdateField(null, "fieldValue"));
-        assertTrue(strategy.canUpdateField(null, ""));
-        assertTrue(strategy.canUpdateField(null, "  "));
-        assertFalse(strategy.canUpdateField(null, null));
+        assertTrue(strategy.canUpdate(null, "fieldValue"));
+        assertTrue(strategy.canUpdate(null, ""));
+        assertTrue(strategy.canUpdate(null, "  "));
+        assertFalse(strategy.canUpdate(null, null));
     }
+
+
 }
