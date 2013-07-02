@@ -31,7 +31,7 @@
     </appender>
 
     <appender name="FA2" class="org.apache.log4j.FileAppender">
-        <param name="File" value="commcareToCouchMrsMapper.log" />
+        <param name="File" value="commcareToMrsMapper.log" />
         <param name="Append" value="true" />
         <layout class="org.apache.log4j.EnhancedPatternLayout">
             <param name="ConversionPattern" value="[%t] - %d %-5p [%c] %m%n" />
