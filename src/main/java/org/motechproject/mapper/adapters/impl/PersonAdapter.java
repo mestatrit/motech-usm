@@ -39,15 +39,15 @@ public class PersonAdapter {
 
     public MRSPerson createPerson(MRSRegistrationActivity registrationActivity, CommcareFormSegment commcareFormSegment) {
         MRSPerson person = new MRSPersonDto();
+        setDefaultProperties(person);
         PersonUpdater personUpdater = personUpdaterFactory.getPersonUpdater(person, registrationActivity.getActivityDate(commcareFormSegment));
-        setDefaultProperties(personUpdater);
         updatePerson(personUpdater, registrationActivity, commcareFormSegment);
         return person;
     }
 
-    private void setDefaultProperties(PersonUpdater personUpdater) {
-        personUpdater.setDead(false);
-        personUpdater.setBirthDateEstimated(false);
+    private void setDefaultProperties(MRSPerson person) {
+        person.setDead(false);
+        person.setBirthDateEstimated(false);
     }
 
     public void updatePerson(MRSPerson person, MRSRegistrationActivity registrationActivity, CommcareFormSegment commcareFormSegment) {

@@ -19,8 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -47,8 +49,7 @@ public class PersonAdapterTest {
     }
 
     @Test
-    public void shouldDefaultValuesWhenCreatingAPerson() {
-        MRSPersonDto expectedPerson = new MRSPersonDto();
+    public void shouldDefaultValuesWhenCreatingAPersonAndNotSetModifiedTime() {
         String nameValueInForm = "amy";
 
         DateTime activityDate = new DateTime(2000, 1, 1, 1, 1, 1);
@@ -64,9 +65,14 @@ public class PersonAdapterTest {
 
         MRSPerson actualPerson = new PersonAdapter(personUpdaterFactory).createPerson(activity, beneficiarySegment);
 
-        assertEquals(personArgumentCaptor.getValue(), actualPerson);
-        verify(personUpdater).setDead(false);
-        verify(personUpdater).setBirthDateEstimated(false);
+        MRSPerson expectedPerson = personArgumentCaptor.getValue();
+        assertEquals(expectedPerson, actualPerson);
+
+        verify(personUpdater, never()).setDead(false);
+        verify(personUpdater, never()).setBirthDateEstimated(false);
+
+        assertFalse(expectedPerson.isDead());
+        assertFalse(expectedPerson.getBirthDateEstimated());
     }
 
     @Test

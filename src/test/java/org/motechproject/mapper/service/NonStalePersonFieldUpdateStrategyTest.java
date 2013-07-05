@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class NonStalePersonFieldUpdateStrategyTest {
 
     @Test
-    public void shouldUpdateIfNewValueNotStale(){
+    public void shouldUpdateIfNewValueIsNotStale(){
         MRSPerson person = mock(MRSPerson.class);
         String attributeFieldName = "_date_modified_at";
         DateTime existingDateTime = new DateTime(2012,11,1,1,1);
@@ -39,7 +39,7 @@ public class NonStalePersonFieldUpdateStrategyTest {
     }
 
     @Test
-    public void shouldUpdateIfNoLastModifiedDateIsPresentForAField(){
+    public void shouldUpdateIfLastModifiedDateIsNotPresentForAField(){
         MRSPerson person = mock(MRSPerson.class);
 
         DateTime currentUpdateDateTime = new DateTime(2012, 12, 1, 1, 1);
@@ -49,7 +49,7 @@ public class NonStalePersonFieldUpdateStrategyTest {
     }
 
     @Test
-    public void shouldNotUpdateIfNewValueStale(){
+    public void shouldNotUpdateIfNewValueIsStale(){
         MRSPerson person = mock(MRSPerson.class);
         String attributeFieldName = "_date_modified_at";
         DateTime existingDateTime = new DateTime(2013,11,1,1,1);
