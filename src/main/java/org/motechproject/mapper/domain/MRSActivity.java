@@ -66,17 +66,19 @@ public class MRSActivity {
     }
 
     protected DateTime getActivityDate(CommcareFormSegment beneficiarySegment, Map<String, String> mappings, String dateFieldPathKey) {
-        DateTime now = DateTime.now();
-        if(mappings == null) {
-            return now;
+        String receivedOn = beneficiarySegment.getReceivedOn();
+        DateTime activityDate = StringUtils.isNotEmpty(receivedOn) ? DateTime.parse(receivedOn) : DateTime.now();
+
+        if (mappings == null) {
+            return activityDate;
         }
         String dateFieldPath = mappings.get(dateFieldPathKey);
-        if(StringUtils.isEmpty(dateFieldPath)) {
-            return now;
+        if (StringUtils.isEmpty(dateFieldPath)) {
+            return activityDate;
         }
         FormNode dateFieldNode = beneficiarySegment.search(dateFieldPath);
-        if(dateFieldNode == null || StringUtils.isEmpty(dateFieldNode.getValue())) {
-            return now;
+        if (dateFieldNode == null || StringUtils.isEmpty(dateFieldNode.getValue())) {
+            return activityDate;
         }
         return DateTime.parse(dateFieldNode.getValue());
     }

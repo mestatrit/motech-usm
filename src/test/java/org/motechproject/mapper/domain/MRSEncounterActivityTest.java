@@ -9,10 +9,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MRSEncounterActivityTest {
 
@@ -43,9 +40,9 @@ public class MRSEncounterActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
-    
+
     @Test
     public void shouldReturnCurrentDateAsEncounterDateIfEncounterDateFieldIsNotProvided() {
         CommcareFormSegment beneficiarySegment = mock(CommcareFormSegment.class);
@@ -59,7 +56,7 @@ public class MRSEncounterActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
 
     @Test
@@ -76,7 +73,7 @@ public class MRSEncounterActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
 
     @Test

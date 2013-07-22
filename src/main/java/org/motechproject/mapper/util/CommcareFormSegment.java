@@ -52,4 +52,8 @@ public class CommcareFormSegment {
     public String getMetadata(String name) {
         return commcareForm.getMetadata().get(name);
     }
+
+    public String getReceivedOn() {
+        return commcareForm.getReceivedOn();
+    }
 }

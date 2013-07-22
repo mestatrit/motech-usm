@@ -9,10 +9,8 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class MRSRegistrationActivityTest {
 
@@ -43,7 +41,7 @@ public class MRSRegistrationActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
 
     @Test
@@ -59,7 +57,7 @@ public class MRSRegistrationActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
 
     @Test
@@ -76,7 +74,7 @@ public class MRSRegistrationActivityTest {
 
         assertFalse(activity.getActivityDate(beneficiarySegment).isBefore(now));
 
-        verifyZeroInteractions(beneficiarySegment);
+        verify(beneficiarySegment, never()).search(anyString());
     }
 
     @Test
